@@ -1,8 +1,8 @@
 .aside{
-    max-width: 282px;
+    max-width: 200px;
     background-color: var(--neutral-header);
     min-height: 100vh;
-    padding: 80px 40px;
+    padding: 8px 4px;
     display: flex;
     flex-direction: column;
     gap: 6px;
