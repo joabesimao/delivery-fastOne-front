@@ -1,0 +1,20 @@
+.card{
+background-color: var(--neutral-surface);
+
+}
+
+.header{
+    background-color: var(--neutral-header);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    line-height: 120%;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    color:var(--neutral-text);
+    padding: 16px;
+}
+
+.body{
+padding: 32px 16px;
+}
