@@ -1,73 +1,123 @@
-# React + TypeScript + Vite
+# 🚀 Delivery App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Um aplicativo moderno de **delivery**, construído com **React**, **TypeScript** e **Vite**, utilizando **MUI** para interface e **Emotion** para estilização. Este projeto é uma base escalável e modular para sistemas de entrega online.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 📦 Tecnologias Utilizadas
 
-## React Compiler
+- **React 19** – Biblioteca principal para construção da interface.
+- **TypeScript** – Tipagem estática para maior segurança e produtividade.
+- **Vite** – Ferramenta de build rápida e moderna.
+- **MUI (Material UI)** – Componentes prontos e responsivos.
+- **Emotion** – CSS-in-JS para estilização dinâmica.
+- **ESLint** – Linting para manter o código limpo e consistente.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## ⚡ Scripts Disponíveis
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| Script            | Descrição                                                |
+| ----------------- | -------------------------------------------------------- |
+| `npm run dev`     | Inicia o servidor de desenvolvimento (Vite).             |
+| `npm run build`   | Compila o projeto para produção (TypeScript + Vite).     |
+| `npm run preview` | Preview do build de produção.                            |
+| `npm run lint`    | Verifica padrões de código e possíveis erros com ESLint. |
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🛠️ Instalação
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Clone o repositório e instale as dependências:
+
+```bash
+git clone <URL_DO_REPOSITORIO>
+cd delivery
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🚀 Desenvolvimento
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Para rodar o projeto em modo desenvolvimento:
+
+```bash
+npm run dev
 ```
+
+Abra [http://localhost:5173](http://localhost:5173) no navegador.  
+O Vite suporta **Hot Module Replacement (HMR)**, então alterações no código são refletidas instantaneamente.
+
+---
+
+## 🏗️ Estrutura do Projeto
+
+```text
+delivery/
+├─ public/            # Arquivos estáticos
+├─ src/
+│  ├─ assets/         # Imagens, fontes e ícones
+│  ├─ components/     # Componentes React reutilizáveis
+│  ├─ pages/          # Páginas da aplicação
+│  ├─ styles/         # Estilos globais e temas
+│  ├─ App.tsx         # Componente raiz
+│  └─ main.tsx        # Entrada da aplicação
+├─ package.json
+├─ tsconfig.json
+└─ vite.config.ts
+```
+
+---
+
+## 💅 Estilização
+
+O projeto utiliza **Emotion** e **MUI**:
+
+- **Emotion**: Permite CSS-in-JS com componentes estilizados.
+- **MUI**: Componentes prontos, responsivos e customizáveis via tema.
+
+---
+
+## 🧹 Linting & Qualidade de Código
+
+- Configurado com **ESLint** para detectar problemas e manter padrões.
+- Plugins utilizados: `react-hooks`, `react-refresh`, `@typescript-eslint`.
+
+Rodar lint:
+
+```bash
+npm run lint
+```
+
+---
+
+## 🔗 Dependências Principais
+
+```json
+"dependencies": {
+  "react": "^19.2.4",
+  "react-dom": "^19.2.4",
+  "@mui/material": "^7.3.9",
+  "@mui/icons-material": "^7.3.9",
+  "@emotion/react": "^11.14.0",
+  "@emotion/styled": "^11.14.1",
+  "@fontsource/roboto": "^5.2.10"
+}
+```
+
+---
+
+## 📜 Contribuição
+
+1. Fork este repositório
+2. Crie uma branch com sua feature: `git checkout -b feature/nova-feature`
+3. Commit suas alterações: `git commit -m 'Adicionar nova feature'`
+4. Push para a branch: `git push origin feature/nova-feature`
+5. Abra um Pull Request
+
+---
+
+## 📄 Licença
+
+Este projeto é **privado**, mas pode ser adaptado para projetos públicos conforme necessidade.
