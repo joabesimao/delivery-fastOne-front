@@ -118,6 +118,6 @@ npm run lint
 
 ---
 
-## 📄 Licença
+## 📄 Licenç
 
 Este projeto é **privado**, mas pode ser adaptado para projetos públicos conforme necessidade.
