@@ -1,36 +1,17 @@
-
-import './App.css'
-import { Aside } from './components/aside'
-import { Card } from './components/card'
-import { Container } from './components/container'
-import { Main } from './components/main'
-import { SearchInput } from './components/searchInput'
-import { Typography } from './components/typography'
+import "./App.css";
+import { Box } from "@mui/material";
+import MenuVertical from "./components/menu/menuVertical";
+import { Outlet } from "react-router-dom";
 
 function App() {
-  
-
   return (
-    <>
-    <Container>
-      <Aside/>
-      <Main>
-        <SearchInput/>
-        <div>
-          <Typography>
-            Bem vindo
-          </Typography>
-        </div>
-        <section>
-          <Card>
-            Helo
-            <SearchInput/>
-          </Card>
-        </section>
-      </Main>
-    </Container>
-    </>
-  )
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+      <MenuVertical open={true} drawerWidth={240} />
+      <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: "#f4f6f8" }}>
+        <Outlet />
+      </Box>
+    </Box>
+  );
 }
 
-export default App
+export default App;
