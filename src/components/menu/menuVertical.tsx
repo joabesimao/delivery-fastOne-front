@@ -10,6 +10,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -24,6 +25,19 @@ import { FaRoute, FaClipboardCheck } from "react-icons/fa";
 import { IoDocumentText } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
 
+// ── Palette ─────────────────────────────────────────────────────────────────
+const SIDEBAR_BG       = "#F4F5F7";
+const SIDEBAR_BORDER   = "#E2E4E9";
+const TEXT_PRIMARY     = "#1A1D23";
+const TEXT_SECONDARY   = "#6B7280";
+const ICON_COLOR       = "#6B7280";
+const ACTIVE_BG        = "#E8ECFF";
+const ACTIVE_TEXT      = "#4361EE";
+const ACTIVE_ICON      = "#4361EE";
+const HOVER_BG         = "#ECEEF2";
+const SUB_ACTIVE_BG    = "#E8ECFF";
+const SCROLLBAR_THUMB  = "#C4C9D4";
+
 interface MenuVerticalProps {
   open: boolean;
   drawerWidth: number;
@@ -32,6 +46,7 @@ interface MenuVerticalProps {
 interface SubMenuItem {
   text: string;
   icon: React.ReactNode;
+  activeIcon?: React.ReactNode;
   path: string;
   title: string;
 }
@@ -39,6 +54,7 @@ interface SubMenuItem {
 interface MenuItem {
   text: string;
   icon: React.ReactNode;
+  activeIcon?: React.ReactNode;
   path: string | null;
   title: string;
   subItems?: SubMenuItem[];
@@ -53,11 +69,15 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
   const location = useLocation();
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
 
+  const drawerWidthCollapsed = 72;
+  const currentDrawerWidth = isMenuExpanded ? drawerWidth : drawerWidthCollapsed;
+
   const handleToggleSubMenu = useCallback((menuKey: string) => {
     setOpenSubMenu((current) => (current === menuKey ? null : menuKey));
   }, []);
 
   const handleDrawerClose = () => {
+    if (isMobile) return;
     setIsMenuExpanded(false);
   };
 
@@ -65,25 +85,29 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
     () => [
       {
         text: "Entregas",
-        icon: <LocalShippingIcon sx={{ color: "#fff" }} />,
+        icon: <LocalShippingIcon sx={{ color: ICON_COLOR, fontSize: 22 }} />,
+        activeIcon: <LocalShippingIcon sx={{ color: ACTIVE_ICON, fontSize: 22 }} />,
         path: null,
         title: "Entregas",
         subItems: [
           {
             text: "Realizar entrega",
-            icon: <FaRoute size={22} color="#fff" />,
+            icon: <FaRoute size={18} color={ICON_COLOR} />,
+            activeIcon: <FaRoute size={18} color={ACTIVE_ICON} />,
             path: "/realizar-entrega",
             title: "Realizar Entrega",
           },
           {
             text: "Finalizar entrega",
-            icon: <FaClipboardCheck size={22} color="#fff" />,
+            icon: <FaClipboardCheck size={18} color={ICON_COLOR} />,
+            activeIcon: <FaClipboardCheck size={18} color={ACTIVE_ICON} />,
             path: "/finalizar-entrega",
             title: "Finalizar Entrega",
           },
           {
             text: "Relatórios",
-            icon: <IoDocumentText size={23} color="#ffffffff" />,
+            icon: <IoDocumentText size={19} color={ICON_COLOR} />,
+            activeIcon: <IoDocumentText size={19} color={ACTIVE_ICON} />,
             path: "/relatorios-entregas",
             title: "Relatórios das Entregas",
           },
@@ -95,73 +119,100 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
 
   const drawerInnerContent = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      {/* Topo: logo + botão colapso */}
       <Box
         sx={{
-          height: "75px",
+          height: "64px",
           flexShrink: 0,
           display: "flex",
           alignItems: "center",
-          justifyContent: open ? "flex-end" : "center",
-          px: 1,
+          justifyContent: isMenuExpanded ? "space-between" : "center",
+          px: isMenuExpanded ? 2 : 1,
         }}
       >
+        {isMenuExpanded && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: "8px",
+                bgcolor: ACTIVE_TEXT,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <LocalShippingIcon sx={{ color: "#fff", fontSize: 18 }} />
+            </Box>
+            <Typography
+              variant="subtitle2"
+              fontWeight={700}
+              sx={{ color: TEXT_PRIMARY, letterSpacing: "-0.3px" }}
+            >
+              FastDelivery
+            </Typography>
+          </Box>
+        )}
         <IconButton
-          onClick={() => setIsMenuExpanded(!isMenuExpanded)}
+          onClick={() => setIsMenuExpanded((prev) => !prev)}
           aria-label={isMenuExpanded ? "Fechar menu" : "Abrir menu"}
+          size="small"
+          sx={{
+            color: TEXT_SECONDARY,
+            "&:hover": { bgcolor: HOVER_BG },
+          }}
         >
           {isMenuExpanded ? (
-            <KeyboardDoubleArrowLeftIcon sx={{ color: "#fff" }} />
+            <KeyboardDoubleArrowLeftIcon fontSize="small" />
           ) : (
-            <MenuIcon sx={{ color: "#fff" }} />
+            <MenuIcon fontSize="small" />
           )}
         </IconButton>
       </Box>
-      <Divider sx={{ bgcolor: "#fff", flexShrink: 0 }} />
+
+      <Divider sx={{ borderColor: SIDEBAR_BORDER, flexShrink: 0 }} />
+
+      {/* Lista de itens */}
       <List
         sx={{
-          pl: open ? "15px" : "5px",
-          pr: open ? "15px" : "5px",
+          pl: isMenuExpanded ? "10px" : "8px",
+          pr: isMenuExpanded ? "10px" : "8px",
+          pt: 1,
           flexGrow: 1,
           overflowX: "hidden",
           overflowY: "auto",
           scrollbarWidth: "thin",
-          scrollbarColor: "#9ec9f0 transparent",
-          "&::-webkit-scrollbar": { width: "6px" },
+          scrollbarColor: `${SCROLLBAR_THUMB} transparent`,
+          "&::-webkit-scrollbar": { width: "4px" },
           "&::-webkit-scrollbar-track": { backgroundColor: "transparent" },
           "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#9ec9f0",
+            backgroundColor: SCROLLBAR_THUMB,
             borderRadius: "8px",
-            border: "2px solid transparent",
-            backgroundClip: "content-box",
           },
-          "&::-webkit-scrollbar-thumb:hover": { backgroundColor: "#74b5ee" },
-          "&::-webkit-scrollbar-thumb:active": { backgroundColor: "#509CDB" },
         }}
       >
         {listItemsMenu.map((item, index) => {
-          const isSelected = item.path
-            ? location.pathname === item.path
-            : false;
+          const isSelected = item.path ? location.pathname === item.path : false;
           const hasSubItems = item.subItems && item.subItems.length > 0;
           const isThisSubmenuOpen = openSubMenu === item.text;
+          const anySubActive = item.subItems?.some(
+            (s) => location.pathname === s.path,
+          );
+          const isHighlighted = isSelected || anySubActive;
+
           return (
             <div key={`${item.text}-${index}`}>
-              <ListItem
-                disablePadding
-                sx={{
-                  bgcolor: isSelected && !hasSubItems ? "#509CDB" : "inherit",
-                  color: "#fff",
-                  borderRadius: "4px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
+              <ListItem disablePadding sx={{ mb: 0.5 }}>
                 <ListItemButton
                   sx={{
-                    minHeight: 48,
-                    px: 2.5,
-                    justifyContent: open ? "initial" : "center",
+                    minHeight: 44,
+                    px: 1.5,
+                    borderRadius: "8px",
+                    justifyContent: isMenuExpanded ? "initial" : "center",
+                    bgcolor: isHighlighted && !hasSubItems ? ACTIVE_BG : "transparent",
+                    "&:hover": { bgcolor: isHighlighted && !hasSubItems ? ACTIVE_BG : HOVER_BG },
+                    transition: "background 0.15s",
                   }}
                   onClick={() => {
                     if (hasSubItems) {
@@ -177,112 +228,90 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
                     sx={{
                       minWidth: 0,
                       justifyContent: "center",
-                      mr: open ? "15px" : "auto",
+                      mr: isMenuExpanded ? 1.5 : "auto",
                     }}
                   >
-                    {item.icon}
+                    {isHighlighted ? (item.activeIcon ?? item.icon) : item.icon}
                   </ListItemIcon>
                   <ListItemText
                     primary={item.text}
                     slotProps={{
-                      primary: { sx: { fontSize: "14px", fontWeight: "600" } },
+                      primary: {
+                        sx: {
+                          fontSize: "13px",
+                          fontWeight: isHighlighted ? 700 : 500,
+                          color: isHighlighted ? ACTIVE_TEXT : TEXT_PRIMARY,
+                          lineHeight: 1.4,
+                        },
+                      },
                     }}
-                    sx={{ opacity: open ? 1 : 0 }}
+                    sx={{ opacity: isMenuExpanded ? 1 : 0 }}
                   />
-                  {hasSubItems && open && (
-                    <>
-                      {isThisSubmenuOpen ? (
-                        <ExpandLess sx={{ color: "#fff" }} />
-                      ) : (
-                        <ExpandMore sx={{ color: "#fff" }} />
-                      )}
-                    </>
+                  {hasSubItems && isMenuExpanded && (
+                    isThisSubmenuOpen
+                      ? <ExpandLess sx={{ color: TEXT_SECONDARY, fontSize: 18 }} />
+                      : <ExpandMore sx={{ color: TEXT_SECONDARY, fontSize: 18 }} />
                   )}
                 </ListItemButton>
               </ListItem>
+
               {hasSubItems && (
                 <Collapse in={isThisSubmenuOpen} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding>
+                  <List component="div" disablePadding sx={{ mb: 0.5 }}>
                     {item.subItems?.map((subItem, subIdx) => {
                       const subIsSelected = location.pathname === subItem.path;
                       return (
-                        <div key={`${subItem.text}-${subIdx}`}>
-                          <ListItem
-                            disablePadding
+                        <ListItem
+                          key={`${subItem.text}-${subIdx}`}
+                          disablePadding
+                          sx={{ pl: isMenuExpanded ? 2 : 0, mb: 0.25 }}
+                        >
+                          <ListItemButton
                             sx={{
-                              bgcolor: subIsSelected ? "#509CDB" : "inherit",
-                              color: "#fff",
-                              borderRadius: "4px",
-                              pl: open ? "23px" : "8px",
-                              width: "100%",
-                              minWidth: "100%",
-                              display: "flex",
-                              alignItems: "center",
-                              overflow: "visible",
+                              minHeight: 40,
+                              px: 1.5,
+                              borderRadius: "8px",
+                              justifyContent: isMenuExpanded ? "initial" : "center",
+                              bgcolor: subIsSelected ? SUB_ACTIVE_BG : "transparent",
+                              "&:hover": {
+                                bgcolor: subIsSelected ? SUB_ACTIVE_BG : HOVER_BG,
+                              },
+                              transition: "background 0.15s",
+                            }}
+                            onClick={() => {
+                              if (subItem.path && location.pathname !== subItem.path) {
+                                navigateRouter(subItem.path);
+                              }
+                              if (isMobile) handleDrawerClose();
                             }}
                           >
-                            <ListItemButton
+                            <ListItemIcon
                               sx={{
-                                minHeight: open ? 48 : 40,
-                                px: 1,
-                                py: 1,
-                                justifyContent: open ? "initial" : "center",
-                                width: "100%",
-                                minWidth: "100%",
-                                display: "flex",
-                                alignItems: "center",
-                                overflow: "visible",
-                                textOverflow: "unset",
-                                flex: "1 1 auto",
-                                flexGrow: 1,
-                                borderRadius: "4px",
-                              }}
-                              onClick={() => {
-                                if (
-                                  subItem.path &&
-                                  location.pathname !== subItem.path
-                                ) {
-                                  navigateRouter(subItem.path);
-                                }
-                                if (isMobile) handleDrawerClose();
+                                minWidth: 0,
+                                justifyContent: "center",
+                                mr: isMenuExpanded ? 1.5 : "auto",
                               }}
                             >
-                              <ListItemIcon
-                                sx={{
-                                  minWidth: 0,
-                                  justifyContent: "center",
-                                  mr: open ? "10px" : "auto",
-                                }}
-                              >
-                                {subItem.icon}
-                              </ListItemIcon>
-                              <ListItemText
-                                primary={subItem.text}
-                                slotProps={{
-                                  primary: {
-                                    sx: {
-                                      fontSize: "12px",
-                                      fontWeight: "600",
-                                      whiteSpace: "nowrap",
-                                      overflow: "visible",
-                                      textOverflow: "unset",
-                                      width: "100%",
-                                      display: "block",
-                                    },
+                              {subIsSelected
+                                ? (subItem.activeIcon ?? subItem.icon)
+                                : subItem.icon}
+                            </ListItemIcon>
+                            <ListItemText
+                              primary={subItem.text}
+                              slotProps={{
+                                primary: {
+                                  sx: {
+                                    fontSize: "13px",
+                                    fontWeight: subIsSelected ? 700 : 500,
+                                    color: subIsSelected ? ACTIVE_TEXT : TEXT_SECONDARY,
+                                    whiteSpace: "nowrap",
                                   },
-                                }}
-                                sx={{
-                                  opacity: open ? 1 : 0,
-                                  flex: "1 1 auto",
-                                  minWidth: 0,
-                                  width: "100%",
-                                  flexGrow: 1,
-                                  margin: 0,
-                                }}
-                              />
-                            </ListItemButton>
-                          </ListItem>
-                        </div>
+                                },
+                              }}
+                              sx={{ opacity: isMenuExpanded ? 1 : 0 }}
+                            />
+                          </ListItemButton>
+                        </ListItem>
                       );
                     })}
                   </List>
@@ -292,16 +321,26 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
           );
         })}
       </List>
+
+      {/* Rodapé */}
+      <Divider sx={{ borderColor: SIDEBAR_BORDER, flexShrink: 0 }} />
       <Box
         sx={{
           p: 2,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          gap: 1,
           flexShrink: 0,
         }}
       >
-        <LocalShippingIcon sx={{ color: "#fff", fontSize: open ? 32 : 24 }} />
+        {isMenuExpanded ? (
+          <Typography variant="caption" sx={{ color: TEXT_SECONDARY, fontSize: "11px" }}>
+            FastOne © 2026
+          </Typography>
+        ) : (
+          <LocalShippingIcon sx={{ color: SCROLLBAR_THUMB, fontSize: 20 }} />
+        )}
       </Box>
     </Box>
   );
@@ -316,8 +355,8 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
         PaperProps={{
           sx: {
             width: drawerWidth,
-            backgroundColor: "#006DAB",
-            borderRight: "none",
+            backgroundColor: SIDEBAR_BG,
+            borderRight: `1px solid ${SIDEBAR_BORDER}`,
           },
         }}
       >
@@ -332,11 +371,11 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
       open={open}
       PaperProps={{
         sx: {
-          width: drawerWidth,
-          backgroundColor: "#006DAB",
-          borderRight: "none",
+          width: currentDrawerWidth,
+          backgroundColor: SIDEBAR_BG,
+          borderRight: `1px solid ${SIDEBAR_BORDER}`,
           overflowX: "hidden",
-          transition: "width 0.3s ease",
+          transition: "width 0.25s ease",
         },
       }}
     >
