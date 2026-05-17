@@ -7,6 +7,7 @@ import {
   Divider,
   Grid,
   InputAdornment,
+  MenuItem,
   Paper,
   Snackbar,
   TextField,
@@ -31,6 +32,27 @@ interface DeliveryFormValues {
   quantity: string;
   amount: number | "";
 }
+
+// TODO: substituir por dados reais do backend quando disponível
+const BAIRROS_MOCK = [
+  "Centro",
+  "Jardim América",
+  "Vila Nova",
+  "Santa Cruz",
+  "Boa Vista",
+  "São João",
+  "Parque Industrial",
+];
+
+const CIDADES_MOCK = [
+  "São Paulo",
+  "Campinas",
+  "Ribeirão Preto",
+  "Santos",
+  "Sorocaba",
+  "Osasco",
+  "Guarulhos",
+];
 
 const initialValues: DeliveryFormValues = {
   name: "",
@@ -205,12 +227,17 @@ const EntregaForm: React.FC = () => {
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FieldLabel label="Bairro *" />
                   <TextField
-                    fullWidth size="small" placeholder="Nome do bairro"
+                    select fullWidth size="small"
                     name="address.neighborhood" value={values.address.neighborhood}
                     onChange={handleChange} onBlur={handleBlur}
                     error={Boolean(touched.address?.neighborhood && errors.address?.neighborhood)}
                     helperText={touched.address?.neighborhood && errors.address?.neighborhood}
-                  />
+                  >
+                    <MenuItem value="" disabled><em>Selecione o bairro</em></MenuItem>
+                    {BAIRROS_MOCK.map((b) => (
+                      <MenuItem key={b} value={b}>{b}</MenuItem>
+                    ))}
+                  </TextField>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 3 }}>
                   <FieldLabel label="Número *" />
@@ -233,12 +260,17 @@ const EntregaForm: React.FC = () => {
                 <Grid size={{ xs: 12, sm: 4 }}>
                   <FieldLabel label="Cidade *" />
                   <TextField
-                    fullWidth size="small" placeholder="Nome da cidade"
+                    select fullWidth size="small"
                     name="address.city" value={values.address.city}
                     onChange={handleChange} onBlur={handleBlur}
                     error={Boolean(touched.address?.city && errors.address?.city)}
                     helperText={touched.address?.city && errors.address?.city}
-                  />
+                  >
+                    <MenuItem value="" disabled><em>Selecione a cidade</em></MenuItem>
+                    {CIDADES_MOCK.map((c) => (
+                      <MenuItem key={c} value={c}>{c}</MenuItem>
+                    ))}
+                  </TextField>
                 </Grid>
               </Grid>
 
