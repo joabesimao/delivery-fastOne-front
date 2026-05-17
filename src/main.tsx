@@ -5,6 +5,10 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import RealizarEntrega from "./modules/entregas/RealizarEntrega.tsx";
 import FinalizarEntrega from "./modules/entregas/FinalizarEntrega.tsx";
 import RelatoriosEntregas from "./modules/entregas/RelatoriosEntregas.tsx";
+import CadastrarCliente from "./modules/cadastros/cliente/CadastrarCliente.tsx";
+import CadastrarEntregador from "./modules/cadastros/entregador/CadastrarEntregador.tsx";
+import CadastrarBairros from "./modules/cadastros/bairros/CadastrarBairros.tsx";
+import CadastrarCidades from "./modules/cadastros/cidades/CadastrarCidades.tsx";
 import App from "./App.tsx";
 
 const router = createBrowserRouter([
@@ -23,6 +27,22 @@ const router = createBrowserRouter([
       {
         path: "/relatorios-entregas",
         element: <RelatoriosEntregas />,
+      },
+      {
+        path: "/cadastros/cliente",
+        element: <CadastrarCliente />,
+      },
+      {
+        path: "/cadastros/entregador",
+        element: <CadastrarEntregador />,
+      },
+      {
+        path: "/cadastros/bairros",
+        element: <CadastrarBairros />,
+      },
+      {
+        path: "/cadastros/cidades",
+        element: <CadastrarCidades />,
       },
     ],
   },

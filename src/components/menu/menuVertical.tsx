@@ -20,6 +20,11 @@ import {
   ExpandLess,
   ExpandMore,
   LocalShipping as LocalShippingIcon,
+  Assignment as AssignmentIcon,
+  PersonAdd as PersonAddIcon,
+  TwoWheeler as TwoWheelerIcon,
+  LocationOn as LocationOnIcon,
+  LocationCity as LocationCityIcon,
 } from "@mui/icons-material";
 import { FaRoute, FaClipboardCheck } from "react-icons/fa";
 import { IoDocumentText } from "react-icons/io5";
@@ -110,6 +115,43 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
             activeIcon: <IoDocumentText size={19} color={ACTIVE_ICON} />,
             path: "/relatorios-entregas",
             title: "Relatórios das Entregas",
+          },
+        ],
+      },
+      {
+        text: "Cadastros",
+        icon: <AssignmentIcon sx={{ color: ICON_COLOR, fontSize: 22 }} />,
+        activeIcon: <AssignmentIcon sx={{ color: ACTIVE_ICON, fontSize: 22 }} />,
+        path: null,
+        title: "Cadastros",
+        subItems: [
+          {
+            text: "Cadastrar cliente",
+            icon: <PersonAddIcon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <PersonAddIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/cadastros/cliente",
+            title: "Cadastrar Cliente",
+          },
+          {
+            text: "Cadastrar entregador",
+            icon: <TwoWheelerIcon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <TwoWheelerIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/cadastros/entregador",
+            title: "Cadastrar Entregador",
+          },
+          {
+            text: "Cadastrar bairros",
+            icon: <LocationOnIcon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <LocationOnIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/cadastros/bairros",
+            title: "Cadastrar Bairros",
+          },
+          {
+            text: "Cadastrar cidades",
+            icon: <LocationCityIcon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <LocationCityIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/cadastros/cidades",
+            title: "Cadastrar Cidades",
           },
         ],
       },
