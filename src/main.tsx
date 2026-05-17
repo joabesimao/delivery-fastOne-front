@@ -9,6 +9,7 @@ import CadastrarCliente from "./modules/cadastros/cliente/CadastrarCliente.tsx";
 import CadastrarEntregador from "./modules/cadastros/entregador/CadastrarEntregador.tsx";
 import CadastrarBairros from "./modules/cadastros/bairros/CadastrarBairros.tsx";
 import CadastrarCidades from "./modules/cadastros/cidades/CadastrarCidades.tsx";
+import ConfiguracoesVisuais from "./modules/configuracoes/visuais/ConfiguracoesVisuais.tsx";
 import App from "./App.tsx";
 
 const router = createBrowserRouter([
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
       {
         path: "/cadastros/cidades",
         element: <CadastrarCidades />,
+      },
+      {
+        path: "/configuracoes/visuais",
+        element: <ConfiguracoesVisuais />,
       },
     ],
   },

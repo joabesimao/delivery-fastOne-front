@@ -102,19 +102,19 @@ const FinalizarEntrega: React.FC = () => {
           p: { xs: 3, md: 5 },
           maxWidth: 800,
           mx: "auto",
-          bgcolor: "#fff",
-          border: "1px solid #E2E4E9",
+          bgcolor: "background.paper",
+          border: "1px solid", borderColor: "divider",
           borderRadius: 2,
         }}
       >
         {/* Título */}
-        <Typography variant="h6" fontWeight={700} sx={{ mb: 3, textAlign: "center", color: "#1A1D23" }}>
+        <Typography variant="h6" fontWeight={700} sx={{ mb: 3, textAlign: "center", color: "text.primary" }}>
           Finalizar entrega
         </Typography>
         <Divider sx={{ mb: 4 }} />
 
         {/* ── Busca por ID ─────────────────────────────────── */}
-        <Typography variant="subtitle1" fontWeight={700} sx={{ color: "#1A1D23", mb: 2 }}>
+        <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
           Buscar pedido
         </Typography>
 
@@ -158,7 +158,7 @@ const FinalizarEntrega: React.FC = () => {
         {order && (
           <>
             <Divider sx={{ mb: 3 }} />
-            <Typography variant="subtitle1" fontWeight={700} sx={{ color: "#1A1D23", mb: 2 }}>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
               Dados do pedido
             </Typography>
 
@@ -184,13 +184,13 @@ const FinalizarEntrega: React.FC = () => {
               <Grid container spacing={2}>
                 {/* Cliente */}
                 <Grid size={{ xs: 12, sm: 6 }}>
-                  <Box sx={{ p: 2, border: "1px solid #E2E4E9", borderRadius: 1.5 }}>
+                  <Box sx={{ p: 2, border: "1px solid", borderColor: "divider", borderRadius: 1.5 }}>
                     <Typography variant="caption" fontWeight={600}
                       sx={{ color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.5px" }}
                     >
                       Cliente
                     </Typography>
-                    <Typography variant="body2" fontWeight={600} sx={{ mt: 0.5, color: "#1A1D23" }}>
+                    <Typography variant="body2" fontWeight={600} sx={{ mt: 0.5, color: "text.primary" }}>
                       {order.Register.client.name} {order.Register.client.lastName}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
@@ -201,13 +201,13 @@ const FinalizarEntrega: React.FC = () => {
 
                 {/* Endereço */}
                 <Grid size={{ xs: 12, sm: 6 }}>
-                  <Box sx={{ p: 2, border: "1px solid #E2E4E9", borderRadius: 1.5 }}>
+                  <Box sx={{ p: 2, border: "1px solid", borderColor: "divider", borderRadius: 1.5 }}>
                     <Typography variant="caption" fontWeight={600}
                       sx={{ color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.5px" }}
                     >
                       Endereço
                     </Typography>
-                    <Typography variant="body2" fontWeight={600} sx={{ mt: 0.5, color: "#1A1D23" }}>
+                    <Typography variant="body2" fontWeight={600} sx={{ mt: 0.5, color: "text.primary" }}>
                       {order.Register.address.street}, {order.Register.address.numberHouse}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
@@ -225,7 +225,7 @@ const FinalizarEntrega: React.FC = () => {
 
             {/* ── Confirmar Entrega ────────────────────────────── */}
             <Divider sx={{ mb: 3 }} />
-            <Typography variant="subtitle1" fontWeight={700} sx={{ color: "#1A1D23", mb: 2 }}>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
               Confirmar dados da entrega
             </Typography>
 
@@ -284,7 +284,7 @@ const FinalizarEntrega: React.FC = () => {
                   <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
                     <Button
                       variant="outlined" color="inherit" disabled={isSubmitting}
-                      sx={{ textTransform: "none", borderColor: "#C4C9D4", color: "#6B7280" }}
+                      sx={{ textTransform: "none", borderColor: "divider", color: "text.secondary" }}
                       onClick={() => {
                         setOrder(null);
                         setOrderIdInput("");
@@ -329,7 +329,7 @@ const FinalizarEntrega: React.FC = () => {
 
 /** Label estático acima do campo */
 const FieldLabel: React.FC<{ label: string }> = ({ label }) => (
-  <Typography variant="body2" fontWeight={500} sx={{ mb: 0.5, color: "#374151" }}>
+  <Typography variant="body2" fontWeight={500} sx={{ mb: 0.5, color: "text.secondary" }}>
     {label}
   </Typography>
 );
