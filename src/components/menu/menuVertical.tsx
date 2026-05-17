@@ -20,23 +20,20 @@ import {
   ExpandLess,
   ExpandMore,
   LocalShipping as LocalShippingIcon,
+  Assignment as AssignmentIcon,
+  PersonAdd as PersonAddIcon,
+  TwoWheeler as TwoWheelerIcon,
+  LocationOn as LocationOnIcon,
+  LocationCity as LocationCityIcon,
+  Settings as SettingsIcon,
+  Palette as PaletteIcon,
 } from "@mui/icons-material";
 import { FaRoute, FaClipboardCheck } from "react-icons/fa";
 import { IoDocumentText } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
 
-// ── Palette ─────────────────────────────────────────────────────────────────
-const SIDEBAR_BG       = "#F4F5F7";
-const SIDEBAR_BORDER   = "#E2E4E9";
-const TEXT_PRIMARY     = "#1A1D23";
-const TEXT_SECONDARY   = "#6B7280";
-const ICON_COLOR       = "#6B7280";
-const ACTIVE_BG        = "#E8ECFF";
-const ACTIVE_TEXT      = "#4361EE";
-const ACTIVE_ICON      = "#4361EE";
-const HOVER_BG         = "#ECEEF2";
-const SUB_ACTIVE_BG    = "#E8ECFF";
-const SCROLLBAR_THUMB  = "#C4C9D4";
+// ── Palette (computada dinamicamente no componente via useTheme) ─────────────
+// As constantes abaixo são substituídas por valores do tema no corpo do componente.
 
 interface MenuVerticalProps {
   open: boolean;
@@ -62,8 +59,22 @@ interface MenuItem {
 
 const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
   const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [isMenuExpanded, setIsMenuExpanded] = useState<boolean>(true);
+
+  // ── Palette dinâmica ────────────────────────────────────────────────────
+  const SIDEBAR_BG      = isDark ? "#0F0F17" : "#F4F5F7";
+  const SIDEBAR_BORDER  = isDark ? "rgba(255,255,255,0.07)" : "#E2E4E9";
+  const TEXT_PRIMARY    = isDark ? "#E2E4EC" : "#1A1D23";
+  const TEXT_SECONDARY  = isDark ? "#7C7F8E" : "#6B7280";
+  const ICON_COLOR      = isDark ? "#7C7F8E" : "#6B7280";
+  const ACTIVE_BG       = isDark ? "rgba(67,97,238,0.18)" : "#E8ECFF";
+  const ACTIVE_TEXT     = "#4361EE";
+  const ACTIVE_ICON     = "#4361EE";
+  const HOVER_BG        = isDark ? "rgba(255,255,255,0.05)" : "#ECEEF2";
+  const SUB_ACTIVE_BG   = isDark ? "rgba(67,97,238,0.14)" : "#E8ECFF";
+  const SCROLLBAR_THUMB = isDark ? "#2E2E40" : "#C4C9D4";
 
   const navigateRouter = useNavigate();
   const location = useLocation();
@@ -113,8 +124,61 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
           },
         ],
       },
+      {
+        text: "Cadastros",
+        icon: <AssignmentIcon sx={{ color: ICON_COLOR, fontSize: 22 }} />,
+        activeIcon: <AssignmentIcon sx={{ color: ACTIVE_ICON, fontSize: 22 }} />,
+        path: null,
+        title: "Cadastros",
+        subItems: [
+          {
+            text: "Cadastrar cliente",
+            icon: <PersonAddIcon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <PersonAddIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/cadastros/cliente",
+            title: "Cadastrar Cliente",
+          },
+          {
+            text: "Cadastrar entregador",
+            icon: <TwoWheelerIcon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <TwoWheelerIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/cadastros/entregador",
+            title: "Cadastrar Entregador",
+          },
+          {
+            text: "Cadastrar bairros",
+            icon: <LocationOnIcon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <LocationOnIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/cadastros/bairros",
+            title: "Cadastrar Bairros",
+          },
+          {
+            text: "Cadastrar cidades",
+            icon: <LocationCityIcon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <LocationCityIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/cadastros/cidades",
+            title: "Cadastrar Cidades",
+          },
+        ],
+      },
+      {
+        text: "Configurações",
+        icon: <SettingsIcon sx={{ color: ICON_COLOR, fontSize: 22 }} />,
+        activeIcon: <SettingsIcon sx={{ color: ACTIVE_ICON, fontSize: 22 }} />,
+        path: null,
+        title: "Configurações",
+        subItems: [
+          {
+            text: "Configurações visuais",
+            icon: <PaletteIcon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <PaletteIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/configuracoes/visuais",
+            title: "Configurações Visuais",
+          },
+        ],
+      },
     ],
-    [],
+    [ICON_COLOR, ACTIVE_ICON],
   );
 
   const drawerInnerContent = (

@@ -153,13 +153,13 @@ const EntregaForm: React.FC = () => {
           p: { xs: 3, md: 5 },
           maxWidth: 960,
           mx: "auto",
-          bgcolor: "#fff",
-          border: "1px solid #E2E4E9",
+          bgcolor: "background.paper",
+          border: "1px solid", borderColor: "divider",
           borderRadius: 2,
         }}
       >
         {/* Título */}
-        <Typography variant="h6" fontWeight={700} sx={{ mb: 3, textAlign: "center", color: "#1A1D23" }}>
+        <Typography variant="h6" fontWeight={700} sx={{ mb: 3, textAlign: "center", color: "text.primary" }}>
           Novo pedido de entrega
         </Typography>
         <Divider sx={{ mb: 4 }} />
@@ -169,7 +169,7 @@ const EntregaForm: React.FC = () => {
             <Form noValidate>
 
               {/* ── Dados do Cliente ──────────────────────────────── */}
-              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "#1A1D23", mb: 2 }}>
+              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
                 Dados do cliente
               </Typography>
 
@@ -209,7 +209,7 @@ const EntregaForm: React.FC = () => {
               <Divider sx={{ my: 3 }} />
 
               {/* ── Endereço de Entrega ───────────────────────────── */}
-              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "#1A1D23", mb: 2 }}>
+              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
                 Endereço de entrega
               </Typography>
 
@@ -277,7 +277,7 @@ const EntregaForm: React.FC = () => {
               <Divider sx={{ my: 3 }} />
 
               {/* ── Detalhes do Pedido ────────────────────────────── */}
-              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "#1A1D23", mb: 2 }}>
+              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
                 Detalhes do pedido
               </Typography>
 
@@ -321,7 +321,7 @@ const EntregaForm: React.FC = () => {
               <Divider sx={{ mt: 3, mb: 3 }} />
               <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
                 <Button type="reset" variant="outlined" color="inherit" disabled={isSubmitting}
-                  sx={{ textTransform: "none", borderColor: "#C4C9D4", color: "#6B7280" }}
+                  sx={{ textTransform: "none", borderColor: "divider", color: "text.secondary" }}
                 >
                   Limpar
                 </Button>
@@ -356,7 +356,7 @@ const EntregaForm: React.FC = () => {
 
 /** Label estático acima do campo */
 const FieldLabel: React.FC<{ label: string }> = ({ label }) => (
-  <Typography variant="body2" fontWeight={500} sx={{ mb: 0.5, color: "#374151" }}>
+  <Typography variant="body2" fontWeight={500} sx={{ mb: 0.5, color: "text.secondary" }}>
     {label}
   </Typography>
 );
