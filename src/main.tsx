@@ -5,6 +5,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import RealizarEntrega from "./modules/entregas/RealizarEntrega.tsx";
 import FinalizarEntrega from "./modules/entregas/FinalizarEntrega.tsx";
 import RelatoriosEntregas from "./modules/entregas/RelatoriosEntregas.tsx";
+import DashboardIndex from "./modules/dashboard/DashboardIndex";
+import RelatoriosDashboard from "./modules/dashboard/RelatoriosDashboard";
 import CadastrarCliente from "./modules/cadastros/cliente/CadastrarCliente.tsx";
 import CadastrarEntregador from "./modules/cadastros/entregador/CadastrarEntregador.tsx";
 import CadastrarBairros from "./modules/cadastros/bairros/CadastrarBairros.tsx";
@@ -17,6 +19,14 @@ const router = createBrowserRouter([
     path: "/",
     element: <App />,
     children: [
+      {
+        path: "/dashboard",
+        element: <DashboardIndex />,
+      },
+      {
+        path: "/dashboard/relatorios",
+        element: <RelatoriosDashboard />,
+      },
       {
         path: "/realizar-entrega",
         element: <RealizarEntrega />,
