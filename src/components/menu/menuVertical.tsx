@@ -26,6 +26,7 @@ import {
   LocationOn as LocationOnIcon,
   LocationCity as LocationCityIcon,
   Settings as SettingsIcon,
+  DashboardCustomize as DashboardCustomizeIcon,
   Palette as PaletteIcon,
 } from "@mui/icons-material";
 import { FaRoute, FaClipboardCheck } from "react-icons/fa";
@@ -94,6 +95,22 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
 
   const listItemsMenu = useMemo<MenuItem[]>(
     () => [
+      {
+        text: "Dashboard",
+        icon: <DashboardCustomizeIcon sx={{ color: ICON_COLOR, fontSize: 22 }} />,
+        activeIcon: <DashboardCustomizeIcon sx={{ color: ACTIVE_ICON, fontSize: 22 }} />,
+        path: null,
+        title: "Dashboard",
+        subItems: [
+          {
+            text: "Relatórios",
+            icon: <IoDocumentText size={19} color={ICON_COLOR} />,
+            activeIcon: <IoDocumentText size={19} color={ACTIVE_ICON} />,
+            path: "/dashboard/relatorios",
+            title: "Relatórios do Dashboard",
+          },
+        ],
+      },
       {
         text: "Entregas",
         icon: <LocalShippingIcon sx={{ color: ICON_COLOR, fontSize: 22 }} />,
@@ -433,13 +450,20 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
     <Drawer
       variant="permanent"
       open={open}
+      sx={{
+        width: currentDrawerWidth,
+        flexShrink: 0,
+        transition: "width 0.25s ease",
+        "& .MuiDrawer-paper": {
+          width: currentDrawerWidth,
+          transition: "width 0.25s ease",
+          overflowX: "hidden",
+        },
+      }}
       PaperProps={{
         sx: {
-          width: currentDrawerWidth,
           backgroundColor: SIDEBAR_BG,
           borderRight: `1px solid ${SIDEBAR_BORDER}`,
-          overflowX: "hidden",
-          transition: "width 0.25s ease",
         },
       }}
     >
