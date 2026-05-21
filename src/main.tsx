@@ -7,6 +7,7 @@ import FinalizarEntrega from "./modules/entregas/FinalizarEntrega.tsx";
 import RelatoriosEntregas from "./modules/entregas/RelatoriosEntregas.tsx";
 import DashboardIndex from "./modules/dashboard/DashboardIndex";
 import RelatoriosDashboard from "./modules/dashboard/RelatoriosDashboard";
+import ListaClientes from "./modules/dashboard/ListaClientes";
 import CadastrarCliente from "./modules/cadastros/cliente/CadastrarCliente.tsx";
 import CadastrarEntregador from "./modules/cadastros/entregador/CadastrarEntregador.tsx";
 import CadastrarBairros from "./modules/cadastros/bairros/CadastrarBairros.tsx";
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/relatorios",
         element: <RelatoriosDashboard />,
+      },
+      {
+        path: "/dashboard/clientes",
+        element: <ListaClientes />,
       },
       {
         path: "/realizar-entrega",

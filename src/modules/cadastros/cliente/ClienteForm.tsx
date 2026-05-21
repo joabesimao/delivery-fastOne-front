@@ -6,6 +6,7 @@ import {
   CircularProgress,
   Divider,
   Grid,
+  MenuItem,
   Paper,
   Snackbar,
   TextField,
@@ -14,29 +15,75 @@ import {
 import { Formik, Form } from "formik";
 import api from "../../../services/api";
 
+interface AddressValues {
+  street: string;
+  neighborhood: string;
+  numberHouse: string;
+  reference: string;
+  city: string;
+}
+
 interface ClienteFormValues {
   name: string;
   lastName: string;
   phone: string;
+  address: AddressValues;
 }
+
+// TODO: substituir por dados reais do backend quando disponível
+const BAIRROS_MOCK = [
+  "Centro",
+  "Jardim América",
+  "Vila Nova",
+  "Santa Cruz",
+  "Boa Vista",
+  "São João",
+  "Parque Industrial",
+];
+
+const CIDADES_MOCK = [
+  "São Paulo",
+  "Campinas",
+  "Ribeirão Preto",
+  "Santos",
+  "Sorocaba",
+  "Osasco",
+  "Guarulhos",
+];
 
 const initialValues: ClienteFormValues = {
   name: "",
   lastName: "",
   phone: "",
+  address: {
+    street: "",
+    neighborhood: "",
+    numberHouse: "",
+    reference: "",
+    city: "",
+  },
 };
 
 type FormErrors = {
   name?: string;
   lastName?: string;
   phone?: string;
+  address?: Partial<AddressValues>;
 };
 
 const validate = (values: ClienteFormValues): FormErrors => {
   const errors: FormErrors = {};
+  const addrErrors: Partial<AddressValues> = {};
+
   if (!values.name.trim()) errors.name = "Informe o nome.";
   if (!values.lastName.trim()) errors.lastName = "Informe o sobrenome.";
   if (!values.phone.trim()) errors.phone = "Informe o telefone.";
+  if (!values.address.street.trim()) addrErrors.street = "Informe a rua.";
+  if (!values.address.neighborhood.trim()) addrErrors.neighborhood = "Informe o bairro.";
+  if (!values.address.numberHouse.trim()) addrErrors.numberHouse = "Informe o número.";
+  if (!values.address.city.trim()) addrErrors.city = "Informe a cidade.";
+  if (Object.keys(addrErrors).length) errors.address = addrErrors;
+
   return errors;
 };
 
@@ -52,10 +99,19 @@ const ClienteForm: React.FC = () => {
     { resetForm }: { resetForm: () => void }
   ) => {
     try {
-      await api.post("/client", {
-        name: values.name,
-        lastName: values.lastName,
-        phone: values.phone,
+      await api.post("/register", {
+        client: {
+          name: values.name,
+          lastName: values.lastName,
+          phone: values.phone,
+        },
+        address: {
+          street: values.address.street,
+          neighborhood: values.address.neighborhood,
+          numberHouse: Number(values.address.numberHouse),
+          reference: values.address.reference,
+          city: values.address.city,
+        },
       });
       setSnackbar({ open: true, message: "Cliente cadastrado com sucesso!", severity: "success" });
       resetForm();
@@ -74,7 +130,7 @@ const ClienteForm: React.FC = () => {
         elevation={0}
         sx={{
           p: { xs: 3, md: 5 },
-          maxWidth: 720,
+          maxWidth: 960,
           mx: "auto",
           bgcolor: "background.paper",
           border: "1px solid", borderColor: "divider",
@@ -123,6 +179,74 @@ const ClienteForm: React.FC = () => {
                     error={Boolean(touched.phone && errors.phone)}
                     helperText={touched.phone && errors.phone}
                   />
+                </Grid>
+              </Grid>
+
+              <Divider sx={{ my: 3 }} />
+
+              {/* ── Endereço ──────────────────────────────────────── */}
+              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
+                Endereço
+              </Typography>
+
+              <Grid container spacing={2} sx={{ mb: 1 }}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FieldLabel label="Rua *" />
+                  <TextField
+                    fullWidth size="small" placeholder="Nome da rua"
+                    name="address.street" value={values.address.street}
+                    onChange={handleChange} onBlur={handleBlur}
+                    error={Boolean(touched.address?.street && errors.address?.street)}
+                    helperText={touched.address?.street && errors.address?.street}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FieldLabel label="Bairro *" />
+                  <TextField
+                    select fullWidth size="small"
+                    name="address.neighborhood" value={values.address.neighborhood}
+                    onChange={handleChange} onBlur={handleBlur}
+                    error={Boolean(touched.address?.neighborhood && errors.address?.neighborhood)}
+                    helperText={touched.address?.neighborhood && errors.address?.neighborhood}
+                  >
+                    <MenuItem value="" disabled><em>Selecione o bairro</em></MenuItem>
+                    {BAIRROS_MOCK.map((b) => (
+                      <MenuItem key={b} value={b}>{b}</MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 3 }}>
+                  <FieldLabel label="Número *" />
+                  <TextField
+                    fullWidth size="small" placeholder="Nº"
+                    name="address.numberHouse" value={values.address.numberHouse}
+                    onChange={handleChange} onBlur={handleBlur}
+                    error={Boolean(touched.address?.numberHouse && errors.address?.numberHouse)}
+                    helperText={touched.address?.numberHouse && errors.address?.numberHouse}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 5 }}>
+                  <FieldLabel label="Referência" />
+                  <TextField
+                    fullWidth size="small" placeholder="Ponto de referência"
+                    name="address.reference" value={values.address.reference}
+                    onChange={handleChange} onBlur={handleBlur}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 4 }}>
+                  <FieldLabel label="Cidade *" />
+                  <TextField
+                    select fullWidth size="small"
+                    name="address.city" value={values.address.city}
+                    onChange={handleChange} onBlur={handleBlur}
+                    error={Boolean(touched.address?.city && errors.address?.city)}
+                    helperText={touched.address?.city && errors.address?.city}
+                  >
+                    <MenuItem value="" disabled><em>Selecione a cidade</em></MenuItem>
+                    {CIDADES_MOCK.map((c) => (
+                      <MenuItem key={c} value={c}>{c}</MenuItem>
+                    ))}
+                  </TextField>
                 </Grid>
               </Grid>
 

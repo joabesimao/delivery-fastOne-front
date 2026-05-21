@@ -28,6 +28,7 @@ import {
   Settings as SettingsIcon,
   DashboardCustomize as DashboardCustomizeIcon,
   Palette as PaletteIcon,
+  FormatListBulleted as FormatListBulletedIcon,
 } from "@mui/icons-material";
 import { FaRoute, FaClipboardCheck } from "react-icons/fa";
 import { IoDocumentText } from "react-icons/io5";
@@ -102,6 +103,13 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
         path: null,
         title: "Dashboard",
         subItems: [
+          {
+            text: "Lista de Clientes",
+            icon: <FormatListBulletedIcon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <FormatListBulletedIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/dashboard/clientes",
+            title: "Lista de Clientes",
+          },
           {
             text: "Relatórios",
             icon: <IoDocumentText size={19} color={ICON_COLOR} />,

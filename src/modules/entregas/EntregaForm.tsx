@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
   CircularProgress,
@@ -15,6 +16,22 @@ import {
 } from "@mui/material";
 import { Formik, Form } from "formik";
 import api from "../../services/api";
+
+interface RegisterResult {
+  id: number;
+  client: {
+    name: string;
+    lastName: string;
+    phone: string;
+  };
+  address: {
+    street: string;
+    neighborhood: string;
+    numberHouse: number;
+    reference: string;
+    city: string;
+  };
+}
 
 interface AddressValues {
   street: string;
@@ -90,7 +107,7 @@ const validate = (values: DeliveryFormValues): FormErrors => {
   if (!values.address.numberHouse.trim()) addrErrors.numberHouse = "Informe o número.";
   if (!values.address.city.trim()) addrErrors.city = "Informe a cidade.";
   if (Object.keys(addrErrors).length) errors.address = addrErrors;
-  if (!values.quantity.trim() || Number(values.quantity) <= 0)
+  if (!values.quantity || Number(values.quantity) <= 0)
     errors.quantity = "Informe a quantidade.";
   if (values.amount === "" || Number(values.amount) <= 0)
     errors.amount = "Informe o valor.";
@@ -105,41 +122,69 @@ const EntregaForm: React.FC = () => {
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
 
+  const [registers, setRegisters] = useState<RegisterResult[]>([]);
+  const [registersLoading, setRegistersLoading] = useState(false);
+  const [selectedRegisterId, setSelectedRegisterId] = useState<number | null>(null);
+
+  useEffect(() => {
+    api
+      .get("/register")
+      .then((res) => {
+        const data = Array.isArray(res.data)
+          ? res.data.filter((r: RegisterResult) => r && r.client && r.address)
+          : [];
+        setRegisters(data);
+        setRegistersLoading(false);
+      })
+      .catch(() => {
+        setRegistersLoading(false);
+      });
+  }, []);
+
   const handleSubmit = async (
     values: DeliveryFormValues,
     { resetForm }: { resetForm: () => void }
   ) => {
     try {
-      const registerRes = await api.post("/register", {
-        client: {
-          name: values.name,
-          lastName: values.lastName,
-          phone: values.phone,
-        },
-        address: {
-          street: values.address.street,
-          neighborhood: values.address.neighborhood,
-          numberHouse: Number(values.address.numberHouse),
-          reference: values.address.reference,
-          city: values.address.city,
-        },
-      });
+      let registerId: number;
 
-      const registerId: number = registerRes.data.id;
+      if (selectedRegisterId) {
+        registerId = selectedRegisterId;
+      } else {
+        const registerRes = await api.post("/register", {
+          client: {
+            name: values.name,
+            lastName: values.lastName,
+            phone: values.phone,
+          },
+          address: {
+            street: values.address.street,
+            neighborhood: values.address.neighborhood,
+            numberHouse: Number(values.address.numberHouse),
+            reference: values.address.reference,
+            city: values.address.city,
+          },
+        });
+        registerId = registerRes.data.id;
+      }
 
       await api.post("/orderDelivery", {
         registerId,
-        quantity: values.quantity,
+        quantity: String(values.quantity),
         amount: Number(values.amount),
-        data: new Date(),
       });
 
       setSnackbar({ open: true, message: "Pedido criado com sucesso!", severity: "success" });
+      setSelectedRegisterId(null);
       resetForm();
-    } catch {
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? "Erro ao criar pedido. Tente novamente.";
+      console.error("[EntregaForm] erro ao criar pedido:", err);
       setSnackbar({
         open: true,
-        message: "Erro ao criar pedido. Tente novamente.",
+        message: msg,
         severity: "error",
       });
     }
@@ -165,8 +210,64 @@ const EntregaForm: React.FC = () => {
         <Divider sx={{ mb: 4 }} />
 
         <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit}>
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+          {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setValues }) => (
             <Form noValidate>
+
+              {/* ── Buscar cliente existente ──────────────────────── */}
+              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
+                Buscar cliente existente
+              </Typography>
+
+              <Grid container spacing={2} sx={{ mb: 1 }}>
+                <Grid size={{ xs: 12 }}>
+                  <FieldLabel label="Pesquisar por nome" />
+                  <Autocomplete
+                    options={registers}
+                    loading={registersLoading}
+                    getOptionLabel={(option) =>
+                      `${option.client.name} ${option.client.lastName}`
+                    }
+                    filterOptions={(options, { inputValue }) => {
+                      const term = inputValue.toLowerCase();
+                      return options.filter(
+                        (o) =>
+                          o.client.name.toLowerCase().includes(term) ||
+                          o.client.lastName.toLowerCase().includes(term)
+                      );
+                    }}
+                    onChange={(_, selected) => {
+                      if (selected) {
+                        setSelectedRegisterId(selected.id);
+                        setValues({
+                          ...values,
+                          name: selected.client.name,
+                          lastName: selected.client.lastName,
+                          phone: selected.client.phone,
+                          address: {
+                            street: selected.address.street,
+                            neighborhood: selected.address.neighborhood,
+                            numberHouse: String(selected.address.numberHouse),
+                            reference: selected.address.reference ?? "",
+                            city: selected.address.city,
+                          },
+                        });
+                      } else {
+                        setSelectedRegisterId(null);
+                      }
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        size="small"
+                        fullWidth
+                        placeholder="Digite o nome do cliente..."
+                      />
+                    )}
+                  />
+                </Grid>
+              </Grid>
+
+              <Divider sx={{ my: 3 }} />
 
               {/* ── Dados do Cliente ──────────────────────────────── */}
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
@@ -322,6 +423,7 @@ const EntregaForm: React.FC = () => {
               <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
                 <Button type="reset" variant="outlined" color="inherit" disabled={isSubmitting}
                   sx={{ textTransform: "none", borderColor: "divider", color: "text.secondary" }}
+                  onClick={() => setSelectedRegisterId(null)}
                 >
                   Limpar
                 </Button>

@@ -10,12 +10,18 @@ import {
   AppBar,
   Toolbar,
   ListItemButton,
+  Collapse,
 } from "@mui/material";
 import { Menu as MenuIcon, Logout as LogoutIcon } from "@mui/icons-material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 const Sidebar = ({
   open,
@@ -27,6 +33,9 @@ const Sidebar = ({
   const isMobile = useMediaQuery("(max-width: 768px)");
   const navigate = useNavigate();
   const location = useLocation();
+  const [dashboardOpen, setDashboardOpen] = useState(
+    location.pathname.startsWith("/dashboard")
+  );
 
   const handleMenuToggle = () => {
     setOpen(!open);
@@ -94,6 +103,51 @@ const Sidebar = ({
         </div>
 
         <List>
+          {/* Dashboard com submenu */}
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => setDashboardOpen((prev) => !prev)}
+              sx={{
+                backgroundColor: location.pathname.startsWith("/dashboard")
+                  ? "#1e293b"
+                  : "transparent",
+                borderRadius: 1,
+                "&:hover": { backgroundColor: "#334155" },
+              }}
+            >
+              <ListItemIcon>
+                <DashboardIcon sx={{ color: "#fff" }} />
+              </ListItemIcon>
+              <ListItemText primary="Dashboard" />
+              {open && (dashboardOpen ? <ExpandLess sx={{ color: "#fff" }} /> : <ExpandMore sx={{ color: "#fff" }} />)}
+            </ListItemButton>
+          </ListItem>
+
+          <Collapse in={dashboardOpen && open} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItemButton
+                onClick={() => navigate("/dashboard/clientes")}
+                sx={{
+                  pl: 4,
+                  backgroundColor:
+                    location.pathname === "/dashboard/clientes"
+                      ? "#0f172a"
+                      : "transparent",
+                  borderRadius: 1,
+                  "&:hover": { backgroundColor: "#334155" },
+                }}
+              >
+                <ListItemIcon>
+                  <FormatListBulletedIcon sx={{ color: "#94a3b8", fontSize: 18 }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Lista de Clientes"
+                  primaryTypographyProps={{ fontSize: 13 }}
+                />
+              </ListItemButton>
+            </List>
+          </Collapse>
+
           <List component="div" disablePadding>
             {menuItems.map((item) => (
               <ListItem key={item.path} disablePadding>
