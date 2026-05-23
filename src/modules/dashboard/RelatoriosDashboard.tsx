@@ -36,7 +36,7 @@ const RADIAN = Math.PI / 180;
 interface LabelProps {
   cx: number;
   cy: number;
-  midAngle: number;
+  midAngle: number | undefined;
   innerRadius: number;
   outerRadius: number;
   percent: number;
@@ -51,6 +51,7 @@ const renderCustomLabel = ({
   percent,
 }: LabelProps) => {
   if (percent === 0) return null;
+  if (midAngle == null) return null;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
@@ -95,10 +96,10 @@ const DonutChart: React.FC<DonutChartProps> = ({ data, height = 300 }) => {
           ))}
         </Pie>
         <Tooltip
-          formatter={(value: number) => [
-            `${value} (${total > 0 ? ((value / total) * 100).toFixed(1) : 0}%)`,
+          formatter={(value) => [
+            `${value as number} (${total > 0 ? (((value as number) / total) * 100).toFixed(1) : 0}%)`,
             "Entregas",
-          ]}
+          ] as [string, string]}
         />
         <Legend />
       </PieChart>
@@ -163,7 +164,7 @@ const RelatoriosDashboard: React.FC = () => {
           { label: "Entregas (bairros)", value: totalBairros, icon: "📦" },
           { label: "Entregas (cidades)", value: totalCidades, icon: "🚚" },
         ].map((item) => (
-          <Grid item xs={12} sm={6} md={3} key={item.label}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={item.label}>
             <Card
               sx={{
                 ...cardSx,
@@ -187,7 +188,7 @@ const RelatoriosDashboard: React.FC = () => {
       {/* ── Linha 2: 3 gráficos de rosquinha ── */}
       <Grid container spacing={3}>
         {/* Por Bairro */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card sx={cardSx}>
             <CardContent>
               <Typography variant="h6" fontWeight={600} gutterBottom>
@@ -202,7 +203,7 @@ const RelatoriosDashboard: React.FC = () => {
         </Grid>
 
         {/* Por Cidade */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card sx={cardSx}>
             <CardContent>
               <Typography variant="h6" fontWeight={600} gutterBottom>
@@ -217,7 +218,7 @@ const RelatoriosDashboard: React.FC = () => {
         </Grid>
 
         {/* Geral */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card sx={cardSx}>
             <CardContent>
               <Typography variant="h6" fontWeight={600} gutterBottom>
