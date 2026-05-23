@@ -32,7 +32,7 @@ const validate = (values: CidadeFormValues): FormErrors => {
   return errors;
 };
 
-const CidadesForm: React.FC = () => {
+const CidadesForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -47,6 +47,7 @@ const CidadesForm: React.FC = () => {
       await api.post("/city", { name: values.name });
       setSnackbar({ open: true, message: "Cidade cadastrada com sucesso!", severity: "success" });
       resetForm();
+      onSuccess?.();
     } catch {
       setSnackbar({
         open: true,
