@@ -22,7 +22,36 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "src/enums",
+    "src/components/charts",
+    "src/components/menu/menuBar.tsx",
+    "src/components/menu/index.tsx",
+    "src/components/menu/components",
+    "src/components/reactTable",
+    "src/components/exportTable",
+    "src/components/indicatorPanel",
+    "src/components/tabs/genericFunctionTabs.tsx",
+    "src/components/LazyChart.tsx",
+    "src/components/VirtualizedChart.tsx",
+    "src/components/NotificationPopup.tsx",
+    "src/components/PermissionsSyncProvider.tsx",
+    "src/components/UserSearchSelect.tsx",
+    "src/components/InfiniteScrollSelect.tsx",
+    "src/components/DatePickerComponent.tsx",
+    "src/components/DateRangePickerComponent.tsx",
+    "src/components/HoursRangeComponent.tsx",
+    "src/components/DateTimePickerComponent.tsx",
+    "src/components/FilterWithDateRange.tsx",
+    "src/components/modalConfirm",
+    "src/components/types",
+    "src/hooks/class"
+  ]
 }
