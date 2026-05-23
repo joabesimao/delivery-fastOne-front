@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Box,
   CircularProgress,
+  InputAdornment,
   Paper,
   Table,
   TableBody,
@@ -9,12 +10,14 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Typography,
   Alert,
   Chip,
   useTheme,
 } from "@mui/material";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import SearchIcon from "@mui/icons-material/Search";
 import api from "../../services/api";
 
 interface Address {
@@ -42,6 +45,7 @@ const ListaClientes: React.FC = () => {
   const [clientes, setClientes] = useState<ClientItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     api
@@ -50,6 +54,21 @@ const ListaClientes: React.FC = () => {
       .catch(() => setError("Erro ao carregar a lista de clientes."))
       .finally(() => setLoading(false));
   }, []);
+
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return clientes;
+    return clientes.filter((c) => {
+      const addr = c.Register?.address;
+      return (
+        `${c.name} ${c.lastName}`.toLowerCase().includes(term) ||
+        c.phone.toLowerCase().includes(term) ||
+        addr?.neighborhood?.toLowerCase().includes(term) ||
+        addr?.city?.toLowerCase().includes(term) ||
+        addr?.street?.toLowerCase().includes(term)
+      );
+    });
+  }, [clientes, search]);
 
   return (
     <Box>
@@ -65,6 +84,30 @@ const ListaClientes: React.FC = () => {
           Lista de Clientes
         </Typography>
       </Box>
+
+      <TextField
+        size="small"
+        placeholder="Buscar por nome, telefone, bairro ou cidade..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: isDark ? "#7C9CBF" : "#94a3b8", fontSize: 20 }} />
+              </InputAdornment>
+            ),
+          },
+        }}
+        sx={{
+          mb: 2,
+          width: { xs: "100%", sm: 380 },
+          "& .MuiOutlinedInput-root": {
+            borderRadius: 2,
+            backgroundColor: isDark ? "#0f0f17" : "#f8fafd",
+          },
+        }}
+      />
 
       {loading && (
         <Box display="flex" justifyContent="center" mt={6}>
@@ -127,7 +170,7 @@ const ListaClientes: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {clientes.length === 0 ? (
+              {filtered.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={8}
@@ -138,11 +181,11 @@ const ListaClientes: React.FC = () => {
                       fontSize: 14,
                     }}
                   >
-                    Nenhum cliente cadastrado.
+                    {search ? "Nenhum cliente encontrado para a busca." : "Nenhum cliente cadastrado."}
                   </TableCell>
                 </TableRow>
               ) : (
-                clientes.map((c, idx) => {
+                filtered.map((c, idx) => {
                   const addr = c.Register?.address;
                   return (
                     <TableRow
