@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Alert,
   Box,
@@ -30,26 +30,16 @@ interface ClienteFormValues {
   address: AddressValues;
 }
 
-// TODO: substituir por dados reais do backend quando disponível
-const BAIRROS_MOCK = [
-  "Centro",
-  "Jardim América",
-  "Vila Nova",
-  "Santa Cruz",
-  "Boa Vista",
-  "São João",
-  "Parque Industrial",
-];
+interface CityOption {
+  id: number;
+  name: string;
+}
 
-const CIDADES_MOCK = [
-  "São Paulo",
-  "Campinas",
-  "Ribeirão Preto",
-  "Santos",
-  "Sorocaba",
-  "Osasco",
-  "Guarulhos",
-];
+interface NeighborhoodOption {
+  id: number;
+  name: string;
+  cityId: number;
+}
 
 const initialValues: ClienteFormValues = {
   name: "",
@@ -93,6 +83,14 @@ const ClienteForm: React.FC = () => {
     message: string;
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
+
+  const [cities, setCities] = useState<CityOption[]>([]);
+  const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
+
+  useEffect(() => {
+    api.get<CityOption[]>("/city").then((res) => setCities(res.data)).catch(() => {});
+    api.get<NeighborhoodOption[]>("/neighborhood").then((res) => setNeighborhoods(res.data)).catch(() => {});
+  }, []);
 
   const handleSubmit = async (
     values: ClienteFormValues,
@@ -143,7 +141,13 @@ const ClienteForm: React.FC = () => {
         <Divider sx={{ mb: 4 }} />
 
         <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit}>
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+          {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue }) => {
+            const selectedCity = cities.find((c) => c.name === values.address.city);
+            const filteredNeighborhoods = useMemo(
+              () => selectedCity ? neighborhoods.filter((n) => n.cityId === selectedCity.id) : [],
+              [selectedCity, neighborhoods]
+            );
+            return (
             <Form noValidate>
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
                 Dados do cliente
@@ -201,17 +205,39 @@ const ClienteForm: React.FC = () => {
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
+                  <FieldLabel label="Cidade *" />
+                  <TextField
+                    select fullWidth size="small"
+                    name="address.city" value={values.address.city}
+                    onChange={(e) => {
+                      handleChange(e);
+                      setFieldValue("address.neighborhood", "");
+                    }}
+                    onBlur={handleBlur}
+                    error={Boolean(touched.address?.city && errors.address?.city)}
+                    helperText={touched.address?.city && errors.address?.city}
+                  >
+                    <MenuItem value="" disabled><em>Selecione a cidade</em></MenuItem>
+                    {cities.map((c) => (
+                      <MenuItem key={c.id} value={c.name}>{c.name}</MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FieldLabel label="Bairro *" />
                   <TextField
                     select fullWidth size="small"
                     name="address.neighborhood" value={values.address.neighborhood}
                     onChange={handleChange} onBlur={handleBlur}
+                    disabled={!values.address.city}
                     error={Boolean(touched.address?.neighborhood && errors.address?.neighborhood)}
                     helperText={touched.address?.neighborhood && errors.address?.neighborhood}
                   >
-                    <MenuItem value="" disabled><em>Selecione o bairro</em></MenuItem>
-                    {BAIRROS_MOCK.map((b) => (
-                      <MenuItem key={b} value={b}>{b}</MenuItem>
+                    <MenuItem value="" disabled>
+                      <em>{values.address.city ? "Selecione o bairro" : "Selecione a cidade primeiro"}</em>
+                    </MenuItem>
+                    {filteredNeighborhoods.map((b) => (
+                      <MenuItem key={b.id} value={b.name}>{b.name}</MenuItem>
                     ))}
                   </TextField>
                 </Grid>
@@ -225,28 +251,13 @@ const ClienteForm: React.FC = () => {
                     helperText={touched.address?.numberHouse && errors.address?.numberHouse}
                   />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 5 }}>
+                <Grid size={{ xs: 12, sm: 9 }}>
                   <FieldLabel label="Referência" />
                   <TextField
                     fullWidth size="small" placeholder="Ponto de referência"
                     name="address.reference" value={values.address.reference}
                     onChange={handleChange} onBlur={handleBlur}
                   />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FieldLabel label="Cidade *" />
-                  <TextField
-                    select fullWidth size="small"
-                    name="address.city" value={values.address.city}
-                    onChange={handleChange} onBlur={handleBlur}
-                    error={Boolean(touched.address?.city && errors.address?.city)}
-                    helperText={touched.address?.city && errors.address?.city}
-                  >
-                    <MenuItem value="" disabled><em>Selecione a cidade</em></MenuItem>
-                    {CIDADES_MOCK.map((c) => (
-                      <MenuItem key={c} value={c}>{c}</MenuItem>
-                    ))}
-                  </TextField>
                 </Grid>
               </Grid>
 
@@ -266,7 +277,8 @@ const ClienteForm: React.FC = () => {
                 </Button>
               </Box>
             </Form>
-          )}
+            );
+          }}
         </Formik>
       </Paper>
 

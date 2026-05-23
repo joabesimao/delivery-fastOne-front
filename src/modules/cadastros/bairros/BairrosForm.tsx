@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Alert,
   Box,
@@ -6,6 +6,7 @@ import {
   CircularProgress,
   Divider,
   Grid,
+  MenuItem,
   Paper,
   Snackbar,
   TextField,
@@ -14,39 +15,55 @@ import {
 import { Formik, Form } from "formik";
 import api from "../../../services/api";
 
+interface CityOption {
+  id: number;
+  name: string;
+}
+
 interface BairroFormValues {
   name: string;
+  cityId: string;
 }
 
 const initialValues: BairroFormValues = {
   name: "",
+  cityId: "",
 };
 
 type FormErrors = {
   name?: string;
+  cityId?: string;
 };
 
 const validate = (values: BairroFormValues): FormErrors => {
   const errors: FormErrors = {};
   if (!values.name.trim()) errors.name = "Informe o nome do bairro.";
+  if (!values.cityId) errors.cityId = "Selecione a cidade.";
   return errors;
 };
 
-const BairrosForm: React.FC = () => {
+const BairrosForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
 
+  const [cities, setCities] = useState<CityOption[]>([]);
+
+  useEffect(() => {
+    api.get<CityOption[]>("/city").then((res) => setCities(res.data)).catch(() => {});
+  }, []);
+
   const handleSubmit = async (
     values: BairroFormValues,
     { resetForm }: { resetForm: () => void }
   ) => {
     try {
-      await api.post("/neighborhood", { name: values.name });
+      await api.post("/neighborhood", { name: values.name, cityId: Number(values.cityId) });
       setSnackbar({ open: true, message: "Bairro cadastrado com sucesso!", severity: "success" });
       resetForm();
+      onSuccess?.();
     } catch {
       setSnackbar({
         open: true,
@@ -82,6 +99,21 @@ const BairrosForm: React.FC = () => {
               </Typography>
 
               <Grid container spacing={2} sx={{ mb: 1 }}>
+                <Grid size={{ xs: 12 }}>
+                  <FieldLabel label="Cidade *" />
+                  <TextField
+                    select fullWidth size="small"
+                    name="cityId" value={values.cityId}
+                    onChange={handleChange} onBlur={handleBlur}
+                    error={Boolean(touched.cityId && errors.cityId)}
+                    helperText={touched.cityId && errors.cityId}
+                  >
+                    <MenuItem value="" disabled><em>Selecione a cidade</em></MenuItem>
+                    {cities.map((c) => (
+                      <MenuItem key={c.id} value={String(c.id)}>{c.name}</MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
                 <Grid size={{ xs: 12 }}>
                   <FieldLabel label="Nome do bairro *" />
                   <TextField
