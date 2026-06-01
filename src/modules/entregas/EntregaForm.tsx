@@ -7,6 +7,7 @@ import {
   CircularProgress,
   Divider,
   Grid,
+  IconButton,
   InputAdornment,
   MenuItem,
   Paper,
@@ -14,6 +15,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { Formik, Form } from "formik";
 import api from "../../services/api";
 
@@ -105,7 +107,11 @@ const validate = (values: DeliveryFormValues): FormErrors => {
   return errors;
 };
 
-const EntregaForm: React.FC = () => {
+interface EntregaFormProps {
+  onClose?: () => void;
+}
+
+const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -198,9 +204,19 @@ const EntregaForm: React.FC = () => {
         }}
       >
         {/* Título */}
-        <Typography variant="h6" fontWeight={700} sx={{ mb: 3, textAlign: "center", color: "text.primary" }}>
-          Novo pedido de entrega
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
+          <Box sx={{ width: 40 }} />
+          <Typography variant="h6" fontWeight={700} sx={{ color: "text.primary" }}>
+            Novo pedido de entrega
+          </Typography>
+          {onClose ? (
+            <IconButton onClick={onClose} size="small" aria-label="fechar">
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          ) : (
+            <Box sx={{ width: 40 }} />
+          )}
+        </Box>
         <Divider sx={{ mb: 4 }} />
 
         <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit}>
