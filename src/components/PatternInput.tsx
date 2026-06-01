@@ -3,10 +3,10 @@ import {
   OutlinedInput,
   InputLabel,
   FormHelperText,
-  OutlinedInputProps,
   IconButton,
   InputAdornment,
 } from "@mui/material";
+import type { OutlinedInputProps } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 

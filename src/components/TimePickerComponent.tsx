@@ -4,12 +4,12 @@ import {
   InputLabel,
   FormHelperText,
   InputAdornment,
-  TextFieldProps,
 } from "@mui/material";
+import type { TextFieldProps } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
-import { MobileTimePickerProps } from "@mui/x-date-pickers/MobileTimePicker";
+import type { MobileTimePickerProps } from "@mui/x-date-pickers/MobileTimePicker";
 import TimeIcon from "@mui/icons-material/AccessTime";
 import { ptBR } from "@mui/x-date-pickers/locales";
 import dayjs, { Dayjs } from "dayjs";

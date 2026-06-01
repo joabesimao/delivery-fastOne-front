@@ -3,13 +3,15 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
-  RadioGroupProps,
-  FormControlLabelProps,
-  RadioProps,
   InputLabel,
   FormHelperText,
 } from "@mui/material";
-import { FormikProps } from "formik";
+import type {
+  RadioGroupProps,
+  FormControlLabelProps,
+  RadioProps,
+} from "@mui/material";
+import type { FormikProps } from "formik";
 
 type Option = {
   value: string | number | boolean;
