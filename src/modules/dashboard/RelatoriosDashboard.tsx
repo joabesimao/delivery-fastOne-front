@@ -15,6 +15,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import type { PieLabelRenderProps } from "recharts";
 
 interface DataItem {
   name: string;
@@ -33,15 +34,6 @@ const COLORS = [
 
 const RADIAN = Math.PI / 180;
 
-interface LabelProps {
-  cx: number;
-  cy: number;
-  midAngle: number | undefined;
-  innerRadius: number;
-  outerRadius: number;
-  percent: number;
-}
-
 const renderCustomLabel = ({
   cx,
   cy,
@@ -49,9 +41,18 @@ const renderCustomLabel = ({
   innerRadius,
   outerRadius,
   percent,
-}: LabelProps) => {
-  if (percent === 0) return null;
-  if (midAngle == null) return null;
+}: PieLabelRenderProps) => {
+  if (
+    percent == null ||
+    percent === 0 ||
+    midAngle == null ||
+    cx == null ||
+    cy == null ||
+    innerRadius == null ||
+    outerRadius == null
+  ) {
+    return null;
+  }
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);

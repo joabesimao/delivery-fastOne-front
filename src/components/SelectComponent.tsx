@@ -4,10 +4,10 @@ import {
   MenuItem,
   InputLabel,
   FormHelperText,
-  SelectProps,
   IconButton,
   Box,
 } from "@mui/material";
+import type { SelectProps } from "@mui/material";
 import { useField, useFormikContext } from "formik";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
