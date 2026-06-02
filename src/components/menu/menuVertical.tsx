@@ -11,12 +11,10 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import {
-  KeyboardDoubleArrowLeft as KeyboardDoubleArrowLeftIcon,
-  Menu as MenuIcon,
+  CloseRounded as CloseRoundedIcon,
   ExpandLess,
   ExpandMore,
   LocalShipping as LocalShippingIcon,
@@ -40,6 +38,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 interface MenuVerticalProps {
   open: boolean;
   drawerWidth: number;
+  onClose?: () => void;
 }
 
 interface SubMenuItem {
@@ -59,39 +58,33 @@ interface MenuItem {
   subItems?: SubMenuItem[];
 }
 
-const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
+const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth, onClose }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [isMenuExpanded, setIsMenuExpanded] = useState<boolean>(true);
 
   // ── Palette dinâmica ────────────────────────────────────────────────────
-  const SIDEBAR_BG      = isDark ? "#0F0F17" : "#F4F5F7";
-  const SIDEBAR_BORDER  = isDark ? "rgba(255,255,255,0.07)" : "#E2E4E9";
+  const SIDEBAR_BG      = isDark ? "#0F0F17" : "#FBFCFF";
+  const SIDEBAR_BORDER  = isDark ? "rgba(255,255,255,0.07)" : "#DCE3F0";
   const TEXT_PRIMARY    = isDark ? "#E2E4EC" : "#1A1D23";
-  const TEXT_SECONDARY  = isDark ? "#7C7F8E" : "#6B7280";
-  const ICON_COLOR      = isDark ? "#7C7F8E" : "#6B7280";
-  const ACTIVE_BG       = isDark ? "rgba(67,97,238,0.18)" : "#E8ECFF";
+  const TEXT_SECONDARY  = isDark ? "#7C7F8E" : "#5E6A80";
+  const ICON_COLOR      = isDark ? "#7C7F8E" : "#5E6A80";
+  const ACTIVE_BG       = isDark ? "rgba(67,97,238,0.18)" : "#E7EEFF";
   const ACTIVE_TEXT     = "#4361EE";
   const ACTIVE_ICON     = "#4361EE";
-  const HOVER_BG        = isDark ? "rgba(255,255,255,0.05)" : "#ECEEF2";
-  const SUB_ACTIVE_BG   = isDark ? "rgba(67,97,238,0.14)" : "#E8ECFF";
-  const SCROLLBAR_THUMB = isDark ? "#2E2E40" : "#C4C9D4";
+  const HOVER_BG        = isDark ? "rgba(255,255,255,0.05)" : "#F2F6FF";
+  const SUB_ACTIVE_BG   = isDark ? "rgba(67,97,238,0.14)" : "#EEF3FF";
+  const SCROLLBAR_THUMB = isDark ? "#2E2E40" : "#B7C2D8";
 
   const navigateRouter = useNavigate();
   const location = useLocation();
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
-
-  const drawerWidthCollapsed = 72;
-  const currentDrawerWidth = isMenuExpanded ? drawerWidth : drawerWidthCollapsed;
 
   const handleToggleSubMenu = useCallback((menuKey: string) => {
     setOpenSubMenu((current) => (current === menuKey ? null : menuKey));
   }, []);
 
   const handleDrawerClose = () => {
-    if (isMobile) return;
-    setIsMenuExpanded(false);
+    onClose?.();
   };
 
   const listItemsMenu = useMemo<MenuItem[]>(
@@ -208,55 +201,50 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
 
   const drawerInnerContent = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      {/* Topo: logo + botão colapso */}
+      {/* Topo: logo + botão fechar */}
       <Box
         sx={{
           height: "64px",
           flexShrink: 0,
           display: "flex",
           alignItems: "center",
-          justifyContent: isMenuExpanded ? "space-between" : "center",
-          px: isMenuExpanded ? 2 : 1,
+          justifyContent: "space-between",
+          px: 2,
         }}
       >
-        {isMenuExpanded && (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Box
-              sx={{
-                width: 32,
-                height: 32,
-                borderRadius: "8px",
-                bgcolor: ACTIVE_TEXT,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <LocalShippingIcon sx={{ color: "#fff", fontSize: 18 }} />
-            </Box>
-            <Typography
-              variant="subtitle2"
-              fontWeight={700}
-              sx={{ color: TEXT_PRIMARY, letterSpacing: "-0.3px" }}
-            >
-              FastDelivery
-            </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box
+            sx={{
+              width: 32,
+              height: 32,
+              borderRadius: "8px",
+              bgcolor: ACTIVE_TEXT,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <LocalShippingIcon sx={{ color: "#fff", fontSize: 18 }} />
           </Box>
-        )}
+          <Typography
+            variant="subtitle2"
+            fontWeight={700}
+            sx={{ color: TEXT_PRIMARY, letterSpacing: "-0.3px" }}
+          >
+            FastDelivery
+          </Typography>
+        </Box>
+
         <IconButton
-          onClick={() => setIsMenuExpanded((prev) => !prev)}
-          aria-label={isMenuExpanded ? "Fechar menu" : "Abrir menu"}
+          onClick={handleDrawerClose}
+          aria-label="Fechar menu"
           size="small"
           sx={{
             color: TEXT_SECONDARY,
             "&:hover": { bgcolor: HOVER_BG },
           }}
         >
-          {isMenuExpanded ? (
-            <KeyboardDoubleArrowLeftIcon fontSize="small" />
-          ) : (
-            <MenuIcon fontSize="small" />
-          )}
+          <CloseRoundedIcon fontSize="small" />
         </IconButton>
       </Box>
 
@@ -265,8 +253,8 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
       {/* Lista de itens */}
       <List
         sx={{
-          pl: isMenuExpanded ? "10px" : "8px",
-          pr: isMenuExpanded ? "10px" : "8px",
+          pl: "10px",
+          pr: "10px",
           pt: 1,
           flexGrow: 1,
           overflowX: "hidden",
@@ -298,7 +286,7 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
                     minHeight: 44,
                     px: 1.5,
                     borderRadius: "8px",
-                    justifyContent: isMenuExpanded ? "initial" : "center",
+                    justifyContent: "initial",
                     bgcolor: isHighlighted && !hasSubItems ? ACTIVE_BG : "transparent",
                     "&:hover": { bgcolor: isHighlighted && !hasSubItems ? ACTIVE_BG : HOVER_BG },
                     transition: "background 0.15s",
@@ -309,15 +297,15 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
                     } else if (item.path && location.pathname !== item.path) {
                       navigateRouter(item.path);
                       if (openSubMenu) setOpenSubMenu(null);
+                      handleDrawerClose();
                     }
-                    if (isMobile) handleDrawerClose();
                   }}
                 >
                   <ListItemIcon
                     sx={{
                       minWidth: 0,
                       justifyContent: "center",
-                      mr: isMenuExpanded ? 1.5 : "auto",
+                      mr: 1.5,
                     }}
                   >
                     {isHighlighted ? (item.activeIcon ?? item.icon) : item.icon}
@@ -334,9 +322,8 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
                         },
                       },
                     }}
-                    sx={{ opacity: isMenuExpanded ? 1 : 0 }}
                   />
-                  {hasSubItems && isMenuExpanded && (
+                  {hasSubItems && (
                     isThisSubmenuOpen
                       ? <ExpandLess sx={{ color: TEXT_SECONDARY, fontSize: 18 }} />
                       : <ExpandMore sx={{ color: TEXT_SECONDARY, fontSize: 18 }} />
@@ -353,14 +340,14 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
                         <ListItem
                           key={`${subItem.text}-${subIdx}`}
                           disablePadding
-                          sx={{ pl: isMenuExpanded ? 2 : 0, mb: 0.25 }}
+                          sx={{ pl: 2, mb: 0.25 }}
                         >
                           <ListItemButton
                             sx={{
                               minHeight: 40,
                               px: 1.5,
                               borderRadius: "8px",
-                              justifyContent: isMenuExpanded ? "initial" : "center",
+                              justifyContent: "initial",
                               bgcolor: subIsSelected ? SUB_ACTIVE_BG : "transparent",
                               "&:hover": {
                                 bgcolor: subIsSelected ? SUB_ACTIVE_BG : HOVER_BG,
@@ -370,15 +357,15 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
                             onClick={() => {
                               if (subItem.path && location.pathname !== subItem.path) {
                                 navigateRouter(subItem.path);
+                                handleDrawerClose();
                               }
-                              if (isMobile) handleDrawerClose();
                             }}
                           >
                             <ListItemIcon
                               sx={{
                                 minWidth: 0,
                                 justifyContent: "center",
-                                mr: isMenuExpanded ? 1.5 : "auto",
+                                mr: 1.5,
                               }}
                             >
                               {subIsSelected
@@ -397,7 +384,6 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
                                   },
                                 },
                               }}
-                              sx={{ opacity: isMenuExpanded ? 1 : 0 }}
                             />
                           </ListItemButton>
                         </ListItem>
@@ -423,53 +409,33 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth }) => {
           flexShrink: 0,
         }}
       >
-        {isMenuExpanded ? (
-          <Typography variant="caption" sx={{ color: TEXT_SECONDARY, fontSize: "11px" }}>
-            FastOne © 2026
-          </Typography>
-        ) : (
-          <LocalShippingIcon sx={{ color: SCROLLBAR_THUMB, fontSize: 20 }} />
-        )}
+        <Typography variant="caption" sx={{ color: TEXT_SECONDARY, fontSize: "11px" }}>
+          FastOne © 2026
+        </Typography>
       </Box>
     </Box>
   );
 
-  if (isMobile) {
-    return (
-      <Drawer
-        anchor="left"
-        open={open}
-        onClose={handleDrawerClose}
-        ModalProps={{ keepMounted: true }}
-        PaperProps={{
-          sx: {
-            width: drawerWidth,
-            backgroundColor: SIDEBAR_BG,
-            borderRight: `1px solid ${SIDEBAR_BORDER}`,
-          },
-        }}
-      >
-        {drawerInnerContent}
-      </Drawer>
-    );
-  }
-
   return (
     <Drawer
-      variant="permanent"
+      anchor="left"
       open={open}
+      onClose={handleDrawerClose}
+      variant="temporary"
+      ModalProps={{ keepMounted: true }}
       sx={{
-        width: currentDrawerWidth,
-        flexShrink: 0,
-        transition: "width 0.25s ease",
-        "& .MuiDrawer-paper": {
-          width: currentDrawerWidth,
-          transition: "width 0.25s ease",
-          overflowX: "hidden",
+        "& .MuiBackdrop-root": {
+          backdropFilter: "blur(3px)",
+          backgroundColor: "rgba(20, 27, 45, 0.38)",
         },
       }}
       PaperProps={{
         sx: {
+          width: { xs: "min(88vw, 340px)", sm: drawerWidth },
+          m: { xs: 1, sm: 1.5 },
+          height: { xs: "calc(100% - 16px)", sm: "calc(100% - 24px)" },
+          borderRadius: "0 18px 18px 0",
+          boxShadow: "0 24px 55px rgba(24, 33, 53, 0.26)",
           backgroundColor: SIDEBAR_BG,
           borderRight: `1px solid ${SIDEBAR_BORDER}`,
         },

@@ -1,20 +1,33 @@
 :root {
-  /* Neutral colors */
-  --neutral-darker: #1C1D21;
-  --neutral-background: #212229;
-  --neutral-surface: #2A2C34;
-  --neutral-header: #33353F;
-  --neutral-text: #F5F5F5;
+  --neutral-darker: #223047;
+  --neutral-background: #f7f9fc;
+  --neutral-surface: #ffffff;
+  --neutral-header: #eef3ff;
+  --neutral-text: #1a2333;
 
-  /* Primary colors */
-  --primary-highlight: #7693FF;
+  --primary-highlight: #4361ee;
 
-  /* Secondary colors */
-  --secondary-income: #D6FF62;
-  --secondary-expense: #F87828;
+  --secondary-income: #16a34a;
+  --secondary-expense: #f97316;
+
+  color-scheme: light;
 }
 
-body{
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
   margin: 0;
+  font-family: "Manrope", "Nunito Sans", "Segoe UI", sans-serif;
   background-color: var(--neutral-background);
+  color: var(--neutral-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
