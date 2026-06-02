@@ -19,14 +19,14 @@ const dark = {
 };
 
 const light = {
-  bgDefault:  "#F4F6F8",
-  bgPaper:    "#FFFFFF",
-  bgSidebar:  "#F4F5F7",
-  border:     "#E2E4E9",
-  textPrimary:"#1A1D23",
-  textSec:    "#6B7280",
-  hover:      "#ECEEF2",
-  activeBg:   "#E8ECFF",
+  bgDefault:  "#F7F9FC",
+  bgPaper:    "#FCFDFF",
+  bgSidebar:  "#FBFCFF",
+  border:     "#DCE3F0",
+  textPrimary:"#1A2333",
+  textSec:    "#5E6A80",
+  hover:      "#F2F6FF",
+  activeBg:   "#E7EEFF",
   inputBg:    "#FFFFFF",
 };
 
@@ -54,7 +54,7 @@ const ThemeModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       },
       shape: { borderRadius: 10 },
       typography: {
-        fontFamily: "'Inter', 'Roboto', sans-serif",
+        fontFamily: "'Manrope', 'Nunito Sans', 'Segoe UI', sans-serif",
       },
       components: {
         MuiCssBaseline: {
@@ -72,6 +72,10 @@ const ThemeModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }
               backgroundColor: t.bgPaper,
               backgroundImage: "none",
               borderColor: t.border,
+              boxShadow:
+                mode === "light"
+                  ? "0 10px 28px rgba(46, 70, 116, 0.08)"
+                  : "none",
               transition: "background-color 0.3s ease",
             },
           },
@@ -125,6 +129,9 @@ const ThemeModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         },
         MuiButton: {
           styleOverrides: {
+            root: {
+              borderRadius: 10,
+            },
             containedPrimary: {
               boxShadow: "none",
               "&:hover": { boxShadow: "none", backgroundColor: "#3451D1" },
@@ -138,6 +145,14 @@ const ThemeModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         MuiAlert: {
           styleOverrides: {
             root: { borderRadius: 10 },
+          },
+        },
+        MuiFormHelperText: {
+          styleOverrides: {
+            root: {
+              marginLeft: 2,
+              marginRight: 2,
+            },
           },
         },
       },

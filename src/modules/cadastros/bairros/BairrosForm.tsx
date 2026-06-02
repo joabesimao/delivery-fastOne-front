@@ -78,18 +78,21 @@ const BairrosForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
       <Paper
         elevation={0}
         sx={{
-          p: { xs: 3, md: 5 },
+          p: { xs: 2, sm: 3, md: 4 },
+          width: "100%",
           maxWidth: 720,
           mx: "auto",
           bgcolor: "background.paper",
-          border: "1px solid", borderColor: "divider",
-          borderRadius: 2,
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: 3,
+          backdropFilter: "blur(2px)",
         }}
       >
-        <Typography variant="h6" fontWeight={700} sx={{ mb: 3, textAlign: "center", color: "text.primary" }}>
+        <Typography variant="h6" fontWeight={700} sx={{ mb: 2.5, textAlign: "center", color: "text.primary" }}>
           Cadastrar bairro
         </Typography>
-        <Divider sx={{ mb: 4 }} />
+        <Divider sx={{ mb: 3 }} />
 
         <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit}>
           {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
@@ -126,16 +129,23 @@ const BairrosForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
                 </Grid>
               </Grid>
 
-              <Divider sx={{ mt: 3, mb: 3 }} />
-              <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
+              <Divider sx={{ mt: 2.5, mb: 2.5 }} />
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: { xs: "stretch", sm: "flex-end" },
+                  flexDirection: { xs: "column", sm: "row" },
+                  gap: 1.25,
+                }}
+              >
                 <Button type="reset" variant="outlined" color="inherit" disabled={isSubmitting}
-                  sx={{ textTransform: "none", borderColor: "divider", color: "text.secondary" }}
+                  sx={{ textTransform: "none", borderColor: "divider", color: "text.secondary", width: { xs: "100%", sm: "auto" } }}
                 >
                   Limpar
                 </Button>
                 <Button
                   type="submit" variant="contained" disabled={isSubmitting}
-                  sx={{ textTransform: "none", bgcolor: "#4361EE", "&:hover": { bgcolor: "#3451D1" } }}
+                  sx={{ textTransform: "none", bgcolor: "#4361EE", "&:hover": { bgcolor: "#3451D1" }, width: { xs: "100%", sm: "auto" } }}
                   startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : undefined}
                 >
                   {isSubmitting ? "Salvando..." : "Cadastrar"}
