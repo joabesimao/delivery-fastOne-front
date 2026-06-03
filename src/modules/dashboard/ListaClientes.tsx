@@ -5,12 +5,17 @@ import {
   Button,
   Chip,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
   IconButton,
   InputAdornment,
   MenuItem,
   Paper,
   Select,
+  Snackbar,
   Table,
   TableBody,
   TableCell,
@@ -35,6 +40,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
 interface Address {
+  id?: number;
   street: string;
   neighborhood: string;
   numberHouse: number;
@@ -47,8 +53,24 @@ interface ClientItem {
   name: string;
   lastName: string;
   phone: string;
+  status?: boolean;
   Register?: {
+    id?: number;
+    addressId?: number;
     address: Address;
+  };
+}
+
+interface EditClientForm {
+  name: string;
+  lastName: string;
+  phone: string;
+  address: {
+    street: string;
+    neighborhood: string;
+    numberHouse: string;
+    reference: string;
+    city: string;
   };
 }
 
@@ -60,6 +82,15 @@ const ListaClientes: React.FC = () => {
   const [clientes, setClientes] = useState<ClientItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
+  const [viewClient, setViewClient] = useState<ClientItem | null>(null);
+  const [editClient, setEditClient] = useState<ClientItem | null>(null);
+  const [editValues, setEditValues] = useState<EditClientForm | null>(null);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
   // Filtros
   const [search, setSearch] = useState("");
@@ -71,13 +102,111 @@ const ListaClientes: React.FC = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const loadClients = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get<ClientItem[] | null>("/client");
+      setClientes(Array.isArray(res.data) ? res.data : []);
+      setError(null);
+    } catch {
+      setError("Erro ao carregar a lista de clientes.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    api
-      .get<ClientItem[]>("/client")
-      .then((res) => setClientes(res.data))
-      .catch(() => setError("Erro ao carregar a lista de clientes."))
-      .finally(() => setLoading(false));
+    void loadClients();
   }, []);
+
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const openEditDialog = (client: ClientItem) => {
+    const address = client.Register?.address;
+    setEditClient(client);
+    setEditValues({
+      name: client.name,
+      lastName: client.lastName,
+      phone: client.phone,
+      address: {
+        street: address?.street ?? "",
+        neighborhood: address?.neighborhood ?? "",
+        numberHouse: address?.numberHouse ? String(address.numberHouse) : "",
+        reference: address?.reference ?? "",
+        city: address?.city ?? "",
+      },
+    });
+  };
+
+  const handleToggleStatus = async (client: ClientItem) => {
+    const nextStatus = !(client.status !== false);
+    try {
+      setActionLoadingId(client.id);
+      await api.put(`/client/${client.id}`, { status: nextStatus });
+      await loadClients();
+      showSnackbar(
+        nextStatus ? "Cliente ativado com sucesso." : "Cliente inativado com sucesso.",
+        "success"
+      );
+    } catch {
+      showSnackbar("Não foi possível alterar o status do cliente.", "error");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editClient || !editValues) return;
+
+    if (!editValues.name.trim() || !editValues.lastName.trim() || !editValues.phone.trim()) {
+      showSnackbar("Nome, sobrenome e telefone são obrigatórios.", "error");
+      return;
+    }
+
+    if (
+      !editValues.address.street.trim() ||
+      !editValues.address.neighborhood.trim() ||
+      !editValues.address.city.trim() ||
+      !editValues.address.numberHouse.trim()
+    ) {
+      showSnackbar("Preencha os campos obrigatórios do endereço.", "error");
+      return;
+    }
+
+    const addressId = editClient.Register?.addressId ?? editClient.Register?.address?.id;
+    if (!addressId) {
+      showSnackbar("Não foi possível identificar o endereço do cliente para edição.", "error");
+      return;
+    }
+
+    try {
+      setActionLoadingId(editClient.id);
+      await api.put(`/client/${editClient.id}`, {
+        name: editValues.name,
+        lastName: editValues.lastName,
+        phone: editValues.phone,
+      });
+
+      await api.put(`/address/${addressId}`, {
+        street: editValues.address.street,
+        neighborhood: editValues.address.neighborhood,
+        city: editValues.address.city,
+        numberHouse: Number(editValues.address.numberHouse),
+        reference: editValues.address.reference,
+      });
+
+      setEditClient(null);
+      setEditValues(null);
+      await loadClients();
+      showSnackbar("Cliente atualizado com sucesso.", "success");
+    } catch {
+      showSnackbar("Erro ao atualizar cliente. Tente novamente.", "error");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
 
   // Cidades únicas para o filtro
   const cities = useMemo(() => {
@@ -108,7 +237,8 @@ const ListaClientes: React.FC = () => {
         cityFilter === "all" || addr?.city === cityFilter;
 
       const matchesStatus =
-        statusFilter === "all" || statusFilter === "ativo";
+        statusFilter === "all" ||
+        (statusFilter === "ativo" ? c.status !== false : c.status === false);
 
       return matchesName && matchesPhone && matchesCity && matchesStatus;
     });
@@ -404,6 +534,8 @@ const ListaClientes: React.FC = () => {
                   ) : (
                     paginated.map((c) => {
                       const addr = c.Register?.address;
+                      const isActive = c.status !== false;
+                      const isBusy = actionLoadingId === c.id;
                       return (
                         <TableRow
                           key={c.id}
@@ -441,11 +573,23 @@ const ListaClientes: React.FC = () => {
                           </TableCell>
                           <TableCell>
                             <Chip
-                              label="Ativo"
+                              label={isActive ? "Ativo" : "Inativo"}
                               size="small"
                               sx={{
-                                bgcolor: isDark ? "rgba(52,211,153,0.15)" : "#d1fae5",
-                                color: isDark ? "#34d399" : "#065f46",
+                                bgcolor: isActive
+                                  ? isDark
+                                    ? "rgba(52,211,153,0.15)"
+                                    : "#d1fae5"
+                                  : isDark
+                                  ? "rgba(239,68,68,0.2)"
+                                  : "#fee2e2",
+                                color: isActive
+                                  ? isDark
+                                    ? "#34d399"
+                                    : "#065f46"
+                                  : isDark
+                                  ? "#fca5a5"
+                                  : "#991b1b",
                                 fontWeight: 600,
                                 fontSize: 11,
                                 height: 22,
@@ -457,6 +601,8 @@ const ListaClientes: React.FC = () => {
                               <Tooltip title="Visualizar">
                                 <IconButton
                                   size="small"
+                                  onClick={() => setViewClient(c)}
+                                  disabled={isBusy}
                                   sx={{
                                     bgcolor: isDark ? "#374151" : "#e5e7eb",
                                     borderRadius: 1.5,
@@ -471,6 +617,8 @@ const ListaClientes: React.FC = () => {
                               <Tooltip title="Editar">
                                 <IconButton
                                   size="small"
+                                  onClick={() => openEditDialog(c)}
+                                  disabled={isBusy}
                                   sx={{
                                     bgcolor: "#f59e0b",
                                     borderRadius: 1.5,
@@ -480,16 +628,26 @@ const ListaClientes: React.FC = () => {
                                   <EditIcon sx={{ fontSize: 16, color: "#fff" }} />
                                 </IconButton>
                               </Tooltip>
-                              <Tooltip title="Inativar">
+                              <Tooltip title={isActive ? "Inativar" : "Ativar"}>
                                 <IconButton
                                   size="small"
+                                  onClick={() => {
+                                    void handleToggleStatus(c);
+                                  }}
+                                  disabled={isBusy}
                                   sx={{
-                                    bgcolor: "#ef4444",
+                                    bgcolor: isActive ? "#ef4444" : "#22c55e",
                                     borderRadius: 1.5,
-                                    "&:hover": { bgcolor: "#dc2626" },
+                                    "&:hover": {
+                                      bgcolor: isActive ? "#dc2626" : "#16a34a",
+                                    },
                                   }}
                                 >
-                                  <PowerSettingsNewIcon sx={{ fontSize: 16, color: "#fff" }} />
+                                  {isBusy ? (
+                                    <CircularProgress size={14} sx={{ color: "#fff" }} />
+                                  ) : (
+                                    <PowerSettingsNewIcon sx={{ fontSize: 16, color: "#fff" }} />
+                                  )}
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Mais opções">
@@ -553,6 +711,184 @@ const ListaClientes: React.FC = () => {
           </>
         )}
       </Paper>
+
+      <Dialog open={Boolean(viewClient)} onClose={() => setViewClient(null)} fullWidth maxWidth="sm">
+        <DialogTitle>Detalhes do cliente</DialogTitle>
+        <DialogContent dividers>
+          {viewClient && (
+            <Box display="grid" gap={1.25}>
+              <Typography variant="body2"><strong>Nome:</strong> {viewClient.name} {viewClient.lastName}</Typography>
+              <Typography variant="body2"><strong>Telefone:</strong> {viewClient.phone}</Typography>
+              <Typography variant="body2"><strong>Status:</strong> {viewClient.status !== false ? "Ativo" : "Inativo"}</Typography>
+              <Typography variant="body2"><strong>Rua:</strong> {viewClient.Register?.address?.street ?? "—"}</Typography>
+              <Typography variant="body2"><strong>Número:</strong> {viewClient.Register?.address?.numberHouse ?? "—"}</Typography>
+              <Typography variant="body2"><strong>Bairro:</strong> {viewClient.Register?.address?.neighborhood ?? "—"}</Typography>
+              <Typography variant="body2"><strong>Cidade:</strong> {viewClient.Register?.address?.city ?? "—"}</Typography>
+              <Typography variant="body2"><strong>Referência:</strong> {viewClient.Register?.address?.reference || "—"}</Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setViewClient(null)}>Fechar</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(editClient && editValues)}
+        onClose={() => {
+          setEditClient(null);
+          setEditValues(null);
+        }}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Editar cliente</DialogTitle>
+        <DialogContent dividers>
+          {editValues && (
+            <Box display="grid" gap={1.5} pt={0.5}>
+              <TextField
+                label="Nome"
+                size="small"
+                value={editValues.name}
+                onChange={(e) =>
+                  setEditValues((prev) =>
+                    prev ? { ...prev, name: e.target.value } : prev
+                  )
+                }
+              />
+              <TextField
+                label="Sobrenome"
+                size="small"
+                value={editValues.lastName}
+                onChange={(e) =>
+                  setEditValues((prev) =>
+                    prev ? { ...prev, lastName: e.target.value } : prev
+                  )
+                }
+              />
+              <TextField
+                label="Telefone"
+                size="small"
+                value={editValues.phone}
+                onChange={(e) =>
+                  setEditValues((prev) =>
+                    prev ? { ...prev, phone: e.target.value } : prev
+                  )
+                }
+              />
+              <TextField
+                label="Rua"
+                size="small"
+                value={editValues.address.street}
+                onChange={(e) =>
+                  setEditValues((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          address: { ...prev.address, street: e.target.value },
+                        }
+                      : prev
+                  )
+                }
+              />
+              <TextField
+                label="Bairro"
+                size="small"
+                value={editValues.address.neighborhood}
+                onChange={(e) =>
+                  setEditValues((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          address: { ...prev.address, neighborhood: e.target.value },
+                        }
+                      : prev
+                  )
+                }
+              />
+              <TextField
+                label="Cidade"
+                size="small"
+                value={editValues.address.city}
+                onChange={(e) =>
+                  setEditValues((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          address: { ...prev.address, city: e.target.value },
+                        }
+                      : prev
+                  )
+                }
+              />
+              <TextField
+                label="Número"
+                size="small"
+                value={editValues.address.numberHouse}
+                onChange={(e) =>
+                  setEditValues((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          address: { ...prev.address, numberHouse: e.target.value },
+                        }
+                      : prev
+                  )
+                }
+              />
+              <TextField
+                label="Referência"
+                size="small"
+                value={editValues.address.reference}
+                onChange={(e) =>
+                  setEditValues((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          address: { ...prev.address, reference: e.target.value },
+                        }
+                      : prev
+                  )
+                }
+              />
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setEditClient(null);
+              setEditValues(null);
+            }}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              void handleSaveEdit();
+            }}
+            disabled={Boolean(editClient && actionLoadingId === editClient.id)}
+          >
+            Salvar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3500}
+        onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          severity={snackbar.severity}
+          variant="filled"
+          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
