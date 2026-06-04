@@ -1,7 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  Navigate,
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
 import RealizarEntrega from "./modules/entregas/RealizarEntrega.tsx";
 import FinalizarEntrega from "./modules/entregas/FinalizarEntrega.tsx";
 import RelatoriosEntregas from "./modules/entregas/RelatoriosEntregas.tsx";
@@ -14,11 +18,41 @@ import CadastrarBairros from "./modules/cadastros/bairros/CadastrarBairros.tsx";
 import CadastrarCidades from "./modules/cadastros/cidades/CadastrarCidades.tsx";
 import ConfiguracoesVisuais from "./modules/configuracoes/visuais/ConfiguracoesVisuais.tsx";
 import App from "./App.tsx";
+import LoginPage from "./modules/auth/LoginPage.tsx";
+
+const hasAccessToken = () => {
+  if (typeof window === "undefined") return false;
+  return Boolean(localStorage.getItem("accessToken"));
+};
+
+const PublicEntry = () => {
+  if (hasAccessToken()) {
+    return <Navigate to="/dashboard/relatorios" replace />;
+  }
+
+  return <LoginPage />;
+};
+
+const RequireAuth = () => {
+  if (!hasAccessToken()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <App />;
+};
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <PublicEntry />,
+  },
+  {
+    path: "/login",
+    element: <PublicEntry />,
+  },
+  {
+    path: "/",
+    element: <RequireAuth />,
     children: [
       {
         path: "/dashboard",
@@ -65,6 +99,10 @@ const router = createBrowserRouter([
         element: <ConfiguracoesVisuais />,
       },
     ],
+  },
+  {
+    path: "*",
+    element: <Navigate to="/" replace />,
   },
 ]);
 

@@ -27,7 +27,7 @@ import { useUploadUserPhoto } from "@/hooks/users/useUploadUserPhoto";
 import { useToast } from "@/hooks/useToast";
 import { extractApiErrorMessage } from "@/helpers/extractApiErrorMessage";
 import { parseDateOnlyLocal } from "@/helpers/formatDate";
-import { phoneMask } from "@/helpers/masks";
+import { isValidPhone, phoneMask, stripPhone } from "@/helpers/masks";
 import GlobalInput from "@/components/InputComponent";
 import DatePickerComponent from "@/components/DatePickerComponent";
 
@@ -57,7 +57,11 @@ const validationSchema = Yup.object({
   email: Yup.string().email("E-mail inválido").required("E-mail é obrigatório"),
 
   phone: Yup.string()
-    .matches(/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/, "Telefone inválido")
+    .test(
+      "phone-length",
+      "Telefone inválido",
+      (value) => isValidPhone(value ?? ""),
+    )
     .required("Telefone é obrigatório"),
 
   password: Yup.string()
@@ -276,7 +280,7 @@ const ProfileModal: FC<ProfileModalProps> = ({
         const payload: Record<string, any> = {
           nickname: values.nickname || null,
           email: values.email,
-          phone: values.phone.replace(/\D/g, ""),
+          phone: stripPhone(values.phone),
         };
 
         if (values.password && values.password.trim()) {
@@ -393,6 +397,7 @@ const ProfileModal: FC<ProfileModalProps> = ({
             handleChange,
             handleBlur,
             handleSubmit,
+            setFieldValue,
           }) => (
             <Form onSubmit={handleSubmit}>
               <Stack direction={{ xs: "column", md: "row" }} spacing={3}>
@@ -452,7 +457,9 @@ const ProfileModal: FC<ProfileModalProps> = ({
                       label="Telefone"
                       placeholder="(11) 12345-6789"
                       value={values.phone}
-                      onChange={handleChange}
+                      onChange={(e) =>
+                        setFieldValue("phone", phoneMask(e.target.value))
+                      }
                       onBlur={handleBlur}
                       error={touched.phone && Boolean(errors.phone)}
                       helperText={touched.phone && errors.phone}
