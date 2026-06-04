@@ -38,6 +38,7 @@ import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import { isValidPhone, phoneMask, stripPhone } from "../../helpers/masks";
 
 interface Address {
   id?: number;
@@ -129,7 +130,7 @@ const ListaClientes: React.FC = () => {
     setEditValues({
       name: client.name,
       lastName: client.lastName,
-      phone: client.phone,
+      phone: phoneMask(client.phone),
       address: {
         street: address?.street ?? "",
         neighborhood: address?.neighborhood ?? "",
@@ -165,6 +166,11 @@ const ListaClientes: React.FC = () => {
       return;
     }
 
+    if (!isValidPhone(editValues.phone)) {
+      showSnackbar("Telefone inválido. Use DDD + número.", "error");
+      return;
+    }
+
     if (
       !editValues.address.street.trim() ||
       !editValues.address.neighborhood.trim() ||
@@ -186,7 +192,7 @@ const ListaClientes: React.FC = () => {
       await api.put(`/client/${editClient.id}`, {
         name: editValues.name,
         lastName: editValues.lastName,
-        phone: editValues.phone,
+        phone: stripPhone(editValues.phone),
       });
 
       await api.put(`/address/${addressId}`, {
@@ -231,7 +237,7 @@ const ListaClientes: React.FC = () => {
         addr?.street?.toLowerCase().includes(nameTerm);
 
       const matchesPhone =
-        !phoneTerm || c.phone.toLowerCase().includes(phoneTerm);
+        !phoneTerm || stripPhone(c.phone).includes(stripPhone(phoneTerm));
 
       const matchesCity =
         cityFilter === "all" || addr?.city === cityFilter;
@@ -718,7 +724,7 @@ const ListaClientes: React.FC = () => {
           {viewClient && (
             <Box display="grid" gap={1.25}>
               <Typography variant="body2"><strong>Nome:</strong> {viewClient.name} {viewClient.lastName}</Typography>
-              <Typography variant="body2"><strong>Telefone:</strong> {viewClient.phone}</Typography>
+              <Typography variant="body2"><strong>Telefone:</strong> {phoneMask(viewClient.phone)}</Typography>
               <Typography variant="body2"><strong>Status:</strong> {viewClient.status !== false ? "Ativo" : "Inativo"}</Typography>
               <Typography variant="body2"><strong>Rua:</strong> {viewClient.Register?.address?.street ?? "—"}</Typography>
               <Typography variant="body2"><strong>Número:</strong> {viewClient.Register?.address?.numberHouse ?? "—"}</Typography>
@@ -772,9 +778,10 @@ const ListaClientes: React.FC = () => {
                 value={editValues.phone}
                 onChange={(e) =>
                   setEditValues((prev) =>
-                    prev ? { ...prev, phone: e.target.value } : prev
+                    prev ? { ...prev, phone: phoneMask(e.target.value) } : prev
                   )
                 }
+                inputProps={{ maxLength: 15, inputMode: "numeric" }}
               />
               <TextField
                 label="Rua"

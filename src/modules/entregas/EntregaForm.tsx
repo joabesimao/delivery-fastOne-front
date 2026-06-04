@@ -18,6 +18,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { Formik, Form } from "formik";
 import api from "../../services/api";
+import { isValidPhone, phoneMask, stripPhone } from "../../helpers/masks";
 
 interface RegisterResult {
   id: number;
@@ -94,6 +95,7 @@ const validate = (values: DeliveryFormValues): FormErrors => {
   if (!values.name.trim()) errors.name = "Informe o nome.";
   if (!values.lastName.trim()) errors.lastName = "Informe o sobrenome.";
   if (!values.phone.trim()) errors.phone = "Informe o telefone.";
+  else if (!isValidPhone(values.phone)) errors.phone = "Telefone inválido. Use DDD + número.";
   if (!values.address.street.trim()) addrErrors.street = "Informe a rua.";
   if (!values.address.neighborhood.trim()) addrErrors.neighborhood = "Informe o bairro.";
   if (!values.address.numberHouse.trim()) addrErrors.numberHouse = "Informe o número.";
@@ -155,7 +157,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
           client: {
             name: values.name,
             lastName: values.lastName,
-            phone: values.phone,
+            phone: stripPhone(values.phone),
           },
           address: {
             street: values.address.street,
@@ -258,7 +260,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
                           ...values,
                           name: selected.client.name,
                           lastName: selected.client.lastName,
-                          phone: selected.client.phone,
+                          phone: phoneMask(selected.client.phone),
                           address: {
                             street: selected.address.street,
                             neighborhood: selected.address.neighborhood,
@@ -316,7 +318,9 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
                   <TextField
                     fullWidth size="small" placeholder="(00) 00000-0000"
                     name="phone" value={values.phone}
-                    onChange={handleChange} onBlur={handleBlur}
+                    onChange={(e) => setFieldValue("phone", phoneMask(e.target.value))}
+                    onBlur={handleBlur}
+                    inputProps={{ maxLength: 15, inputMode: "numeric" }}
                     error={Boolean(touched.phone && errors.phone)}
                     helperText={touched.phone && errors.phone}
                   />

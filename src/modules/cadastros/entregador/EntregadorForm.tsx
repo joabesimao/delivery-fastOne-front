@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { Formik, Form } from "formik";
 import api from "../../../services/api";
+import { isValidPhone, phoneMask, stripPhone } from "../../../helpers/masks";
 
 interface EntregadorFormValues {
   name: string;
@@ -37,6 +38,7 @@ const validate = (values: EntregadorFormValues): FormErrors => {
   if (!values.name.trim()) errors.name = "Informe o nome.";
   if (!values.lastName.trim()) errors.lastName = "Informe o sobrenome.";
   if (!values.phone.trim()) errors.phone = "Informe o telefone.";
+  else if (!isValidPhone(values.phone)) errors.phone = "Telefone inválido. Use DDD + número.";
   return errors;
 };
 
@@ -55,7 +57,7 @@ const EntregadorForm: React.FC = () => {
       await api.post("/deliveryman", {
         name: values.name,
         lastName: values.lastName,
-        phone: values.phone,
+        phone: stripPhone(values.phone),
       });
       setSnackbar({ open: true, message: "Entregador cadastrado com sucesso!", severity: "success" });
       resetForm();
@@ -90,7 +92,7 @@ const EntregadorForm: React.FC = () => {
         <Divider sx={{ mb: 3 }} />
 
         <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit}>
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+          {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue }) => (
             <Form noValidate>
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
                 Dados do entregador
@@ -122,7 +124,9 @@ const EntregadorForm: React.FC = () => {
                   <TextField
                     fullWidth size="small" placeholder="(00) 00000-0000"
                     name="phone" value={values.phone}
-                    onChange={handleChange} onBlur={handleBlur}
+                    onChange={(e) => setFieldValue("phone", phoneMask(e.target.value))}
+                    onBlur={handleBlur}
+                    inputProps={{ maxLength: 15, inputMode: "numeric" }}
                     error={Boolean(touched.phone && errors.phone)}
                     helperText={touched.phone && errors.phone}
                   />

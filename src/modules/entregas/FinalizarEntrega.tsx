@@ -31,6 +31,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Formik, Form } from "formik";
 import api from "../../services/api";
+import { phoneMask } from "../../helpers/masks";
 
 type OrderStatus = "actived" | "delivered" | "finished";
 
@@ -220,7 +221,7 @@ const FinalizarEntrega: React.FC = () => {
                     {o.Register.client.name} {o.Register.client.lastName}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {o.Register.client.phone}
+                    {phoneMask(o.Register.client.phone)}
                   </Typography>
                 </Box>
               </Grid>
@@ -496,7 +497,7 @@ const FinalizarEntrega: React.FC = () => {
                                 {o.Register.client.name} {o.Register.client.lastName}
                               </Typography>
                               <Typography sx={{ fontSize: 11, color: textSecondary }}>
-                                {o.Register.client.phone}
+                                {phoneMask(o.Register.client.phone)}
                               </Typography>
                             </Box>
                           </TableCell>
