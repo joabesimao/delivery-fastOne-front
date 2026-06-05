@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Alert,
   Box,
@@ -6,7 +6,6 @@ import {
   CircularProgress,
   Divider,
   Grid,
-  MenuItem,
   Paper,
   Snackbar,
   TextField,
@@ -90,8 +89,16 @@ const ClienteForm: React.FC = () => {
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
 
   useEffect(() => {
-    api.get<CityOption[]>("/city").then((res) => setCities(res.data)).catch(() => {});
-    api.get<NeighborhoodOption[]>("/neighborhood").then((res) => setNeighborhoods(res.data)).catch(() => {});
+    api
+      .get<CityOption[]>("/city")
+      .then((res) => setCities(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setCities([]));
+    api
+      .get<NeighborhoodOption[]>("/neighborhood")
+      .then((res) =>
+        setNeighborhoods(Array.isArray(res.data) ? res.data : [])
+      )
+      .catch(() => setNeighborhoods([]));
   }, []);
 
   const handleSubmit = async (
@@ -148,10 +155,10 @@ const ClienteForm: React.FC = () => {
         <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit}>
           {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue }) => {
             const selectedCity = cities.find((c) => c.name === values.address.city);
-            const filteredNeighborhoods = useMemo(
-              () => selectedCity ? neighborhoods.filter((n) => n.cityId === selectedCity.id) : [],
-              [selectedCity, neighborhoods]
-            );
+            const neighborhoodSuggestions = selectedCity
+              ? neighborhoods.filter((n) => n.cityId === selectedCity.id)
+              : neighborhoods;
+
             return (
             <Form noValidate>
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
@@ -214,39 +221,40 @@ const ClienteForm: React.FC = () => {
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FieldLabel label="Cidade *" />
                   <TextField
-                    select fullWidth size="small"
+                    fullWidth size="small"
+                    placeholder="Digite a cidade"
                     name="address.city" value={values.address.city}
                     onChange={(e) => {
                       handleChange(e);
                       setFieldValue("address.neighborhood", "");
                     }}
                     onBlur={handleBlur}
+                    inputProps={{ list: "cliente-city-options" }}
                     error={Boolean(touched.address?.city && errors.address?.city)}
                     helperText={touched.address?.city && errors.address?.city}
-                  >
-                    <MenuItem value="" disabled><em>Selecione a cidade</em></MenuItem>
+                  />
+                  <datalist id="cliente-city-options">
                     {cities.map((c) => (
-                      <MenuItem key={c.id} value={c.name}>{c.name}</MenuItem>
+                      <option key={c.id} value={c.name} />
                     ))}
-                  </TextField>
+                  </datalist>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FieldLabel label="Bairro *" />
                   <TextField
-                    select fullWidth size="small"
+                    fullWidth size="small"
+                    placeholder="Digite o bairro"
                     name="address.neighborhood" value={values.address.neighborhood}
                     onChange={handleChange} onBlur={handleBlur}
-                    disabled={!values.address.city}
+                    inputProps={{ list: "cliente-neighborhood-options" }}
                     error={Boolean(touched.address?.neighborhood && errors.address?.neighborhood)}
                     helperText={touched.address?.neighborhood && errors.address?.neighborhood}
-                  >
-                    <MenuItem value="" disabled>
-                      <em>{values.address.city ? "Selecione o bairro" : "Selecione a cidade primeiro"}</em>
-                    </MenuItem>
-                    {filteredNeighborhoods.map((b) => (
-                      <MenuItem key={b.id} value={b.name}>{b.name}</MenuItem>
+                  />
+                  <datalist id="cliente-neighborhood-options">
+                    {neighborhoodSuggestions.map((b) => (
+                      <option key={b.id} value={b.name} />
                     ))}
-                  </TextField>
+                  </datalist>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 3 }}>
                   <FieldLabel label="Número *" />

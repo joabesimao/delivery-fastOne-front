@@ -52,7 +52,10 @@ const BairrosForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) => {
   const [cities, setCities] = useState<CityOption[]>([]);
 
   useEffect(() => {
-    api.get<CityOption[]>("/city").then((res) => setCities(res.data)).catch(() => {});
+    api
+      .get<CityOption[]>("/city")
+      .then((res) => setCities(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setCities([]));
   }, []);
 
   const handleSubmit = async (
