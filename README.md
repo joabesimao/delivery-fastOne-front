@@ -1,123 +1,97 @@
-# 🚀 Delivery App
+# Delivery FastOne Frontend
 
-Um aplicativo moderno de **delivery**, construído com **React**, **TypeScript** e **Vite**, utilizando **MUI** para interface e **Emotion** para estilização. Este projeto é uma base escalável e modular para sistemas de entrega online.
+![versao](https://img.shields.io/badge/version-1.0.0-0ea5e9.svg)
+![react](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
+![typescript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript&logoColor=white)
+![vite](https://img.shields.io/badge/Vite-8.x-646cff?logo=vite&logoColor=white)
 
----
+Aplicacao web para operacao de entregas, com cadastro e gerenciamento de pedidos, impressao de folha de entrega em PDF e interface otimizada para uso diario.
 
-## 📦 Tecnologias Utilizadas
+## Destaques
 
-- **React 19** – Biblioteca principal para construção da interface.
-- **TypeScript** – Tipagem estática para maior segurança e produtividade.
-- **Vite** – Ferramenta de build rápida e moderna.
-- **MUI (Material UI)** – Componentes prontos e responsivos.
-- **Emotion** – CSS-in-JS para estilização dinâmica.
-- **ESLint** – Linting para manter o código limpo e consistente.
+- Fluxo de criar pedido integrado com emissao de folha de entrega em PDF.
+- Opcao para imprimir direto ou abrir janela de salvar/imprimir manualmente.
+- Formatos de folha: A4, termica 80mm e termica 58mm.
+- Login com token e refresh token.
+- Interface modular com React + MUI.
 
----
+## Stack
 
-## ⚡ Scripts Disponíveis
+- React 19
+- TypeScript
+- Vite
+- Material UI
+- Axios
+- Formik
+- html2canvas + jsPDF
 
-| Script            | Descrição                                                |
-| ----------------- | -------------------------------------------------------- |
-| `npm run dev`     | Inicia o servidor de desenvolvimento (Vite).             |
-| `npm run build`   | Compila o projeto para produção (TypeScript + Vite).     |
-| `npm run preview` | Preview do build de produção.                            |
-| `npm run lint`    | Verifica padrões de código e possíveis erros com ESLint. |
+## Requisitos
 
----
+- Node.js 20+
+- npm 10+
 
-## 🛠️ Instalação
+## Execucao local (sem Docker)
 
-Clone o repositório e instale as dependências:
+1. Instale dependencias:
 
 ```bash
-git clone <URL_DO_REPOSITORIO>
-cd delivery
 npm install
 ```
 
----
+2. Crie o arquivo de ambiente local a partir do modelo publico:
 
-## 🚀 Desenvolvimento
+```bash
+cp .env.public.example .env
+```
 
-Para rodar o projeto em modo desenvolvimento:
+3. Rode em desenvolvimento:
 
 ```bash
 npm run dev
 ```
 
-Abra [http://localhost:5173](http://localhost:5173) no navegador.  
-O Vite suporta **Hot Module Replacement (HMR)**, então alterações no código são refletidas instantaneamente.
+Aplicacao em: http://localhost:5173
 
----
+## Variaveis de ambiente
 
-## 🏗️ Estrutura do Projeto
+Arquivo de exemplo: .env.public.example
 
-```text
-delivery/
-├─ public/            # Arquivos estáticos
-├─ src/
-│  ├─ assets/         # Imagens, fontes e ícones
-│  ├─ components/     # Componentes React reutilizáveis
-│  ├─ pages/          # Páginas da aplicação
-│  ├─ styles/         # Estilos globais e temas
-│  ├─ App.tsx         # Componente raiz
-│  └─ main.tsx        # Entrada da aplicação
-├─ package.json
-├─ tsconfig.json
-└─ vite.config.ts
-```
+- VITE_API_BASE_URL: URL base da API.
+- VITE_DEFAULT_LOGIN: login inicial sugerido na tela.
+- VITE_DEFAULT_PASSWORD: senha inicial sugerida na tela.
+- VITE_DELIVERY_COMPANY_NAME: nome da empresa na folha de entrega.
+- VITE_DELIVERY_COMPANY_DOCUMENT: documento exibido na folha (ex.: CNPJ).
+- VITE_DELIVERY_SHEET_FORMAT: formato padrao da folha (a4, thermal80, thermal58).
 
----
+## Docker publico (frontend)
 
-## 💅 Estilização
+Este projeto inclui Dockerfile publico para publicacao.
 
-O projeto utiliza **Emotion** e **MUI**:
-
-- **Emotion**: Permite CSS-in-JS com componentes estilizados.
-- **MUI**: Componentes prontos, responsivos e customizáveis via tema.
-
----
-
-## 🧹 Linting & Qualidade de Código
-
-- Configurado com **ESLint** para detectar problemas e manter padrões.
-- Plugins utilizados: `react-hooks`, `react-refresh`, `@typescript-eslint`.
-
-Rodar lint:
+Build da imagem:
 
 ```bash
-npm run lint
+docker build -f Dockerfile.public -t fastone-front:public .
 ```
 
----
+Run:
 
-## 🔗 Dependências Principais
-
-```json
-"dependencies": {
-  "react": "^19.2.4",
-  "react-dom": "^19.2.4",
-  "@mui/material": "^7.3.9",
-  "@mui/icons-material": "^7.3.9",
-  "@emotion/react": "^11.14.0",
-  "@emotion/styled": "^11.14.1",
-  "@fontsource/roboto": "^5.2.10"
-}
+```bash
+docker run --rm -p 5173:80 fastone-front:public
 ```
 
----
+## Scripts
 
-## 📜 Contribuição
+- npm run dev: servidor de desenvolvimento.
+- npm run build: build de producao.
+- npm run preview: preview do build.
+- npm run lint: verificacao de lint.
 
-1. Fork este repositório
-2. Crie uma branch com sua feature: `git checkout -b feature/nova-feature`
-3. Commit suas alterações: `git commit -m 'Adicionar nova feature'`
-4. Push para a branch: `git push origin feature/nova-feature`
-5. Abra um Pull Request
+## Publicacao Full Stack
 
----
+Para subir frontend + API + MySQL com um comando, use o compose publico do backend em:
 
-## 📄 Licenç
+- ../nodejs-backend-delivery-manager/docker-compose.public.yml
 
-Este projeto é **privado**, mas pode ser adaptado para projetos públicos conforme necessidade.
+## Licenca
+
+Uso interno/projeto privado. Adapte conforme politica do seu repositorio publico.

@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api';
+
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: API_BASE_URL,
 });
 
 api.interceptors.request.use((config) => {
@@ -36,7 +38,7 @@ const tryRefreshToken = async (): Promise<string | null> => {
   for (const endpoint of refreshCandidates) {
     try {
       const response = await axios.post(
-        `http://localhost:3000/api${endpoint}`,
+        `${API_BASE_URL}${endpoint}`,
         { refreshToken },
       );
 

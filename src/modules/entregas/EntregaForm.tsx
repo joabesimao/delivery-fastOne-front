@@ -1,22 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import {
   Alert,
   Autocomplete,
   Box,
   Button,
+  Checkbox,
   CircularProgress,
   Divider,
+  FormControlLabel,
   Grid,
   IconButton,
   InputAdornment,
   Paper,
   Snackbar,
+  MenuItem,
   TextField,
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Formik, Form } from "formik";
 import api from "../../services/api";
+import { exportHtmlToPdf } from "../../helpers/exportHtmlToPdf";
 import { isValidPhone, phoneMask, stripPhone } from "../../helpers/masks";
 
 interface RegisterResult {
@@ -62,6 +67,33 @@ interface NeighborhoodOption {
   name: string;
   cityId: number;
 }
+
+interface DeliverySheetData {
+  orderId: number | null;
+  createdAt: string;
+  name: string;
+  lastName: string;
+  phone: string;
+  street: string;
+  neighborhood: string;
+  numberHouse: string;
+  reference: string;
+  city: string;
+  quantity: string;
+  amount: number;
+}
+
+type DeliverySheetFormat = "a4" | "thermal80" | "thermal58";
+
+const DELIVERY_PRINT_PREF_KEY = "delivery_sheet_skip_preview";
+const DELIVERY_COMPANY_NAME = import.meta.env.VITE_DELIVERY_COMPANY_NAME ?? "FastOne Delivery";
+const DELIVERY_COMPANY_DOCUMENT = import.meta.env.VITE_DELIVERY_COMPANY_DOCUMENT ?? "";
+const DELIVERY_DEFAULT_SHEET_FORMAT =
+  (import.meta.env.VITE_DELIVERY_SHEET_FORMAT as DeliverySheetFormat | undefined) ?? "a4";
+const CURRENCY_FORMATTER = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+});
 
 const initialValues: DeliveryFormValues = {
   name: "",
@@ -113,6 +145,7 @@ interface EntregaFormProps {
 }
 
 const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
+  const printRef = useRef<HTMLDivElement | null>(null);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -124,6 +157,12 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
   const [selectedRegisterId, setSelectedRegisterId] = useState<number | null>(null);
   const [cities, setCities] = useState<CityOption[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
+  const [skipPrintPreview, setSkipPrintPreview] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(DELIVERY_PRINT_PREF_KEY) === "1";
+  });
+  const [sheetData, setSheetData] = useState<DeliverySheetData | null>(null);
+  const [sheetFormat, setSheetFormat] = useState<DeliverySheetFormat>(DELIVERY_DEFAULT_SHEET_FORMAT);
 
   useEffect(() => {
     api
@@ -177,11 +216,42 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
         registerId = registerRes.data.id;
       }
 
-      await api.post("/orderDelivery", {
+      const orderRes = await api.post("/orderDelivery", {
         registerId,
         quantity: String(values.quantity),
         amount: Number(values.amount),
       });
+
+      const createdSheetData: DeliverySheetData = {
+        orderId: typeof orderRes?.data?.id === "number" ? orderRes.data.id : null,
+        createdAt: new Date().toISOString(),
+        name: values.name,
+        lastName: values.lastName,
+        phone: values.phone,
+        street: values.address.street,
+        neighborhood: values.address.neighborhood,
+        numberHouse: values.address.numberHouse,
+        reference: values.address.reference,
+        city: values.address.city,
+        quantity: String(values.quantity),
+        amount: Number(values.amount),
+      };
+      // flushSync força o React a renderizar a folha antes de converter em PDF,
+      // garantindo que printRef já contém os dados do pedido atual.
+      flushSync(() => setSheetData(createdSheetData));
+
+      if (printRef.current) {
+        const timestamp = new Date(createdSheetData.createdAt).getTime();
+        const paperWidthMm =
+          sheetFormat === "thermal80" ? 80 : sheetFormat === "thermal58" ? 58 : undefined;
+        await exportHtmlToPdf({
+          element: printRef.current,
+          fileName: `folha-entrega-${createdSheetData.orderId ?? timestamp}`,
+          margin: paperWidthMm ? 3 : 8,
+          paperWidthMm,
+          output: skipPrintPreview ? "print" : "open",
+        });
+      }
 
       setSnackbar({ open: true, message: "Pedido criado com sucesso!", severity: "success" });
       setSelectedRegisterId(null);
@@ -455,6 +525,40 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
 
               {/* ── Ações ─────────────────────────────────────────── */}
               <Divider sx={{ mt: 3, mb: 3 }} />
+              <Grid container spacing={2} sx={{ mb: 1.5 }}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FieldLabel label="Formato da folha" />
+                  <TextField
+                    select
+                    size="small"
+                    fullWidth
+                    value={sheetFormat}
+                    onChange={(event) => setSheetFormat(event.target.value as DeliverySheetFormat)}
+                  >
+                    <MenuItem value="a4">A4</MenuItem>
+                    <MenuItem value="thermal80">Termica 80mm</MenuItem>
+                    <MenuItem value="thermal58">Termica 58mm</MenuItem>
+                  </TextField>
+                </Grid>
+              </Grid>
+              <FormControlLabel
+                sx={{ mb: 1 }}
+                control={(
+                  <Checkbox
+                    size="small"
+                    checked={skipPrintPreview}
+                    onChange={(event) => {
+                      const checked = event.target.checked;
+                      setSkipPrintPreview(checked);
+                      window.localStorage.setItem(
+                        DELIVERY_PRINT_PREF_KEY,
+                        checked ? "1" : "0"
+                      );
+                    }}
+                  />
+                )}
+                label="Não mostrar novamente (imprimir folha direto)"
+              />
               <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
                 <Button type="reset" variant="outlined" color="inherit" disabled={isSubmitting}
                   sx={{ textTransform: "none", borderColor: "divider", color: "text.secondary" }}
@@ -488,6 +592,145 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      {sheetData && (
+        <Box
+          ref={printRef}
+          sx={{
+            width:
+              sheetFormat === "thermal80"
+                ? "302px"
+                : sheetFormat === "thermal58"
+                  ? "219px"
+                  : "794px",
+            position: "fixed",
+            left: "-99999px",
+            top: 0,
+            bgcolor: "#fff",
+            color: "#111",
+            p: sheetFormat === "a4" ? 4 : 1.5,
+            border: "1px solid #d0d0d0",
+            fontFamily: "'Helvetica Neue', Arial, sans-serif",
+            fontSize: sheetFormat === "a4" ? "inherit" : "11px",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              borderBottom: "2px solid #111",
+              pb: 1.5,
+              mb: 2,
+            }}
+          >
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: sheetFormat === "a4" ? 24 : 15,
+                  fontWeight: 800,
+                  letterSpacing: 0.5,
+                }}
+              >
+                {DELIVERY_COMPANY_NAME}
+              </Typography>
+              {DELIVERY_COMPANY_DOCUMENT ? (
+                <Typography sx={{ fontSize: 11, color: "#444" }}>
+                  Documento: {DELIVERY_COMPANY_DOCUMENT}
+                </Typography>
+              ) : null}
+            </Box>
+            <Box sx={{ textAlign: "right" }}>
+              <Typography sx={{ fontSize: sheetFormat === "a4" ? 20 : 12, fontWeight: 700 }}>
+                FOLHA DE ENTREGA
+              </Typography>
+              <Typography sx={{ fontSize: 11, color: "#444" }}>
+                Emitido em {new Date(sheetData.createdAt).toLocaleString("pt-BR")}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Grid container spacing={1.2} sx={{ mb: 2 }}>
+            <Grid size={{ xs: 4 }}>
+              <Box sx={{ border: "1px solid #111", p: 1.2, minHeight: 62 }}>
+                <Typography sx={{ fontSize: 10, color: "#555", mb: 0.3 }}>Pedido</Typography>
+                <Typography sx={{ fontSize: sheetFormat === "a4" ? 18 : 13, fontWeight: 700 }}>
+                  #{sheetData.orderId ?? "-"}
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 4 }}>
+              <Box sx={{ border: "1px solid #111", p: 1.2, minHeight: 62 }}>
+                <Typography sx={{ fontSize: 10, color: "#555", mb: 0.3 }}>Quantidade</Typography>
+                <Typography sx={{ fontSize: sheetFormat === "a4" ? 18 : 13, fontWeight: 700 }}>
+                  {sheetData.quantity}
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 4 }}>
+              <Box sx={{ border: "1px solid #111", p: 1.2, minHeight: 62 }}>
+                <Typography sx={{ fontSize: 10, color: "#555", mb: 0.3 }}>Valor</Typography>
+                <Typography sx={{ fontSize: sheetFormat === "a4" ? 18 : 13, fontWeight: 700 }}>
+                  {CURRENCY_FORMATTER.format(sheetData.amount)}
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
+
+          <Box sx={{ border: "1px solid #111", p: 1.5, mb: 1.5 }}>
+            <Typography sx={{ fontSize: 11, color: "#555", mb: 0.6 }}>Cliente</Typography>
+            <Typography sx={{ fontSize: 14, fontWeight: 700, mb: 0.3 }}>
+              {sheetData.name} {sheetData.lastName}
+            </Typography>
+            <Typography sx={{ fontSize: 12 }}>Telefone: {sheetData.phone}</Typography>
+          </Box>
+
+          <Box sx={{ border: "1px solid #111", p: 1.5, mb: 1.5 }}>
+            <Typography sx={{ fontSize: 11, color: "#555", mb: 0.6 }}>Endereço de entrega</Typography>
+            <Typography sx={{ fontSize: 12, mb: 0.3 }}>
+              {sheetData.street}, {sheetData.numberHouse}
+            </Typography>
+            <Typography sx={{ fontSize: 12, mb: 0.3 }}>
+              {sheetData.neighborhood} - {sheetData.city}
+            </Typography>
+            <Typography sx={{ fontSize: 12 }}>
+              Referência: {sheetData.reference || "Sem referência"}
+            </Typography>
+          </Box>
+
+          <Box sx={{ border: "1px solid #111", p: 1.5, mb: 2.5, minHeight: sheetFormat === "a4" ? 72 : 56 }}>
+            <Typography sx={{ fontSize: 11, color: "#555", mb: 0.6 }}>Observações da entrega</Typography>
+            <Typography sx={{ fontSize: 12, color: "#777" }}>
+              _________________________________________________________________________________
+            </Typography>
+            {sheetFormat === "a4" ? (
+              <Typography sx={{ fontSize: 12, color: "#777" }}>
+                _________________________________________________________________________________
+              </Typography>
+            ) : null}
+          </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              mt: sheetFormat === "a4" ? 7 : 3,
+              gap: 1,
+            }}
+          >
+            <Box sx={{ width: "31%", borderTop: "1px solid #111", pt: 0.8 }}>
+              <Typography variant="caption">Assinatura do entregador</Typography>
+            </Box>
+            <Box sx={{ width: "31%", borderTop: "1px solid #111", pt: 0.8 }}>
+              <Typography variant="caption">Assinatura do cliente</Typography>
+            </Box>
+            <Box sx={{ width: "31%", borderTop: "1px solid #111", pt: 0.8 }}>
+              <Typography variant="caption">Data e hora do recebimento</Typography>
+            </Box>
+          </Box>
+        </Box>
+      )}
     </>
   );
 };

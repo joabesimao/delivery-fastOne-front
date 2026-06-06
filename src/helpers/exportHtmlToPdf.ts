@@ -7,7 +7,8 @@ interface ExportHtmlToPdfOptions {
   orientation?: "portrait" | "landscape";
   scale?: number;
   margin?: number;
-  output?: "save" | "print";
+  output?: "save" | "print" | "open";
+  paperWidthMm?: number;
 }
 
 /**
@@ -21,6 +22,7 @@ export async function exportHtmlToPdf({
   scale = 2,
   margin = 10,
   output = "save",
+  paperWidthMm,
 }: ExportHtmlToPdfOptions): Promise<void> {
   try {
     const canvas = await html2canvas(element, {
@@ -32,34 +34,48 @@ export async function exportHtmlToPdf({
     });
 
     const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({
-      orientation,
-      unit: "mm",
-      format: "a4",
-    });
-
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
+    const ratio = canvasHeight / canvasWidth;
 
-    const ratio = canvasWidth / canvasHeight;
-    const widthInPdf = pdfWidth - margin * 2;
-    const heightInPdf = widthInPdf / ratio;
+    let pdf: jsPDF;
 
-    let heightLeft = heightInPdf;
-    let position = margin;
+    if (paperWidthMm && paperWidthMm > margin * 2) {
+      const widthInPdf = paperWidthMm - margin * 2;
+      const heightInPdf = widthInPdf * ratio;
+      const pageHeightMm = heightInPdf + margin * 2;
 
-    // Adicionar primeira página
-    pdf.addImage(imgData, "PNG", margin, position, widthInPdf, heightInPdf);
-    heightLeft -= pdfHeight - margin * 2;
+      pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: [paperWidthMm, pageHeightMm],
+      });
 
-    // Adicionar páginas adicionais se necessário
-    while (heightLeft >= 0) {
-      position = heightLeft - heightInPdf + margin;
-      pdf.addPage();
+      pdf.addImage(imgData, "PNG", margin, margin, widthInPdf, heightInPdf);
+    } else {
+      pdf = new jsPDF({
+        orientation,
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const widthInPdf = pdfWidth - margin * 2;
+      const heightInPdf = widthInPdf * ratio;
+
+      let heightLeft = heightInPdf;
+      let position = margin;
+
       pdf.addImage(imgData, "PNG", margin, position, widthInPdf, heightInPdf);
-      heightLeft -= pdfHeight - margin;
+      heightLeft -= pdfHeight - margin * 2;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - heightInPdf + margin;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", margin, position, widthInPdf, heightInPdf);
+        heightLeft -= pdfHeight - margin;
+      }
     }
 
     if (output === "print") {
@@ -92,6 +108,10 @@ export async function exportHtmlToPdf({
 
         document.body.appendChild(iframe);
       });
+    } else if (output === "open") {
+      pdf.autoPrint();
+      const blobUrl = pdf.output("bloburl");
+      window.open(blobUrl.toString(), "_blank", "noopener,noreferrer");
     } else {
       pdf.save(`${fileName}.pdf`);
     }
