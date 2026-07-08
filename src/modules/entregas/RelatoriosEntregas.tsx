@@ -14,7 +14,7 @@ import {
 import api from "../../services/api";
 
 interface RankingItem {
-  registerId: number;
+  deliverymanId: number;
   deliverymanName: string;
   totalDeliveries: number;
 }
@@ -281,7 +281,7 @@ const RelatoriosEntregas: React.FC = () => {
           </Alert>
 
           {ranking.map((item, index) => (
-            <Card key={item.registerId} sx={{ borderRadius: 2 }}>
+            <Card key={item.deliverymanId} sx={{ borderRadius: 2 }}>
               <CardContent
                 sx={{
                   display: "flex",

@@ -53,6 +53,12 @@ interface OrderData {
   amount: number;
   data: string;
   status: OrderStatus;
+  deliveryman?: {
+    id: number;
+    name: string;
+    lastName: string;
+    phone: string;
+  };
   Register: {
     client: { name: string; lastName: string; phone: string };
     address: {
@@ -68,6 +74,13 @@ interface OrderData {
 interface FinalizeFormValues {
   quantity: string;
   amount: number | "";
+  deliverymanId: string;
+}
+
+interface DeliverymanFilterOption {
+  id: number;
+  name: string;
+  lastName: string;
 }
 
 const FinalizarEntrega: React.FC = () => {
@@ -89,6 +102,8 @@ const FinalizarEntrega: React.FC = () => {
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | OrderStatus>("all");
+  const [deliverymanFilter, setDeliverymanFilter] = useState<string>("all");
+  const [deliverymen, setDeliverymen] = useState<DeliverymanFilterOption[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -110,6 +125,13 @@ const FinalizarEntrega: React.FC = () => {
 
   useEffect(() => { fetchOrders(); }, []);
 
+  useEffect(() => {
+    api
+      .get<DeliverymanFilterOption[]>("/deliveryman")
+      .then((res) => setDeliverymen(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setDeliverymen([]));
+  }, []);
+
   const filtered = useMemo(() => {
     return orders.filter((o) => {
         const term = search.trim().toLowerCase();
@@ -118,18 +140,24 @@ const FinalizarEntrega: React.FC = () => {
           `${o.Register.client.name} ${o.Register.client.lastName}`.toLowerCase().includes(term) ||
           String(o.id).includes(term) ||
           o.Register.address.city.toLowerCase().includes(term) ||
-          o.Register.address.neighborhood.toLowerCase().includes(term);
+          o.Register.address.neighborhood.toLowerCase().includes(term) ||
+          `${o.deliveryman?.name ?? ""} ${o.deliveryman?.lastName ?? ""}`
+            .toLowerCase()
+            .includes(term);
         const matchesStatus = statusFilter === "all" || o.status === statusFilter;
-        return matchesSearch && matchesStatus;
+        const matchesDeliveryman =
+          deliverymanFilter === "all" ||
+          String(o.deliveryman?.id ?? "") === deliverymanFilter;
+        return matchesSearch && matchesStatus && matchesDeliveryman;
       });
-  }, [orders, search, statusFilter]);
+  }, [orders, search, statusFilter, deliverymanFilter]);
 
   const paginated = useMemo(() => {
     const start = page * rowsPerPage;
     return filtered.slice(start, start + rowsPerPage);
   }, [filtered, page, rowsPerPage]);
 
-  useEffect(() => { setPage(0); }, [search, statusFilter]);
+  useEffect(() => { setPage(0); }, [search, statusFilter, deliverymanFilter]);
 
   const handleFinalize = async (
     values: FinalizeFormValues,
@@ -140,6 +168,7 @@ const FinalizarEntrega: React.FC = () => {
       await api.put(`/orderDelivery/${selectedOrder.id}`, {
         quantity: values.quantity,
         amount: Number(values.amount),
+        deliverymanId: Number(values.deliverymanId),
         status: "finished",
       });
       setSnackbar({ open: true, message: "Entrega finalizada com sucesso!", severity: "success" });
@@ -230,6 +259,25 @@ const FinalizarEntrega: React.FC = () => {
                   <Typography variant="caption" fontWeight={600}
                     sx={{ color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.5px" }}
                   >
+                    Entregador
+                  </Typography>
+                  <Typography variant="body2" fontWeight={600} sx={{ mt: 0.5, color: "text.primary" }}>
+                    {o.deliveryman
+                      ? `${o.deliveryman.name} ${o.deliveryman.lastName}`
+                      : "Não vinculado"}
+                  </Typography>
+                  {o.deliveryman?.phone ? (
+                    <Typography variant="body2" color="text.secondary">
+                      {phoneMask(o.deliveryman.phone)}
+                    </Typography>
+                  ) : null}
+                </Box>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <Box sx={{ p: 2, border: "1px solid", borderColor: "divider", borderRadius: 1.5 }}>
+                  <Typography variant="caption" fontWeight={600}
+                    sx={{ color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.5px" }}
+                  >
                     Endereço
                   </Typography>
                   <Typography variant="body2" fontWeight={600} sx={{ mt: 0.5, color: "text.primary" }}>
@@ -254,13 +302,19 @@ const FinalizarEntrega: React.FC = () => {
           </Typography>
 
           <Formik
-            initialValues={{ quantity: o.quantity, amount: o.amount }}
+            initialValues={{
+              quantity: o.quantity,
+              amount: o.amount,
+              deliverymanId: o.deliveryman ? String(o.deliveryman.id) : "",
+            }}
             validate={(values) => {
               const errors: Partial<FinalizeFormValues> = {};
               if (!values.quantity.trim() || Number(values.quantity) <= 0)
                 errors.quantity = "Informe a quantidade.";
               if (!values.amount || Number(values.amount) <= 0)
                 errors.amount = "Informe o valor." as unknown as number;
+              if (!values.deliverymanId)
+                errors.deliverymanId = "Selecione o entregador.";
               return errors;
             }}
             onSubmit={handleFinalize}
@@ -269,6 +323,29 @@ const FinalizarEntrega: React.FC = () => {
             {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
               <Form noValidate>
                 <Grid container spacing={2} sx={{ mb: 4 }}>
+                  <Grid size={{ xs: 12 }}>
+                    <FieldLabel label="Entregador responsável *" />
+                    <TextField
+                      select
+                      fullWidth
+                      size="small"
+                      name="deliverymanId"
+                      value={values.deliverymanId}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={Boolean(touched.deliverymanId && errors.deliverymanId)}
+                      helperText={touched.deliverymanId && errors.deliverymanId}
+                    >
+                      <MenuItem value="" disabled>
+                        <em>Selecione o entregador</em>
+                      </MenuItem>
+                      {deliverymen.map((deliveryman) => (
+                        <MenuItem key={deliveryman.id} value={String(deliveryman.id)}>
+                          {deliveryman.name} {deliveryman.lastName}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <FieldLabel label="Quantidade *" />
                     <TextField
@@ -379,7 +456,7 @@ const FinalizarEntrega: React.FC = () => {
             </Typography>
             <TextField
               size="small"
-              placeholder="Nome do cliente, ID, cidade..."
+              placeholder="Nome do cliente, entregador, ID, cidade..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               slotProps={{
@@ -423,6 +500,27 @@ const FinalizarEntrega: React.FC = () => {
               </Select>
             </FormControl>
           </Box>
+
+          <Box flex="1" minWidth={220}>
+            <Typography variant="caption" sx={{ color: labelColor, fontWeight: 600, mb: 0.5, display: "block" }}>
+              Entregador
+            </Typography>
+            <FormControl size="small" fullWidth>
+              <Select
+                value={deliverymanFilter}
+                onChange={(e) => setDeliverymanFilter(e.target.value)}
+                displayEmpty
+                sx={{ borderRadius: 2, bgcolor: inputBg, fontSize: 13 }}
+              >
+                <MenuItem value="all">Todos os entregadores</MenuItem>
+                {deliverymen.map((deliveryman) => (
+                  <MenuItem key={deliveryman.id} value={String(deliveryman.id)}>
+                    {deliveryman.name} {deliveryman.lastName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
         </Box>
 
         {loading && (
@@ -443,7 +541,7 @@ const FinalizarEntrega: React.FC = () => {
               <Table size="small">
                 <TableHead>
                   <TableRow sx={{ bgcolor: isDark ? "#1f2937" : "#f9fafb" }}>
-                    {["ID", "Cliente", "Endereço", "Bairro / Cidade", "Qtd.", "Valor", "Data", "Status"].map((col) => (
+                    {["ID", "Cliente", "Entregador", "Endereço", "Bairro / Cidade", "Qtd.", "Valor", "Data", "Status"].map((col) => (
                       <TableCell
                         key={col}
                         sx={{
@@ -465,7 +563,7 @@ const FinalizarEntrega: React.FC = () => {
                   {paginated.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={8}
+                        colSpan={9}
                         align="center"
                         sx={{ py: 6, color: textSecondary, fontSize: 14, borderColor }}
                       >
@@ -500,6 +598,11 @@ const FinalizarEntrega: React.FC = () => {
                                 {phoneMask(o.Register.client.phone)}
                               </Typography>
                             </Box>
+                          </TableCell>
+                          <TableCell sx={{ color: isDark ? "#d1d5db" : "#374151" }}>
+                            {o.deliveryman
+                              ? `${o.deliveryman.name} ${o.deliveryman.lastName}`
+                              : "Não vinculado"}
                           </TableCell>
                           <TableCell sx={{ color: isDark ? "#d1d5db" : "#374151" }}>
                             {o.Register.address.street}, {o.Register.address.numberHouse}

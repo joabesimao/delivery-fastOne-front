@@ -6,6 +6,7 @@ import {
   CircularProgress,
   Divider,
   Grid,
+  MenuItem,
   Paper,
   Snackbar,
   TextField,
@@ -221,40 +222,49 @@ const ClienteForm: React.FC = () => {
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FieldLabel label="Cidade *" />
                   <TextField
-                    fullWidth size="small"
-                    placeholder="Digite a cidade"
+                    select fullWidth size="small"
                     name="address.city" value={values.address.city}
                     onChange={(e) => {
                       handleChange(e);
                       setFieldValue("address.neighborhood", "");
                     }}
                     onBlur={handleBlur}
-                    inputProps={{ list: "cliente-city-options" }}
                     error={Boolean(touched.address?.city && errors.address?.city)}
                     helperText={touched.address?.city && errors.address?.city}
-                  />
-                  <datalist id="cliente-city-options">
+                  >
+                    <MenuItem value="" disabled>
+                      <em>Selecione a cidade</em>
+                    </MenuItem>
                     {cities.map((c) => (
-                      <option key={c.id} value={c.name} />
+                      <MenuItem key={c.id} value={c.name}>{c.name}</MenuItem>
                     ))}
-                  </datalist>
+                  </TextField>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FieldLabel label="Bairro *" />
                   <TextField
-                    fullWidth size="small"
-                    placeholder="Digite o bairro"
+                    select fullWidth size="small"
                     name="address.neighborhood" value={values.address.neighborhood}
                     onChange={handleChange} onBlur={handleBlur}
-                    inputProps={{ list: "cliente-neighborhood-options" }}
+                    disabled={!values.address.city || neighborhoodSuggestions.length === 0}
                     error={Boolean(touched.address?.neighborhood && errors.address?.neighborhood)}
-                    helperText={touched.address?.neighborhood && errors.address?.neighborhood}
-                  />
-                  <datalist id="cliente-neighborhood-options">
+                    helperText={
+                      (touched.address?.neighborhood && errors.address?.neighborhood)
+                        ? errors.address?.neighborhood
+                        : (!values.address.city
+                          ? "Selecione a cidade primeiro."
+                          : neighborhoodSuggestions.length === 0
+                            ? "Nenhum bairro cadastrado para esta cidade."
+                            : undefined)
+                    }
+                  >
+                    <MenuItem value="" disabled>
+                      <em>Selecione o bairro</em>
+                    </MenuItem>
                     {neighborhoodSuggestions.map((b) => (
-                      <option key={b.id} value={b.name} />
+                      <MenuItem key={b.id} value={b.name}>{b.name}</MenuItem>
                     ))}
-                  </datalist>
+                  </TextField>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 3 }}>
                   <FieldLabel label="Número *" />

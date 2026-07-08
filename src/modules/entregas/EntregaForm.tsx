@@ -52,6 +52,7 @@ interface DeliveryFormValues {
   name: string;
   lastName: string;
   phone: string;
+  deliverymanId: string;
   address: AddressValues;
   quantity: string;
   amount: number | "";
@@ -66,6 +67,13 @@ interface NeighborhoodOption {
   id: number;
   name: string;
   cityId: number;
+}
+
+interface DeliverymanOption {
+  id: number;
+  name: string;
+  lastName: string;
+  phone: string;
 }
 
 interface DeliverySheetData {
@@ -99,6 +107,7 @@ const initialValues: DeliveryFormValues = {
   name: "",
   lastName: "",
   phone: "",
+  deliverymanId: "",
   address: {
     street: "",
     neighborhood: "",
@@ -155,6 +164,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
   const [registers, setRegisters] = useState<RegisterResult[]>([]);
   const [registersLoading, setRegistersLoading] = useState(false);
   const [selectedRegisterId, setSelectedRegisterId] = useState<number | null>(null);
+  const [deliverymen, setDeliverymen] = useState<DeliverymanOption[]>([]);
   const [cities, setCities] = useState<CityOption[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
   const [skipPrintPreview, setSkipPrintPreview] = useState<boolean>(() => {
@@ -177,6 +187,10 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
       .catch(() => {
         setRegistersLoading(false);
       });
+    api
+      .get<DeliverymanOption[]>("/deliveryman")
+      .then((res) => setDeliverymen(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setDeliverymen([]));
     api
       .get<CityOption[]>("/city")
       .then((res) => setCities(Array.isArray(res.data) ? res.data : []))
@@ -216,11 +230,22 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
         registerId = registerRes.data.id;
       }
 
-      const orderRes = await api.post("/orderDelivery", {
+      const orderPayload: {
+        registerId: number;
+        deliverymanId?: number;
+        quantity: string;
+        amount: number;
+      } = {
         registerId,
         quantity: String(values.quantity),
         amount: Number(values.amount),
-      });
+      };
+
+      if (values.deliverymanId) {
+        orderPayload.deliverymanId = Number(values.deliverymanId);
+      }
+
+      const orderRes = await api.post("/orderDelivery", orderPayload);
 
       const createdSheetData: DeliverySheetData = {
         orderId: typeof orderRes?.data?.id === "number" ? orderRes.data.id : null,
@@ -488,6 +513,27 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
               </Typography>
 
               <Grid container spacing={2} sx={{ mb: 1 }}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FieldLabel label="Entregador" />
+                  <TextField
+                    select
+                    fullWidth
+                    size="small"
+                    name="deliverymanId"
+                    value={values.deliverymanId}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  >
+                    <MenuItem value="" disabled>
+                      <em>Selecione o entregador (opcional)</em>
+                    </MenuItem>
+                    {deliverymen.map((deliveryman) => (
+                      <MenuItem key={deliveryman.id} value={String(deliveryman.id)}>
+                        {deliveryman.name} {deliveryman.lastName}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FieldLabel label="Quantidade *" />
                   <TextField
