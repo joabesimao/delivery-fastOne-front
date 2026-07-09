@@ -1,13 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
-  CircularProgress,
-  Typography,
-  Grid,
+  Button,
   Card,
   CardContent,
-  useTheme,
+  Grid,
+  Skeleton,
+  Stack,
+  Typography,
 } from "@mui/material";
 import {
   PieChart,
@@ -18,6 +19,13 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { PieLabelRenderProps } from "recharts";
+import AssignmentTurnedInOutlinedIcon from "@mui/icons-material/AssignmentTurnedInOutlined";
+import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
+import PublicOutlinedIcon from "@mui/icons-material/PublicOutlined";
+import PendingActionsOutlinedIcon from "@mui/icons-material/PendingActionsOutlined";
+import PageHeader from "../../components/ui/PageHeader";
+import StatCard from "../../components/ui/StatCard";
+import EmptyState from "../../components/ui/EmptyState";
 import api from "../../services/api";
 
 interface DataItem {
@@ -153,8 +161,7 @@ const DonutChart: React.FC<DonutChartProps> = ({ data, height = 300 }) => {
   );
 };
 
-const RelatoriosDashboard: React.FC = () => {
-  const theme = useTheme();
+const RelatoriosDashboard = () => {
   const [orders, setOrders] = useState<OrderData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -230,111 +237,134 @@ const RelatoriosDashboard: React.FC = () => {
     { name: "Pendentes", value: pedidosPendentes },
   ];
 
-  const cardSx = {
-    height: "100%",
-    borderRadius: 3,
-    boxShadow: theme.shadows[2],
-  };
+  const statCards = [
+    { label: "Bairros atendidos", value: bairros.length, description: "Cobertura geográfica consolidada", icon: <LocationOnOutlinedIcon fontSize="small" /> },
+    { label: "Cidades atendidas", value: cidades.length, description: "Distribuição por município", icon: <PublicOutlinedIcon fontSize="small" /> },
+    { label: "Entregas", value: totalPedidos, description: "Volume total registrado", icon: <AssignmentTurnedInOutlinedIcon fontSize="small" /> },
+    { label: "Finalizadas", value: pedidosFinalizados, description: "Pedidos concluídos com sucesso", icon: <PendingActionsOutlinedIcon fontSize="small" /> },
+  ];
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", px: { xs: 1, sm: 2 } }}>
-      <Typography variant="h4" fontWeight={700} gutterBottom>
-        Relatórios de Entregas
-      </Typography>
-      <Typography variant="body2" color="text.secondary" mb={3}>
-        Distribuição percentual das entregas por bairro, cidade e visão geral.
-      </Typography>
+    <Box sx={{ display: "grid", gap: 3 }}>
+      <PageHeader
+        eyebrow="Analíticos"
+        title="Relatórios de entregas"
+        description="Distribuição percentual das entregas por bairro, cidade e situação geral em uma visualização moderna."
+        actions={
+          <Stack direction="row" spacing={1}>
+            <Button variant="outlined" onClick={() => window.location.reload()}>
+              Recarregar
+            </Button>
+          </Stack>
+        }
+        icon={<AssignmentTurnedInOutlinedIcon />}
+      />
 
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-          <CircularProgress />
-        </Box>
-      )}
-
-      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
-
-      {!loading && !error && totalPedidos === 0 && (
-        <Alert severity="info" sx={{ mb: 3 }}>
-          Nenhuma entrega encontrada para gerar relatórios.
-        </Alert>
-      )}
-
-      {/* ── Linha 1: cards de resumo numérico ── */}
-      <Grid container spacing={2} mb={3}>
-        {[
-          { label: "Bairros atendidos", value: bairros.length, icon: "🏘️" },
-          { label: "Cidades atendidas", value: cidades.length, icon: "🏙️" },
-          { label: "Entregas", value: totalPedidos, icon: "📦" },
-          { label: "Finalizadas", value: pedidosFinalizados, icon: "🚚" },
-        ].map((item) => (
-          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={item.label}>
-            <Card
-              sx={{
-                ...cardSx,
-                bgcolor: "primary.main",
-                color: "primary.contrastText",
-              }}
-            >
-              <CardContent sx={{ py: 2 }}>
-                <Typography variant="body2" sx={{ opacity: 0.8, fontSize: 13 }}>
-                  {item.icon} {item.label}
-                </Typography>
-                <Typography variant="h4" fontWeight={700} mt={0.5}>
-                  {item.value}
-                </Typography>
+      {loading ? (
+        <Grid container spacing={2.5}>
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={index}>
+              <Card>
+                <CardContent sx={{ p: 3 }}>
+                  <Skeleton variant="text" width="55%" />
+                  <Skeleton variant="rounded" height={42} sx={{ my: 2 }} />
+                  <Skeleton variant="text" width="75%" />
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+          <Grid size={{ xs: 12, lg: 4 }}>
+            <Card sx={{ height: 340 }}>
+              <CardContent sx={{ p: 3 }}>
+                <Skeleton variant="text" width="40%" />
+                <Skeleton variant="circular" width={220} height={220} sx={{ mx: "auto", my: 3 }} />
               </CardContent>
             </Card>
           </Grid>
-        ))}
-      </Grid>
-
-      {/* ── Linha 2: 3 gráficos de rosquinha ── */}
-      <Grid container spacing={3}>
-        {/* Por Bairro */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Card sx={cardSx}>
-            <CardContent>
-              <Typography variant="h6" fontWeight={600} gutterBottom>
-                Por Bairro
-              </Typography>
-              <Typography variant="body2" color="text.secondary" mb={1}>
-                Total: <strong>{totalBairros}</strong> entregas
-              </Typography>
-              <DonutChart data={bairros} height={280} />
-            </CardContent>
-          </Card>
+          <Grid size={{ xs: 12, lg: 4 }}>
+            <Card sx={{ height: 340 }}>
+              <CardContent sx={{ p: 3 }}>
+                <Skeleton variant="text" width="40%" />
+                <Skeleton variant="circular" width={220} height={220} sx={{ mx: "auto", my: 3 }} />
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 12, lg: 4 }}>
+            <Card sx={{ height: 340 }}>
+              <CardContent sx={{ p: 3 }}>
+                <Skeleton variant="text" width="40%" />
+                <Skeleton variant="circular" width={220} height={220} sx={{ mx: "auto", my: 3 }} />
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
+      ) : null}
 
-        {/* Por Cidade */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Card sx={cardSx}>
-            <CardContent>
-              <Typography variant="h6" fontWeight={600} gutterBottom>
-                Por Cidade
-              </Typography>
-              <Typography variant="body2" color="text.secondary" mb={1}>
-                Total: <strong>{totalCidades}</strong> entregas
-              </Typography>
-              <DonutChart data={cidades} height={280} />
-            </CardContent>
-          </Card>
-        </Grid>
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-        {/* Geral */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Card sx={cardSx}>
-            <CardContent>
-              <Typography variant="h6" fontWeight={600} gutterBottom>
-                Porcentagem Geral
-              </Typography>
-              <Typography variant="body2" color="text.secondary" mb={1}>
-                Finalizadas vs. Pendentes
-              </Typography>
-              <DonutChart data={overallData} height={280} />
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+      {!loading && !error && totalPedidos === 0 ? (
+        <EmptyState
+          title="Nenhuma entrega encontrada"
+          description="Não há registros suficientes para gerar relatórios neste momento."
+          icon={<AssignmentTurnedInOutlinedIcon fontSize="large" />}
+        />
+      ) : null}
+
+      {!loading && !error && totalPedidos > 0 ? (
+        <Stack spacing={3}>
+          <Grid container spacing={2.5}>
+            {statCards.map((item) => (
+              <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={item.label}>
+                <StatCard {...item} />
+              </Grid>
+            ))}
+          </Grid>
+
+          <Grid container spacing={2.5}>
+            <Grid size={{ xs: 12, lg: 4 }}>
+              <Card sx={{ height: "100%" }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h6" sx={{ mb: 0.5 }}>
+                    Por bairro
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    Total: <strong>{totalBairros}</strong> entregas
+                  </Typography>
+                  <DonutChart data={bairros} height={300} />
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid size={{ xs: 12, lg: 4 }}>
+              <Card sx={{ height: "100%" }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h6" sx={{ mb: 0.5 }}>
+                    Por cidade
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    Total: <strong>{totalCidades}</strong> entregas
+                  </Typography>
+                  <DonutChart data={cidades} height={300} />
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid size={{ xs: 12, lg: 4 }}>
+              <Card sx={{ height: "100%" }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h6" sx={{ mb: 0.5 }}>
+                    Situação geral
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    Finalizadas vs. pendentes
+                  </Typography>
+                  <DonutChart data={overallData} height={300} />
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        </Stack>
+      ) : null}
     </Box>
   );
 };

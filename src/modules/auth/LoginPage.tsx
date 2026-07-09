@@ -4,19 +4,34 @@ import {
   Alert,
   Box,
   Button,
-  CircularProgress,
+  Chip,
+  Divider,
+  Grid,
+  IconButton,
+  InputAdornment,
   Paper,
+  Stack,
   TextField,
   Typography,
 } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
+import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
+import QueryStatsOutlinedIcon from "@mui/icons-material/QueryStatsOutlined";
+import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
+import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import useThemeMode from "../../hooks/useThemeMode";
 
 const DEFAULT_LOGIN = import.meta.env.VITE_DEFAULT_LOGIN ?? "admin@fastone.local";
 const DEFAULT_PASSWORD = import.meta.env.VITE_DEFAULT_PASSWORD ?? "123456";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { mode, toggleMode } = useThemeMode();
   const [email, setEmail] = useState(DEFAULT_LOGIN);
   const [password, setPassword] = useState(DEFAULT_PASSWORD);
   const [loading, setLoading] = useState(false);
@@ -93,83 +108,195 @@ const LoginPage = () => {
     <Box
       sx={{
         minHeight: "100vh",
+        px: { xs: 2, sm: 3 },
+        py: { xs: 3, md: 5 },
         display: "grid",
         placeItems: "center",
-        px: 2,
-        background:
-          "radial-gradient(1100px 500px at -20% -15%, rgba(14,165,233,0.35), transparent 60%), radial-gradient(900px 500px at 115% 115%, rgba(16,185,129,0.24), transparent 62%), linear-gradient(180deg, #f6fbff 0%, #eef6ff 38%, #f6f8fc 100%)",
       }}
     >
       <Paper
         elevation={0}
         sx={{
           width: "100%",
-          maxWidth: 460,
-          p: { xs: 3, sm: 4 },
-          borderRadius: 3,
-          border: "1px solid",
-          borderColor: "divider",
-          boxShadow: "0 30px 70px rgba(17, 24, 39, 0.12)",
-          backdropFilter: "blur(4px)",
+          maxWidth: 1180,
+          overflow: "hidden",
+          borderRadius: 5,
+          position: "relative",
         }}
       >
-        <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: -0.5 }}>
-          Delivery FastOne
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 3 }}>
-          Entre para acessar os relatorios de entregas.
-        </Typography>
+        <IconButton
+          onClick={toggleMode}
+          aria-label="Alternar tema"
+          sx={{ position: "absolute", top: 16, right: 16, zIndex: 2 }}
+        >
+          {mode === "dark" ? <LightModeOutlinedIcon /> : <DarkModeOutlinedIcon />}
+        </IconButton>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
-
-        <Box component="form" onSubmit={handleSubmit} noValidate>
-          <TextField
-            fullWidth
-            label="Login"
-            type="email"
-            size="small"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            autoComplete="username"
-            sx={{ mb: 2 }}
-          />
-
-          <TextField
-            fullWidth
-            label="Senha"
-            type="password"
-            size="small"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            autoComplete="current-password"
-            sx={{ mb: 3 }}
-          />
-
-          <Button
-            fullWidth
-            type="submit"
-            variant="contained"
-            disabled={loading}
+        <Grid container>
+          <Grid
+            size={{ xs: 12, md: 5 }}
             sx={{
-              py: 1.1,
-              textTransform: "none",
-              fontWeight: 700,
-              bgcolor: "#0ea5e9",
-              "&:hover": { bgcolor: "#0284c7" },
+              p: { xs: 3, sm: 4, md: 5 },
+              bgcolor: "primary.main",
+              color: "primary.contrastText",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              minHeight: { md: 680 },
+              position: "relative",
+              overflow: "hidden",
             }}
-            startIcon={loading ? <CircularProgress size={18} color="inherit" /> : undefined}
           >
-            {loading ? "Entrando..." : "Entrar"}
-          </Button>
-        </Box>
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                background:
+                  "radial-gradient(circle at top right, rgba(255,255,255,0.24), transparent 32%), radial-gradient(circle at bottom left, rgba(14,165,233,0.22), transparent 26%)",
+              }}
+            />
 
-        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 2.5 }}>
-          Credenciais padrao temporarias: {DEFAULT_LOGIN} / {DEFAULT_PASSWORD}
-        </Typography>
+            <Stack spacing={3} sx={{ position: "relative", zIndex: 1 }}>
+              <Stack direction="row" spacing={1.5} alignItems="center">
+                <Box
+                  sx={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 3,
+                    display: "grid",
+                    placeItems: "center",
+                    bgcolor: "rgba(255,255,255,0.16)",
+                  }}
+                >
+                  <LocalShippingOutlinedIcon />
+                </Box>
+                <Box>
+                  <Typography variant="h5" sx={{ fontWeight: 800 }}>
+                    FastOne Delivery
+                  </Typography>
+                  <Typography variant="body2" sx={{ opacity: 0.86 }}>
+                    Modern operations cockpit
+                  </Typography>
+                </Box>
+              </Stack>
+
+              <Box>
+                <Typography variant="h3" sx={{ mb: 2, maxWidth: 420 }}>
+                  Gestão de entregas com visual SaaS profissional.
+                </Typography>
+                <Typography variant="body1" sx={{ opacity: 0.88, maxWidth: 430 }}>
+                  Acesse relatórios, cadastros e fluxos operacionais em uma interface limpa,
+                  rápida e preparada para light e dark mode.
+                </Typography>
+              </Box>
+
+              <Stack direction="row" spacing={1.25} useFlexGap flexWrap="wrap">
+                <Chip label="Responsivo" color="default" sx={{ bgcolor: "rgba(255,255,255,0.16)", color: "inherit" }} />
+                <Chip label="MUI v7" color="default" sx={{ bgcolor: "rgba(255,255,255,0.16)", color: "inherit" }} />
+                <Chip label="Dark mode" color="default" sx={{ bgcolor: "rgba(255,255,255,0.16)", color: "inherit" }} />
+              </Stack>
+
+              <Stack spacing={2} sx={{ position: "relative", zIndex: 1 }}>
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                  <ShieldOutlinedIcon fontSize="small" />
+                  <Typography variant="body2">Controle de acesso e sessão</Typography>
+                </Stack>
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                  <QueryStatsOutlinedIcon fontSize="small" />
+                  <Typography variant="body2">Indicadores e relatórios centralizados</Typography>
+                </Stack>
+              </Stack>
+            </Stack>
+
+            <Typography variant="caption" sx={{ mt: 4, position: "relative", zIndex: 1, opacity: 0.8 }}>
+              Ambiente de demonstração com credenciais padrão para acesso inicial.
+            </Typography>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 7 }} sx={{ p: { xs: 3, sm: 4, md: 5 } }}>
+            <Stack spacing={3.5} sx={{ height: "100%", justifyContent: "center" }}>
+              <Box>
+                <Typography variant="overline" color="text.secondary">
+                  Autenticação segura
+                </Typography>
+                <Typography variant="h4" sx={{ mt: 0.5 }}>
+                  Entre na plataforma
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1.25, maxWidth: 520 }}>
+                  Use suas credenciais para acessar o painel de operações e acompanhar o fluxo de entregas.
+                </Typography>
+              </Box>
+
+              {error ? <Alert severity="error">{error}</Alert> : null}
+
+              <Box component="form" onSubmit={handleSubmit} noValidate>
+                <Stack spacing={2.25}>
+                  <TextField
+                    label="Login"
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    autoComplete="username"
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <EmailOutlinedIcon fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+
+                  <TextField
+                    label="Senha"
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    autoComplete="current-password"
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LockOutlinedIcon fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+
+                  <LoadingButton
+                    type="submit"
+                    variant="contained"
+                    loading={loading}
+                    loadingPosition="start"
+                    fullWidth
+                    sx={{ py: 1.4 }}
+                  >
+                    Entrar
+                  </LoadingButton>
+                </Stack>
+              </Box>
+
+              <Divider />
+
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} justifyContent="space-between">
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                    Credenciais padrão
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {DEFAULT_LOGIN} / {DEFAULT_PASSWORD}
+                  </Typography>
+                </Box>
+
+                <Button variant="text" onClick={() => setPassword(DEFAULT_PASSWORD)}>
+                  Preencher senha padrão
+                </Button>
+              </Stack>
+            </Stack>
+          </Grid>
+        </Grid>
       </Paper>
     </Box>
   );
