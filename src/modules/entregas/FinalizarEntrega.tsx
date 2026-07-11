@@ -32,6 +32,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Formik, Form } from "formik";
 import api from "../../services/api";
 import { phoneMask } from "../../helpers/masks";
+import { getRealtimeSocket } from "../../services/realtime";
 
 type OrderStatus = "actived" | "delivered" | "finished";
 
@@ -124,6 +125,24 @@ const FinalizarEntrega: React.FC = () => {
   };
 
   useEffect(() => { fetchOrders(); }, []);
+
+  useEffect(() => {
+    const socket = getRealtimeSocket();
+
+    if (!socket) {
+      return;
+    }
+
+    const onDeliveryChanged = () => {
+      fetchOrders();
+    };
+
+    socket.on("delivery:changed", onDeliveryChanged);
+
+    return () => {
+      socket.off("delivery:changed", onDeliveryChanged);
+    };
+  }, []);
 
   useEffect(() => {
     api

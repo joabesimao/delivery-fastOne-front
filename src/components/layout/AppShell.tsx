@@ -42,7 +42,10 @@ import PaletteOutlinedIcon from "@mui/icons-material/PaletteOutlined";
 import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 import TwoWheelerOutlinedIcon from "@mui/icons-material/TwoWheelerOutlined";
 import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
+import ChatOutlinedIcon from "@mui/icons-material/ChatOutlined";
 import useThemeMode from "../../hooks/useThemeMode";
+import { closeRealtimeSocket } from "../../services/realtime";
+import FloatingChatWidget from "../chat/FloatingChatWidget";
 
 type NavigationGroup = {
   label: string;
@@ -92,6 +95,13 @@ const navigationGroups: NavigationGroup[] = [
       { label: "Configurações visuais", path: "/configuracoes/visuais", icon: <PaletteOutlinedIcon fontSize="small" /> },
     ],
   },
+  {
+    label: "Comunicação",
+    icon: <ChatOutlinedIcon fontSize="small" />,
+    children: [
+      { label: "Chat entre lojas", path: "/chat", icon: <ChatOutlinedIcon fontSize="small" /> },
+    ],
+  },
 ];
 
 const routeTitles: Record<string, string> = {
@@ -106,6 +116,7 @@ const routeTitles: Record<string, string> = {
   "/cadastros/bairros": "Cadastrar bairros",
   "/cadastros/cidades": "Cadastrar cidades",
   "/configuracoes/visuais": "Configurações visuais",
+  "/chat": "Chat entre lojas",
 };
 
 const routeDescriptions: Record<string, string> = {
@@ -120,6 +131,7 @@ const routeDescriptions: Record<string, string> = {
   "/cadastros/bairros": "Gerencie bairros usados nos endereços.",
   "/cadastros/cidades": "Organize as cidades disponíveis no sistema.",
   "/configuracoes/visuais": "Personalize aparência e comportamento visual.",
+  "/chat": "Converse com matriz e filiais em tempo real.",
 };
 
 const getAvatarLabel = (email: string) => email.trim().charAt(0).toUpperCase() || "U";
@@ -159,6 +171,7 @@ const AppShell = () => {
   };
 
   const handleLogout = () => {
+    closeRealtimeSocket();
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("currentUserEmail");
@@ -401,10 +414,24 @@ const AppShell = () => {
           ml: { md: `${drawerWidth}px` },
         }}
       >
-        <Box sx={{ maxWidth: 1480, mx: "auto", width: "100%" }}>
+        <Box
+          sx={{
+            maxWidth: 1480,
+            mx: "auto",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            "& > *": {
+              width: "100%",
+            },
+          }}
+        >
           <Outlet />
         </Box>
       </Box>
+
+      <FloatingChatWidget />
     </Box>
   );
 };
