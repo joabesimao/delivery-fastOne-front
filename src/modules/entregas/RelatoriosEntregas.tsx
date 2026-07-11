@@ -12,6 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import api from "../../services/api";
+import { getRealtimeSocket } from "../../services/realtime";
 
 interface RankingItem {
   deliverymanId: number;
@@ -164,6 +165,24 @@ const RelatoriosEntregas: React.FC = () => {
   useEffect(() => {
     loadRanking();
   }, []);
+
+  useEffect(() => {
+    const socket = getRealtimeSocket();
+
+    if (!socket) {
+      return;
+    }
+
+    const onDeliveryChanged = () => {
+      void loadRanking(1);
+    };
+
+    socket.on("delivery:changed", onDeliveryChanged);
+
+    return () => {
+      socket.off("delivery:changed", onDeliveryChanged);
+    };
+  }, [startDate, endDate, status, pageSize]);
 
   return (
     <Box sx={{ maxWidth: 960, mx: "auto", px: { xs: 1, sm: 2 } }}>

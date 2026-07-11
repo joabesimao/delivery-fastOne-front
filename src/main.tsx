@@ -19,6 +19,7 @@ import CadastrarCidades from "./modules/cadastros/cidades/CadastrarCidades.tsx";
 import ConfiguracoesVisuais from "./modules/configuracoes/visuais/ConfiguracoesVisuais.tsx";
 import App from "./App.tsx";
 import LoginPage from "./modules/auth/LoginPage.tsx";
+import ChatRealtime from "./modules/chat/ChatRealtime.tsx";
 
 const hasAccessToken = () => {
   if (typeof window === "undefined") return false;
@@ -97,6 +98,10 @@ const router = createBrowserRouter([
       {
         path: "/configuracoes/visuais",
         element: <ConfiguracoesVisuais />,
+      },
+      {
+        path: "/chat",
+        element: <ChatRealtime />,
       },
     ],
   },
