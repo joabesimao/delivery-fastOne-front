@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { FormEvent } from "react";
 import {
   Alert,
@@ -37,11 +37,6 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const canTryDefaultLogin = useMemo(
-    () => email.trim() === DEFAULT_LOGIN && password === DEFAULT_PASSWORD,
-    [email, password],
-  );
-
   const saveTokensAndEnter = (
     accessToken: string,
     userEmail: string,
@@ -49,10 +44,11 @@ const LoginPage = () => {
   ) => {
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("currentUserEmail", userEmail);
-    localStorage.setItem(
-      "refreshToken",
-      refreshToken || `static-refresh-${Date.now()}`,
-    );
+    if (refreshToken) {
+      localStorage.setItem("refreshToken", refreshToken);
+    } else {
+      localStorage.removeItem("refreshToken");
+    }
     navigate("/dashboard/relatorios", { replace: true });
   };
 
@@ -86,19 +82,22 @@ const LoginPage = () => {
         return;
       }
 
-      if (canTryDefaultLogin) {
-        saveTokensAndEnter(`static-${Date.now()}`, normalizedEmail);
-        return;
-      }
-
       setError("Nao foi possivel autenticar com as credenciais informadas.");
-    } catch {
-      if (canTryDefaultLogin) {
-        saveTokensAndEnter(`static-${Date.now()}`, normalizedEmail);
-        return;
-      }
+    } catch (error: unknown) {
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      const apiMessage =
+        (error as { response?: { data?: { error?: string; message?: string } } })
+          ?.response?.data?.error ||
+        (error as { response?: { data?: { error?: string; message?: string } } })
+          ?.response?.data?.message;
 
-      setError("Login ou senha invalidos.");
+      if (status === 401) {
+        setError(
+          `Credenciais inválidas. Use ${DEFAULT_LOGIN} / ${DEFAULT_PASSWORD}. Se acabou de resetar banco, rode o seed.`,
+        );
+      } else {
+        setError(apiMessage || "Login ou senha invalidos.");
+      }
     } finally {
       setLoading(false);
     }
@@ -290,8 +289,14 @@ const LoginPage = () => {
                   </Typography>
                 </Box>
 
-                <Button variant="text" onClick={() => setPassword(DEFAULT_PASSWORD)}>
-                  Preencher senha padrão
+                <Button
+                  variant="text"
+                  onClick={() => {
+                    setEmail(DEFAULT_LOGIN);
+                    setPassword(DEFAULT_PASSWORD);
+                  }}
+                >
+                  Preencher credenciais padrão
                 </Button>
               </Stack>
             </Stack>

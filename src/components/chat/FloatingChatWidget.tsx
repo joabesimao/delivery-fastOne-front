@@ -7,7 +7,6 @@ import {
   CircularProgress,
   Fab,
   IconButton,
-  MenuItem,
   Paper,
   Stack,
   TextField,
@@ -24,6 +23,7 @@ import {
   type RealtimeChatMessage,
   type RealtimeSessionReady,
 } from "../../services/realtime";
+import api from "../../services/api";
 
 type WidgetPosition = {
   x: number;
@@ -139,11 +139,40 @@ const FloatingChatWidget = () => {
   }, []);
 
   useEffect(() => {
+    let active = true;
+
+    api
+      .get<RealtimeChatMessage[]>("/chat/messages")
+      .then((response) => {
+        if (!active) {
+          return;
+        }
+
+        setMessages(Array.isArray(response.data) ? response.data : []);
+      })
+      .catch(() => {
+        if (!active) {
+          return;
+        }
+
+        setError((current) => current || "Falha ao carregar mensagens do chat.");
+      })
+      .finally(() => {
+        if (active) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     const currentSocket = getRealtimeSocket();
 
     if (!currentSocket) {
-      setError("Sessao sem token para chat.");
-      setLoading(false);
+      setError((current) => current || "Sessao sem token para chat.");
       return;
     }
 
@@ -267,8 +296,12 @@ const FloatingChatWidget = () => {
   }, [open]);
 
   const canSend = useMemo(
-    () => (text.trim().length > 0 || Boolean(imageBase64)) && !sending,
-    [imageBase64, sending, text],
+    () => {
+      const hasContent = text.trim().length > 0 || Boolean(imageBase64);
+      const hasStoreSelected = !session?.units.length || Boolean(selectedUnitId);
+      return hasContent && hasStoreSelected && !sending;
+    },
+    [imageBase64, selectedUnitId, sending, session?.units.length, text],
   );
 
   const unreadTotal = useMemo(
@@ -303,38 +336,51 @@ const FloatingChatWidget = () => {
     setImageMimeType(null);
   };
 
-  const handleSend = () => {
-    if (!socket || !canSend) {
+  const getApiErrorMessage = (error: unknown): string => {
+    return (
+      (error as { response?: { data?: { error?: string; message?: string } } })
+        ?.response?.data?.error ||
+      (error as { response?: { data?: { error?: string; message?: string } } })
+        ?.response?.data?.message ||
+      "Nao foi possivel enviar a mensagem."
+    );
+  };
+
+  const handleSend = async () => {
+    if (!canSend) {
+      if (session?.units.length && !selectedUnitId) {
+        setError("Escolha uma loja na conversa para enviar mensagem.");
+      }
       return;
     }
 
     setSending(true);
     setError(null);
 
-    socket.emit(
-      "chat:send",
-      {
+    try {
+      const response = await api.post<RealtimeChatMessage>("/chat/messages", {
         text,
         imageBase64,
         imageMimeType,
         unitStoreId: selectedUnitId ? Number(selectedUnitId) : undefined,
-      },
-      (response: { ok?: boolean; error?: string }) => {
-        setSending(false);
+      });
 
-        if (!response?.ok) {
-          setError(response?.error || "Nao foi possivel enviar a mensagem.");
-          return;
-        }
+      if (!socket) {
+        setMessages((current) => [...current, response.data]);
+      }
 
-        setText("");
-        clearPhoto();
-      },
-    );
+      setText("");
+      clearPhoto();
+    } catch (error) {
+      setError(getApiErrorMessage(error));
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleStoreChange = (newValue: string) => {
     setSelectedUnitId(newValue);
+    setError(null);
 
     const id = Number(newValue || 0);
     if (!id) {
@@ -345,6 +391,10 @@ const FloatingChatWidget = () => {
       ...current,
       [id]: 0,
     }));
+  };
+
+  const handleClearSelectedStore = () => {
+    setSelectedUnitId("");
   };
 
   const beginDrag = (event: React.PointerEvent<HTMLElement>) => {
@@ -410,39 +460,6 @@ const FloatingChatWidget = () => {
             </IconButton>
           </Stack>
 
-          <Box sx={{ px: 1.25, py: 0.9, borderBottom: "1px solid", borderColor: "divider" }}>
-            <TextField
-              size="small"
-              select
-              fullWidth
-              label="Loja"
-              value={selectedUnitId}
-              onChange={(event) => handleStoreChange(event.target.value)}
-              disabled={!session || session.units.length === 0}
-            >
-              {session?.units.map((unit) => (
-                <MenuItem key={unit.id} value={String(unit.id)}>
-                  <Stack direction="row" alignItems="center" sx={{ width: "100%" }}>
-                    <Box
-                      sx={{
-                        flexGrow: 1,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        pr: 1,
-                      }}
-                    >
-                      {unit.name} {unit.isMain ? "(Matriz)" : "(Filial)"}
-                    </Box>
-                    {(unreadByStore[unit.id] ?? 0) > 0 ? (
-                      <Badge color="error" badgeContent={unreadByStore[unit.id]} sx={{ mr: 1 }} />
-                    ) : null}
-                  </Stack>
-                </MenuItem>
-              ))}
-            </TextField>
-          </Box>
-
           <Box
             ref={listRef}
             sx={{
@@ -467,6 +484,56 @@ const FloatingChatWidget = () => {
 
             {!loading && messages.length === 0 ? (
               <Alert severity="info">Sem mensagens ainda.</Alert>
+            ) : null}
+
+            {session?.units.length && !selectedUnitId ? (
+              <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
+                <Box
+                  sx={{
+                    maxWidth: "92%",
+                    px: 1.2,
+                    py: 1,
+                    borderRadius: 1.25,
+                    bgcolor: "#DCF8C6",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.08)",
+                    border: "1px solid rgba(0,0,0,0.06)",
+                  }}
+                >
+                  <Typography variant="body2" sx={{ mb: 0.8 }}>
+                    Escolha a loja para conversar
+                  </Typography>
+                  <Stack spacing={0.6}>
+                    {session.units.map((unit) => (
+                      <Box
+                        key={unit.id}
+                        component="button"
+                        type="button"
+                        onClick={() => handleStoreChange(String(unit.id))}
+                        sx={{
+                          width: "100%",
+                          textAlign: "left",
+                          px: 1,
+                          py: 0.7,
+                          borderRadius: 1,
+                          border: "1px solid",
+                          borderColor: "rgba(0,0,0,0.12)",
+                          backgroundColor: "#ffffff",
+                          cursor: "pointer",
+                          fontSize: 12,
+                          lineHeight: 1.3,
+                          fontFamily: "inherit",
+                          "&:hover": {
+                            backgroundColor: "#f3f6f6",
+                          },
+                        }}
+                      >
+                        {unit.name} {unit.isMain ? "(Matriz)" : "(Filial)"}
+                        {(unreadByStore[unit.id] ?? 0) > 0 ? ` • ${unreadByStore[unit.id]} nova(s)` : ""}
+                      </Box>
+                    ))}
+                  </Stack>
+                </Box>
+              </Box>
             ) : null}
 
             <Stack spacing={0.9}>
@@ -532,6 +599,29 @@ const FloatingChatWidget = () => {
           </Box>
 
           <Box sx={{ p: 0.9, borderTop: "1px solid", borderColor: "divider", bgcolor: "background.paper" }}>
+            {session?.units.length && selectedUnitId ? (
+              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 0.75 }}>
+                <Typography variant="caption" color="text.secondary">
+                  Loja selecionada: {session.units.find((unit) => String(unit.id) === selectedUnitId)?.name || "Loja"}
+                </Typography>
+                <Box
+                  component="button"
+                  type="button"
+                  onClick={handleClearSelectedStore}
+                  sx={{
+                    border: "none",
+                    background: "none",
+                    color: "#128C7E",
+                    fontSize: 12,
+                    cursor: "pointer",
+                    p: 0,
+                  }}
+                >
+                  Trocar
+                </Box>
+              </Stack>
+            ) : null}
+
             {imageBase64 ? (
               <Box sx={{ mb: 0.75 }}>
                 <Alert severity="success" onClose={clearPhoto}>

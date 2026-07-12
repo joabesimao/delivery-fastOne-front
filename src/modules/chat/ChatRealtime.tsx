@@ -22,6 +22,7 @@ import {
   type RealtimeChatMessage,
   type RealtimeSessionReady,
 } from "../../services/realtime";
+import api from "../../services/api";
 
 const toDataImage = (base64: string | null, mimeType: string | null): string | null => {
   if (!base64) {
@@ -74,11 +75,40 @@ const ChatRealtime = () => {
   const listRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    let active = true;
+
+    api
+      .get<RealtimeChatMessage[]>("/chat/messages")
+      .then((response) => {
+        if (!active) {
+          return;
+        }
+
+        setMessages(Array.isArray(response.data) ? response.data : []);
+      })
+      .catch(() => {
+        if (!active) {
+          return;
+        }
+
+        setError((current) => current || "Nao foi possivel carregar mensagens do chat.");
+      })
+      .finally(() => {
+        if (active) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     const currentSocket = getRealtimeSocket();
 
     if (!currentSocket) {
-      setError("Sessao sem token. Faca login para usar o chat.");
-      setLoading(false);
+      setError((current) => current || "Sessao sem token. Faca login para usar o chat.");
       return;
     }
 
@@ -159,34 +189,43 @@ const ChatRealtime = () => {
     setImageName("");
   };
 
-  const handleSend = () => {
-    if (!socket || !canSend) {
+  const getApiErrorMessage = (error: unknown): string => {
+    return (
+      (error as { response?: { data?: { error?: string; message?: string } } })
+        ?.response?.data?.error ||
+      (error as { response?: { data?: { error?: string; message?: string } } })
+        ?.response?.data?.message ||
+      "Falha ao enviar mensagem."
+    );
+  };
+
+  const handleSend = async () => {
+    if (!canSend) {
       return;
     }
 
     setSending(true);
     setError(null);
 
-    socket.emit(
-      "chat:send",
-      {
+    try {
+      const response = await api.post<RealtimeChatMessage>("/chat/messages", {
         text,
         imageBase64,
         imageMimeType,
         unitStoreId: selectedUnitId ? Number(selectedUnitId) : undefined,
-      },
-      (response: { ok?: boolean; error?: string }) => {
-        setSending(false);
+      });
 
-        if (!response?.ok) {
-          setError(response?.error || "Falha ao enviar mensagem.");
-          return;
-        }
+      if (!socket) {
+        setMessages((current) => [...current, response.data]);
+      }
 
-        setText("");
-        clearImage();
-      },
-    );
+      setText("");
+      clearImage();
+    } catch (error) {
+      setError(getApiErrorMessage(error));
+    } finally {
+      setSending(false);
+    }
   };
 
   const currentUserId = session?.account.id;
@@ -217,6 +256,9 @@ const ChatRealtime = () => {
               disabled={!session || session.units.length === 0}
               sx={{ minWidth: { xs: "100%", md: 300 } }}
             >
+              <MenuItem value="" disabled>
+                {!session ? "Carregando lojas..." : "Selecione uma loja"}
+              </MenuItem>
               {session?.units.map((unit) => (
                 <MenuItem key={unit.id} value={String(unit.id)}>
                   {unit.name} {unit.isMain ? "(Matriz)" : "(Filial)"}

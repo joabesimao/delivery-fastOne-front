@@ -283,8 +283,11 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
       resetForm();
     } catch (err: unknown) {
       const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "Erro ao criar pedido. Tente novamente.";
+        (err as { response?: { data?: { message?: string; error?: string } } })
+          ?.response?.data?.error ??
+        (err as { response?: { data?: { message?: string; error?: string } } })
+          ?.response?.data?.message ??
+        "Erro ao criar pedido. Tente novamente.";
       console.error("[EntregaForm] erro ao criar pedido:", err);
       setSnackbar({
         open: true,
