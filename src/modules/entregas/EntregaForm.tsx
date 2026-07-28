@@ -230,6 +230,12 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
         registerId = registerRes.data.id;
       }
 
+      const normalizedAmount = Number(
+        String(values.amount)
+          .trim()
+          .replace(/\./g, "")
+          .replace(",", "."),
+      );
       const orderPayload: {
         registerId: number;
         deliverymanId?: number;
@@ -238,7 +244,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
       } = {
         registerId,
         quantity: String(values.quantity),
-        amount: Number(values.amount),
+        amount: Number.isNaN(normalizedAmount) ? 0 : normalizedAmount,
       };
 
       if (values.deliverymanId) {

@@ -184,12 +184,28 @@ const FinalizarEntrega: React.FC = () => {
   ) => {
     if (!selectedOrder) return;
     try {
-      await api.put(`/orderDelivery/${selectedOrder.id}`, {
-        quantity: values.quantity,
-        amount: Number(values.amount),
-        deliverymanId: Number(values.deliverymanId),
+      const normalizedAmount = Number(
+        String(values.amount)
+          .trim()
+          .replace(/\./g, "")
+          .replace(",", "."),
+      );
+      const requestPayload: {
+        quantity: string;
+        amount: number;
+        deliverymanId?: number;
+        status: string;
+      } = {
+        quantity: String(values.quantity),
+        amount: Number.isNaN(normalizedAmount) ? 0 : normalizedAmount,
         status: "finished",
-      });
+      };
+
+      if (values.deliverymanId) {
+        requestPayload.deliverymanId = Number(values.deliverymanId);
+      }
+
+      await api.put(`/orderDelivery/${selectedOrder.id}`, requestPayload);
       setSnackbar({ open: true, message: "Entrega finalizada com sucesso!", severity: "success" });
       setSelectedOrder(null);
       resetForm();
