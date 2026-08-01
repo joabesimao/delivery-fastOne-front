@@ -10,7 +10,7 @@ import StatCard from "../../components/ui/StatCard";
 
 const DashboardIndex = () => {
   return (
-    <Box sx={{ display: "grid", gap: 3 }}>
+    <Box sx={{ display: "grid", gap: 2, mr:40}}>
       <PageHeader
         eyebrow="Visão geral"
         title="Dashboard operacional"

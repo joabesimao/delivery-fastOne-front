@@ -311,6 +311,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
           bgcolor: "background.paper",
           border: "1px solid", borderColor: "divider",
           borderRadius: 2,
+          mr:40
         }}
       >
         {/* Título */}
@@ -340,7 +341,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
             <Form noValidate>
 
               {/* ── Buscar cliente existente ──────────────────────── */}
-              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
+              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2,mr:4 }}>
                 Buscar cliente existente
               </Typography>
 
@@ -438,7 +439,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
               <Divider sx={{ my: 3 }} />
 
               {/* ── Endereço de Entrega ───────────────────────────── */}
-              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
+              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary" }}>
                 Endereço de entrega
               </Typography>
 

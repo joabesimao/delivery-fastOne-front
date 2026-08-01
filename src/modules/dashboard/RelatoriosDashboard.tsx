@@ -245,7 +245,7 @@ const RelatoriosDashboard = () => {
   ];
 
   return (
-    <Box sx={{ display: "grid", gap: 3 }}>
+    <Box sx={{ display: "grid", gap: 3, mr:40 }}>
       <PageHeader
         eyebrow="Analíticos"
         title="Relatórios de entregas"

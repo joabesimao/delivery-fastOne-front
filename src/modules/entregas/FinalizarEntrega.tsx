@@ -231,9 +231,10 @@ const FinalizarEntrega: React.FC = () => {
             border: "1px solid",
             borderColor: "divider",
             borderRadius: 2,
+            mr:40
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3, mr:40 }}>
             <IconButton size="small" onClick={() => setSelectedOrder(null)}>
               <ArrowBackIcon fontSize="small" />
             </IconButton>
@@ -468,10 +469,10 @@ const FinalizarEntrega: React.FC = () => {
 
       <Paper
         elevation={0}
-        sx={{ borderRadius: 3, border: `1px solid ${borderColor}`, bgcolor: cardBg, overflow: "hidden" }}
+        sx={{ borderRadius: 3,ml:"none", border: `1px solid ${borderColor}`, bgcolor: cardBg, overflow: "hidden" }}
       >
         {/* Título do card */}
-        <Box px={3} py={2.5} sx={{ borderBottom: `1px solid ${borderColor}` }}>
+        <Box px={3} py={2.5}sx={{ borderBottom: `1px solid ${borderColor}` }}>
           <Typography variant="h6" fontWeight={700} sx={{ color: textPrimary }}>
             Pedidos de entrega
           </Typography>
