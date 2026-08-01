@@ -365,7 +365,7 @@ const AppShell = () => {
             transformOrigin={{ vertical: "top", horizontal: "right" }}
           >
             <MenuItem disabled sx={{ opacity: 1 }}>
-              <Stack spacing={0.25}>
+              <Stack spacing={5}>
                 <Typography variant="body2" sx={{ fontWeight: 700 }}>
                   {currentEmail || "Usuário"}
                 </Typography>
@@ -409,7 +409,7 @@ const AppShell = () => {
           flexGrow: 1,
           minWidth: 0,
           pt: "88px",
-          px: { xs: 2, sm: 3, md: 4 },
+          px: { xs: 2, sm: 3, },
           pb: { xs: 3, md: 4 },
           ml: { md: `${drawerWidth}px` },
         }}

@@ -148,8 +148,10 @@ const ListaClientes: React.FC = () => {
       await api.put(`/client/${client.id}`, { status: nextStatus });
       await loadClients();
       showSnackbar(
-        nextStatus ? "Cliente ativado com sucesso." : "Cliente inativado com sucesso.",
-        "success"
+        nextStatus
+          ? "Cliente ativado com sucesso."
+          : "Cliente inativado com sucesso.",
+        "success",
       );
     } catch {
       showSnackbar("Não foi possível alterar o status do cliente.", "error");
@@ -161,7 +163,11 @@ const ListaClientes: React.FC = () => {
   const handleSaveEdit = async () => {
     if (!editClient || !editValues) return;
 
-    if (!editValues.name.trim() || !editValues.lastName.trim() || !editValues.phone.trim()) {
+    if (
+      !editValues.name.trim() ||
+      !editValues.lastName.trim() ||
+      !editValues.phone.trim()
+    ) {
       showSnackbar("Nome, sobrenome e telefone são obrigatórios.", "error");
       return;
     }
@@ -181,9 +187,13 @@ const ListaClientes: React.FC = () => {
       return;
     }
 
-    const addressId = editClient.Register?.addressId ?? editClient.Register?.address?.id;
+    const addressId =
+      editClient.Register?.addressId ?? editClient.Register?.address?.id;
     if (!addressId) {
-      showSnackbar("Não foi possível identificar o endereço do cliente para edição.", "error");
+      showSnackbar(
+        "Não foi possível identificar o endereço do cliente para edição.",
+        "error",
+      );
       return;
     }
 
@@ -239,8 +249,7 @@ const ListaClientes: React.FC = () => {
       const matchesPhone =
         !phoneTerm || stripPhone(c.phone).includes(stripPhone(phoneTerm));
 
-      const matchesCity =
-        cityFilter === "all" || addr?.city === cityFilter;
+      const matchesCity = cityFilter === "all" || addr?.city === cityFilter;
 
       const matchesStatus =
         statusFilter === "all" ||
@@ -320,15 +329,17 @@ const ListaClientes: React.FC = () => {
       <Paper
         elevation={0}
         sx={{
-          borderRadius: 3,
-          border: `1px solid ${borderColor}`,
+          borderRadius: 1,
+          border: `5px solid ${borderColor}`,
           bgcolor: cardBg,
           overflow: "hidden",
+          mr: 40,
         }}
       >
         {/* Título do card */}
         <Box
-          px={3}
+          display="flex"
+          px={5}
           py={2.5}
           sx={{ borderBottom: `1px solid ${borderColor}` }}
         >
@@ -350,7 +361,12 @@ const ListaClientes: React.FC = () => {
           <Box flex="1" minWidth={200}>
             <Typography
               variant="caption"
-              sx={{ color: labelColor, fontWeight: 600, mb: 0.5, display: "block" }}
+              sx={{
+                color: labelColor,
+                fontWeight: 600,
+                mb: 0.5,
+                display: "block",
+              }}
             >
               Buscar cliente
             </Typography>
@@ -390,7 +406,12 @@ const ListaClientes: React.FC = () => {
           <Box flex="1" minWidth={180}>
             <Typography
               variant="caption"
-              sx={{ color: labelColor, fontWeight: 600, mb: 0.5, display: "block" }}
+              sx={{
+                color: labelColor,
+                fontWeight: 600,
+                mb: 0.5,
+                display: "block",
+              }}
             >
               Buscar por telefone
             </Typography>
@@ -408,7 +429,10 @@ const ListaClientes: React.FC = () => {
                   ),
                   endAdornment: phoneSearch ? (
                     <InputAdornment position="end">
-                      <IconButton size="small" onClick={() => setPhoneSearch("")}>
+                      <IconButton
+                        size="small"
+                        onClick={() => setPhoneSearch("")}
+                      >
                         <ClearIcon sx={{ fontSize: 15 }} />
                       </IconButton>
                     </InputAdornment>
@@ -430,7 +454,12 @@ const ListaClientes: React.FC = () => {
           <Box flex="1" minWidth={160}>
             <Typography
               variant="caption"
-              sx={{ color: labelColor, fontWeight: 600, mb: 0.5, display: "block" }}
+              sx={{
+                color: labelColor,
+                fontWeight: 600,
+                mb: 0.5,
+                display: "block",
+              }}
             >
               Cidades
             </Typography>
@@ -455,7 +484,12 @@ const ListaClientes: React.FC = () => {
           <Box flex="1" minWidth={160}>
             <Typography
               variant="caption"
-              sx={{ color: labelColor, fontWeight: 600, mb: 0.5, display: "block" }}
+              sx={{
+                color: labelColor,
+                fontWeight: 600,
+                mb: 0.5,
+                display: "block",
+              }}
             >
               Status do Cliente
             </Typography>
@@ -527,7 +561,12 @@ const ListaClientes: React.FC = () => {
                       <TableCell
                         colSpan={7}
                         align="center"
-                        sx={{ py: 6, color: textSecondary, fontSize: 14, borderColor }}
+                        sx={{
+                          py: 6,
+                          color: textSecondary,
+                          fontSize: 14,
+                          borderColor,
+                        }}
                       >
                         {search ||
                         phoneSearch ||
@@ -555,26 +594,42 @@ const ListaClientes: React.FC = () => {
                           <TableCell>
                             <Box>
                               <Typography
-                                sx={{ fontWeight: 600, fontSize: 13, color: textPrimary }}
+                                sx={{
+                                  fontWeight: 600,
+                                  fontSize: 13,
+                                  color: textPrimary,
+                                }}
                               >
                                 {c.name} {c.lastName}
                               </Typography>
                               {addr?.street && (
-                                <Typography sx={{ fontSize: 11, color: textSecondary }}>
+                                <Typography
+                                  sx={{ fontSize: 11, color: textSecondary }}
+                                >
                                   {addr.street}
-                                  {addr.numberHouse ? `, ${addr.numberHouse}` : ""}
+                                  {addr.numberHouse
+                                    ? `, ${addr.numberHouse}`
+                                    : ""}
                                 </Typography>
                               )}
                             </Box>
                           </TableCell>
-                          <TableCell sx={{ color: textSecondary }}>{c.id}</TableCell>
-                          <TableCell sx={{ color: isDark ? "#d1d5db" : "#374151" }}>
+                          <TableCell sx={{ color: textSecondary }}>
+                            {c.id}
+                          </TableCell>
+                          <TableCell
+                            sx={{ color: isDark ? "#d1d5db" : "#374151" }}
+                          >
                             {c.phone}
                           </TableCell>
-                          <TableCell sx={{ color: isDark ? "#d1d5db" : "#374151" }}>
+                          <TableCell
+                            sx={{ color: isDark ? "#d1d5db" : "#374151" }}
+                          >
                             {addr?.neighborhood ?? "—"}
                           </TableCell>
-                          <TableCell sx={{ color: isDark ? "#d1d5db" : "#374151" }}>
+                          <TableCell
+                            sx={{ color: isDark ? "#d1d5db" : "#374151" }}
+                          >
                             {addr?.city ?? "—"}
                           </TableCell>
                           <TableCell>
@@ -587,15 +642,15 @@ const ListaClientes: React.FC = () => {
                                     ? "rgba(52,211,153,0.15)"
                                     : "#d1fae5"
                                   : isDark
-                                  ? "rgba(239,68,68,0.2)"
-                                  : "#fee2e2",
+                                    ? "rgba(239,68,68,0.2)"
+                                    : "#fee2e2",
                                 color: isActive
                                   ? isDark
                                     ? "#34d399"
                                     : "#065f46"
                                   : isDark
-                                  ? "#fca5a5"
-                                  : "#991b1b",
+                                    ? "#fca5a5"
+                                    : "#991b1b",
                                 fontWeight: 600,
                                 fontSize: 11,
                                 height: 22,
@@ -612,11 +667,16 @@ const ListaClientes: React.FC = () => {
                                   sx={{
                                     bgcolor: isDark ? "#374151" : "#e5e7eb",
                                     borderRadius: 1.5,
-                                    "&:hover": { bgcolor: isDark ? "#4b5563" : "#d1d5db" },
+                                    "&:hover": {
+                                      bgcolor: isDark ? "#4b5563" : "#d1d5db",
+                                    },
                                   }}
                                 >
                                   <VisibilityIcon
-                                    sx={{ fontSize: 16, color: isDark ? "#9ca3af" : "#6b7280" }}
+                                    sx={{
+                                      fontSize: 16,
+                                      color: isDark ? "#9ca3af" : "#6b7280",
+                                    }}
                                   />
                                 </IconButton>
                               </Tooltip>
@@ -631,7 +691,9 @@ const ListaClientes: React.FC = () => {
                                     "&:hover": { bgcolor: "#d97706" },
                                   }}
                                 >
-                                  <EditIcon sx={{ fontSize: 16, color: "#fff" }} />
+                                  <EditIcon
+                                    sx={{ fontSize: 16, color: "#fff" }}
+                                  />
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title={isActive ? "Inativar" : "Ativar"}>
@@ -650,9 +712,14 @@ const ListaClientes: React.FC = () => {
                                   }}
                                 >
                                   {isBusy ? (
-                                    <CircularProgress size={14} sx={{ color: "#fff" }} />
+                                    <CircularProgress
+                                      size={14}
+                                      sx={{ color: "#fff" }}
+                                    />
                                   ) : (
-                                    <PowerSettingsNewIcon sx={{ fontSize: 16, color: "#fff" }} />
+                                    <PowerSettingsNewIcon
+                                      sx={{ fontSize: 16, color: "#fff" }}
+                                    />
                                   )}
                                 </IconButton>
                               </Tooltip>
@@ -662,11 +729,16 @@ const ListaClientes: React.FC = () => {
                                   sx={{
                                     bgcolor: isDark ? "#374151" : "#e5e7eb",
                                     borderRadius: 1.5,
-                                    "&:hover": { bgcolor: isDark ? "#4b5563" : "#d1d5db" },
+                                    "&:hover": {
+                                      bgcolor: isDark ? "#4b5563" : "#d1d5db",
+                                    },
                                   }}
                                 >
                                   <MoreHorizIcon
-                                    sx={{ fontSize: 16, color: isDark ? "#9ca3af" : "#6b7280" }}
+                                    sx={{
+                                      fontSize: 16,
+                                      color: isDark ? "#9ca3af" : "#6b7280",
+                                    }}
                                   />
                                 </IconButton>
                               </Tooltip>
@@ -689,7 +761,8 @@ const ListaClientes: React.FC = () => {
               sx={{ borderTop: `1px solid ${borderColor}` }}
             >
               <Typography sx={{ fontSize: 13, color: textSecondary }}>
-                Total: {filtered.length} registro{filtered.length !== 1 ? "s" : ""}
+                Total: {filtered.length} registro
+                {filtered.length !== 1 ? "s" : ""}
               </Typography>
               <TablePagination
                 component="div"
@@ -697,7 +770,9 @@ const ListaClientes: React.FC = () => {
                 page={page}
                 onPageChange={(_: unknown, newPage: number) => setPage(newPage)}
                 rowsPerPage={rowsPerPage}
-                onRowsPerPageChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                onRowsPerPageChange={(
+                  e: React.ChangeEvent<HTMLInputElement>,
+                ) => {
                   setRowsPerPage(parseInt(e.target.value, 10));
                   setPage(0);
                 }}
@@ -718,19 +793,46 @@ const ListaClientes: React.FC = () => {
         )}
       </Paper>
 
-      <Dialog open={Boolean(viewClient)} onClose={() => setViewClient(null)} fullWidth maxWidth="sm">
+      <Dialog
+        open={Boolean(viewClient)}
+        onClose={() => setViewClient(null)}
+        fullWidth
+        maxWidth="sm"
+      >
         <DialogTitle>Detalhes do cliente</DialogTitle>
         <DialogContent dividers>
           {viewClient && (
             <Box display="grid" gap={1.25}>
-              <Typography variant="body2"><strong>Nome:</strong> {viewClient.name} {viewClient.lastName}</Typography>
-              <Typography variant="body2"><strong>Telefone:</strong> {phoneMask(viewClient.phone)}</Typography>
-              <Typography variant="body2"><strong>Status:</strong> {viewClient.status !== false ? "Ativo" : "Inativo"}</Typography>
-              <Typography variant="body2"><strong>Rua:</strong> {viewClient.Register?.address?.street ?? "—"}</Typography>
-              <Typography variant="body2"><strong>Número:</strong> {viewClient.Register?.address?.numberHouse ?? "—"}</Typography>
-              <Typography variant="body2"><strong>Bairro:</strong> {viewClient.Register?.address?.neighborhood ?? "—"}</Typography>
-              <Typography variant="body2"><strong>Cidade:</strong> {viewClient.Register?.address?.city ?? "—"}</Typography>
-              <Typography variant="body2"><strong>Referência:</strong> {viewClient.Register?.address?.reference || "—"}</Typography>
+              <Typography variant="body2">
+                <strong>Nome:</strong> {viewClient.name} {viewClient.lastName}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Telefone:</strong> {phoneMask(viewClient.phone)}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Status:</strong>{" "}
+                {viewClient.status !== false ? "Ativo" : "Inativo"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Rua:</strong>{" "}
+                {viewClient.Register?.address?.street ?? "—"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Número:</strong>{" "}
+                {viewClient.Register?.address?.numberHouse ?? "—"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Bairro:</strong>{" "}
+                {viewClient.Register?.address?.neighborhood ?? "—"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Cidade:</strong>{" "}
+                {viewClient.Register?.address?.city ?? "—"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Referência:</strong>{" "}
+                {viewClient.Register?.address?.reference || "—"}
+              </Typography>
             </Box>
           )}
         </DialogContent>
@@ -758,7 +860,7 @@ const ListaClientes: React.FC = () => {
                 value={editValues.name}
                 onChange={(e) =>
                   setEditValues((prev) =>
-                    prev ? { ...prev, name: e.target.value } : prev
+                    prev ? { ...prev, name: e.target.value } : prev,
                   )
                 }
               />
@@ -768,7 +870,7 @@ const ListaClientes: React.FC = () => {
                 value={editValues.lastName}
                 onChange={(e) =>
                   setEditValues((prev) =>
-                    prev ? { ...prev, lastName: e.target.value } : prev
+                    prev ? { ...prev, lastName: e.target.value } : prev,
                   )
                 }
               />
@@ -778,7 +880,7 @@ const ListaClientes: React.FC = () => {
                 value={editValues.phone}
                 onChange={(e) =>
                   setEditValues((prev) =>
-                    prev ? { ...prev, phone: phoneMask(e.target.value) } : prev
+                    prev ? { ...prev, phone: phoneMask(e.target.value) } : prev,
                   )
                 }
                 inputProps={{ maxLength: 15, inputMode: "numeric" }}
@@ -794,7 +896,7 @@ const ListaClientes: React.FC = () => {
                           ...prev,
                           address: { ...prev.address, street: e.target.value },
                         }
-                      : prev
+                      : prev,
                   )
                 }
               />
@@ -807,9 +909,12 @@ const ListaClientes: React.FC = () => {
                     prev
                       ? {
                           ...prev,
-                          address: { ...prev.address, neighborhood: e.target.value },
+                          address: {
+                            ...prev.address,
+                            neighborhood: e.target.value,
+                          },
                         }
-                      : prev
+                      : prev,
                   )
                 }
               />
@@ -824,7 +929,7 @@ const ListaClientes: React.FC = () => {
                           ...prev,
                           address: { ...prev.address, city: e.target.value },
                         }
-                      : prev
+                      : prev,
                   )
                 }
               />
@@ -837,9 +942,12 @@ const ListaClientes: React.FC = () => {
                     prev
                       ? {
                           ...prev,
-                          address: { ...prev.address, numberHouse: e.target.value },
+                          address: {
+                            ...prev.address,
+                            numberHouse: e.target.value,
+                          },
                         }
-                      : prev
+                      : prev,
                   )
                 }
               />
@@ -852,9 +960,12 @@ const ListaClientes: React.FC = () => {
                     prev
                       ? {
                           ...prev,
-                          address: { ...prev.address, reference: e.target.value },
+                          address: {
+                            ...prev.address,
+                            reference: e.target.value,
+                          },
                         }
-                      : prev
+                      : prev,
                   )
                 }
               />
