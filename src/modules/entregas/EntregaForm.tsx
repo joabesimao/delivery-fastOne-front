@@ -22,7 +22,13 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Formik, Form } from "formik";
 import api from "../../services/api";
 import { exportHtmlToPdf } from "../../helpers/exportHtmlToPdf";
-import { isValidPhone, phoneMask, stripPhone } from "../../helpers/masks";
+import {
+  currencyInputMask,
+  isValidPhone,
+  parseCurrencyToNumber,
+  phoneMask,
+  stripPhone,
+} from "../../helpers/masks";
 
 interface RegisterResult {
   id: number;
@@ -55,7 +61,7 @@ interface DeliveryFormValues {
   deliverymanId: string;
   address: AddressValues;
   quantity: string;
-  amount: number | "";
+  amount: string;
 }
 
 interface CityOption {
@@ -143,7 +149,8 @@ const validate = (values: DeliveryFormValues): FormErrors => {
   if (Object.keys(addrErrors).length) errors.address = addrErrors;
   if (!values.quantity || Number(values.quantity) <= 0)
     errors.quantity = "Informe a quantidade.";
-  if (values.amount === "" || Number(values.amount) <= 0)
+  const parsedAmount = parseCurrencyToNumber(values.amount);
+  if (values.amount === "" || Number.isNaN(parsedAmount) || parsedAmount <= 0)
     errors.amount = "Informe o valor.";
 
   return errors;
@@ -230,12 +237,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
         registerId = registerRes.data.id;
       }
 
-      const normalizedAmount = Number(
-        String(values.amount)
-          .trim()
-          .replace(/\./g, "")
-          .replace(",", "."),
-      );
+      const normalizedAmount = parseCurrencyToNumber(values.amount);
       const orderPayload: {
         registerId: number;
         deliverymanId?: number;
@@ -265,7 +267,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
         reference: values.address.reference,
         city: values.address.city,
         quantity: String(values.quantity),
-        amount: Number(values.amount),
+        amount: Number.isNaN(normalizedAmount) ? 0 : normalizedAmount,
       };
       // flushSync força o React a renderizar a folha antes de converter em PDF,
       // garantindo que printRef já contém os dados do pedido atual.
@@ -557,9 +559,11 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
                   <FieldLabel label="Valor *" />
                   <TextField
                     fullWidth size="small" placeholder="0,00"
-                    type="number"
+                    type="text"
                     slotProps={{
-                      htmlInput: { min: 0, step: 0.01 },
+                      htmlInput: {
+                        inputMode: "numeric",
+                      },
                       input: {
                         startAdornment: (
                           <InputAdornment position="start">
@@ -569,7 +573,10 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
                       },
                     }}
                     name="amount" value={values.amount}
-                    onChange={handleChange} onBlur={handleBlur}
+                    onChange={(event) => {
+                      setFieldValue("amount", currencyInputMask(event.target.value));
+                    }}
+                    onBlur={handleBlur}
                     error={Boolean(touched.amount && errors.amount)}
                     helperText={touched.amount && errors.amount}
                   />

@@ -75,6 +75,7 @@ const navigationGroups: NavigationGroup[] = [
     children: [
       { label: "Realizar entrega", path: "/realizar-entrega", icon: <LocalShippingOutlinedIcon fontSize="small" /> },
       { label: "Finalizar entrega", path: "/finalizar-entrega", icon: <InsightsOutlinedIcon fontSize="small" /> },
+      { label: "Listagem de entregas", path: "/listagem-entregas", icon: <ListAltOutlinedIcon fontSize="small" /> },
       { label: "Relatórios", path: "/relatorios-entregas", icon: <ListAltOutlinedIcon fontSize="small" /> },
     ],
   },
@@ -110,6 +111,7 @@ const routeTitles: Record<string, string> = {
   "/dashboard/clientes": "Clientes",
   "/realizar-entrega": "Realizar entrega",
   "/finalizar-entrega": "Finalizar entrega",
+  "/listagem-entregas": "Listagem de entregas",
   "/relatorios-entregas": "Relatórios de entregas",
   "/cadastros/cliente": "Cadastrar cliente",
   "/cadastros/entregador": "Cadastrar entregador",
@@ -125,6 +127,7 @@ const routeDescriptions: Record<string, string> = {
   "/dashboard/clientes": "Gerencie cadastro, busca e status dos clientes.",
   "/realizar-entrega": "Fluxo operacional para gerar uma nova entrega.",
   "/finalizar-entrega": "Atualize entregas e conclua os processos pendentes.",
+  "/listagem-entregas": "Acompanhe as entregas com filtros por status, entregador e local.",
   "/relatorios-entregas": "Analise o volume e o desempenho das entregas.",
   "/cadastros/cliente": "Cadastre e atualize informações de clientes.",
   "/cadastros/entregador": "Mantenha entregadores e condutores organizados.",

@@ -31,7 +31,12 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Formik, Form } from "formik";
 import api from "../../services/api";
-import { phoneMask } from "../../helpers/masks";
+import {
+  currencyInputMask,
+  formatCurrencyFromNumber,
+  parseCurrencyToNumber,
+  phoneMask,
+} from "../../helpers/masks";
 import { getRealtimeSocket } from "../../services/realtime";
 
 type OrderStatus = "actived" | "delivered" | "finished";
@@ -74,7 +79,7 @@ interface OrderData {
 
 interface FinalizeFormValues {
   quantity: string;
-  amount: number | "";
+  amount: string;
   deliverymanId: string;
 }
 
@@ -184,12 +189,7 @@ const FinalizarEntrega: React.FC = () => {
   ) => {
     if (!selectedOrder) return;
     try {
-      const normalizedAmount = Number(
-        String(values.amount)
-          .trim()
-          .replace(/\./g, "")
-          .replace(",", "."),
-      );
+      const normalizedAmount = parseCurrencyToNumber(values.amount);
       const requestPayload: {
         quantity: string;
         amount: number;
@@ -340,15 +340,16 @@ const FinalizarEntrega: React.FC = () => {
           <Formik
             initialValues={{
               quantity: o.quantity,
-              amount: o.amount,
+              amount: formatCurrencyFromNumber(o.amount),
               deliverymanId: o.deliveryman ? String(o.deliveryman.id) : "",
             }}
             validate={(values) => {
               const errors: Partial<FinalizeFormValues> = {};
               if (!values.quantity.trim() || Number(values.quantity) <= 0)
                 errors.quantity = "Informe a quantidade.";
-              if (!values.amount || Number(values.amount) <= 0)
-                errors.amount = "Informe o valor." as unknown as number;
+              const parsedAmount = parseCurrencyToNumber(values.amount);
+              if (!values.amount || Number.isNaN(parsedAmount) || parsedAmount <= 0)
+                errors.amount = "Informe o valor.";
               if (!values.deliverymanId)
                 errors.deliverymanId = "Selecione o entregador.";
               return errors;
@@ -356,7 +357,7 @@ const FinalizarEntrega: React.FC = () => {
             onSubmit={handleFinalize}
             enableReinitialize
           >
-            {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+            {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue }) => (
               <Form noValidate>
                 <Grid container spacing={2} sx={{ mb: 4 }}>
                   <Grid size={{ xs: 12 }}>
@@ -398,9 +399,9 @@ const FinalizarEntrega: React.FC = () => {
                     <FieldLabel label="Valor final *" />
                     <TextField
                       fullWidth size="small" placeholder="0,00"
-                      type="number"
+                      type="text"
                       slotProps={{
-                        htmlInput: { min: 0, step: 0.01 },
+                          htmlInput: { inputMode: "numeric" },
                         input: {
                           startAdornment: (
                             <InputAdornment position="start">
@@ -410,7 +411,10 @@ const FinalizarEntrega: React.FC = () => {
                         },
                       }}
                       name="amount" value={values.amount}
-                      onChange={handleChange} onBlur={handleBlur}
+                      onChange={(event) => {
+                        setFieldValue("amount", currencyInputMask(event.target.value));
+                      }}
+                      onBlur={handleBlur}
                       error={Boolean(touched.amount && errors.amount)}
                       helperText={touched.amount && errors.amount}
                     />

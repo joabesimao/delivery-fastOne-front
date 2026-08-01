@@ -17,3 +17,57 @@ export const isValidPhone = (value: string = "") => {
   const digits = stripPhone(value);
   return digits.length === 10 || digits.length === 11;
 };
+
+export const currencyInputMask = (value: string = "") => {
+  const digitsOnly = value.replace(/\D/g, "");
+
+  if (!digitsOnly) return "";
+
+  const normalizedDigits = digitsOnly.replace(/^0+(?=\d)/, "") || "0";
+  const centsPadded = normalizedDigits.padStart(3, "0");
+  const integerPart = centsPadded.slice(0, -2);
+  const decimalPart = centsPadded.slice(-2);
+  const integerWithThousand = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+  return `${integerWithThousand},${decimalPart}`;
+};
+
+export const parseCurrencyToNumber = (value: unknown): number => {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : Number.NaN;
+  }
+
+  if (value === null || value === undefined) {
+    return Number.NaN;
+  }
+
+  const raw = String(value).trim();
+  if (!raw) {
+    return Number.NaN;
+  }
+
+  const sanitized = raw.replace(/\s/g, "").replace(/[^\d.,-]/g, "");
+  const hasComma = sanitized.includes(",");
+  const hasDot = sanitized.includes(".");
+
+  let normalized = sanitized;
+
+  if (hasComma && hasDot) {
+    const commaIsDecimal = sanitized.lastIndexOf(",") > sanitized.lastIndexOf(".");
+    normalized = commaIsDecimal
+      ? sanitized.replace(/\./g, "").replace(",", ".")
+      : sanitized.replace(/,/g, "");
+  } else if (hasComma) {
+    normalized = sanitized.replace(",", ".");
+  }
+
+  const parsed = Number(normalized);
+  return Number.isNaN(parsed) ? Number.NaN : parsed;
+};
+
+export const formatCurrencyFromNumber = (value: number) => {
+  return value.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
