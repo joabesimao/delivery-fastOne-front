@@ -76,7 +76,8 @@ const navigationGroups: NavigationGroup[] = [
       { label: "Realizar entrega", path: "/realizar-entrega", icon: <LocalShippingOutlinedIcon fontSize="small" /> },
       { label: "Finalizar entrega", path: "/finalizar-entrega", icon: <InsightsOutlinedIcon fontSize="small" /> },
       { label: "Listagem de entregas", path: "/listagem-entregas", icon: <ListAltOutlinedIcon fontSize="small" /> },
-      { label: "Relatórios", path: "/relatorios-entregas", icon: <ListAltOutlinedIcon fontSize="small" /> },
+      { label: "Relatórios gerais", path: "/relatorios-entregas", icon: <ListAltOutlinedIcon fontSize="small" /> },
+      { label: "Ranking entregadores", path: "/relatorios-entregas/entregadores", icon: <TwoWheelerOutlinedIcon fontSize="small" /> },
     ],
   },
   {
@@ -112,7 +113,8 @@ const routeTitles: Record<string, string> = {
   "/realizar-entrega": "Realizar entrega",
   "/finalizar-entrega": "Finalizar entrega",
   "/listagem-entregas": "Listagem de entregas",
-  "/relatorios-entregas": "Relatórios de entregas",
+  "/relatorios-entregas": "Relatórios gerais de entregas",
+  "/relatorios-entregas/entregadores": "Ranking de entregadores",
   "/cadastros/cliente": "Cadastrar cliente",
   "/cadastros/entregador": "Cadastrar entregador",
   "/cadastros/bairros": "Cadastrar bairros",
@@ -128,13 +130,27 @@ const routeDescriptions: Record<string, string> = {
   "/realizar-entrega": "Fluxo operacional para gerar uma nova entrega.",
   "/finalizar-entrega": "Atualize entregas e conclua os processos pendentes.",
   "/listagem-entregas": "Acompanhe as entregas com filtros por status, entregador e local.",
-  "/relatorios-entregas": "Analise o volume e o desempenho das entregas.",
+  "/relatorios-entregas": "Analise volume, receita e distribuicao das entregas.",
+  "/relatorios-entregas/entregadores": "Monitore o ranking de entregadores por periodo.",
   "/cadastros/cliente": "Cadastre e atualize informações de clientes.",
   "/cadastros/entregador": "Mantenha entregadores e condutores organizados.",
   "/cadastros/bairros": "Gerencie bairros usados nos endereços.",
   "/cadastros/cidades": "Organize as cidades disponíveis no sistema.",
   "/configuracoes/visuais": "Personalize aparência e comportamento visual.",
   "/chat": "Converse com matriz e filiais em tempo real.",
+};
+
+const ADMIN_TECH_EMAIL = "admin@fastone.local";
+
+const normalizeUserLabel = (value: string): string => {
+  const normalized = value.trim();
+  if (!normalized) return "";
+
+  if (normalized.toLowerCase() === ADMIN_TECH_EMAIL) {
+    return "admin";
+  }
+
+  return normalized;
 };
 
 const getAvatarLabel = (email: string) => email.trim().charAt(0).toUpperCase() || "U";
@@ -150,7 +166,8 @@ const AppShell = () => {
   const [profileAnchorEl, setProfileAnchorEl] = useState<HTMLElement | null>(null);
   const [openGroup, setOpenGroup] = useState<string | null>(navigationGroups[0]?.label ?? null);
 
-  const currentEmail = typeof window !== "undefined" ? localStorage.getItem("currentUserEmail") ?? "" : "";
+  const currentEmailRaw = typeof window !== "undefined" ? localStorage.getItem("currentUserEmail") ?? "" : "";
+  const currentEmail = normalizeUserLabel(currentEmailRaw);
   const currentTitle = routeTitles[location.pathname] ?? "FastOne Delivery";
   const currentDescription = routeDescriptions[location.pathname] ?? "Visual moderno, responsivo e consistente em toda a aplicação.";
 
