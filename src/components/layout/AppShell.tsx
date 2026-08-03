@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, useMemo, type ReactNode } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { alpha } from "@mui/material/styles";
 import {
@@ -171,19 +171,25 @@ const AppShell = () => {
   const currentTitle = routeTitles[location.pathname] ?? "FastOne Delivery";
   const currentDescription = routeDescriptions[location.pathname] ?? "Visual moderno, responsivo e consistente em toda a aplicação.";
 
-  useEffect(() => {
-    const activeGroup = navigationGroups.find((group) =>
-      group.children.some((child) => child.path === location.pathname),
-    );
+  const activeGroup = useMemo(
+    () =>
+      navigationGroups.find((group) =>
+        group.children.some((child) => child.path === location.pathname),
+      ),
+    [location.pathname],
+  );
 
+  useEffect(() => {
     if (activeGroup) {
       setOpenGroup(activeGroup.label);
     }
+  }, [activeGroup]);
 
+  useEffect(() => {
     if (!isDesktop) {
       setMobileOpen(false);
     }
-  }, [isDesktop, location.pathname]);
+  }, [isDesktop]);
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -310,16 +316,12 @@ const AppShell = () => {
         elevation={0}
         sx={{
           zIndex: (currentTheme) => currentTheme.zIndex.drawer + 1,
-          ml: { md: `${drawerWidth}px` },
-          width: { md: `calc(100% - ${drawerWidth}px)` },
         }}
       >
         <Toolbar sx={{ minHeight: 72, px: { xs: 2, sm: 3 }, gap: 2 }}>
-          {!isDesktop ? (
-            <IconButton onClick={() => setMobileOpen(true)} aria-label="Abrir menu">
-              <MenuRoundedIcon />
-            </IconButton>
-          ) : null}
+          <IconButton onClick={() => setMobileOpen(!mobileOpen)} aria-label="Abrir menu">
+            <MenuRoundedIcon />
+          </IconButton>
 
           <Box sx={{ minWidth: 0 }}>
             <Typography variant="overline" color="text.secondary" sx={{ display: "block", lineHeight: 1.1 }}>
@@ -405,23 +407,19 @@ const AppShell = () => {
         </Toolbar>
       </AppBar>
 
-      <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
-        <Drawer
-          variant={isDesktop ? "permanent" : "temporary"}
-          open={isDesktop || mobileOpen}
-          onClose={() => setMobileOpen(false)}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: "block", md: "block" },
-            "& .MuiDrawer-paper": {
-              width: drawerWidth,
-              boxSizing: "border-box",
-            },
-          }}
-        >
-          {drawerContent}
-        </Drawer>
-      </Box>
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
 
       <Box
         component="main"
@@ -429,9 +427,8 @@ const AppShell = () => {
           flexGrow: 1,
           minWidth: 0,
           pt: "88px",
-          px: { xs: 2, sm: 3, },
+          px: { xs: 1, sm: 2 },
           pb: { xs: 3, md: 4 },
-          ml: { md: `${drawerWidth}px` },
         }}
       >
         <Box

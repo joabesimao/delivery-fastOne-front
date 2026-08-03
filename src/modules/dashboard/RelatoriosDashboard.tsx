@@ -245,7 +245,7 @@ const RelatoriosDashboard = () => {
   ];
 
   return (
-    <Box sx={{ display: "grid", gap: 3, mr:40 }}>
+    <Box sx={{ display: "grid", gap: 2.5 }}>
       <PageHeader
         eyebrow="Analíticos"
         title="Relatórios de entregas"
@@ -311,7 +311,7 @@ const RelatoriosDashboard = () => {
       ) : null}
 
       {!loading && !error && totalPedidos > 0 ? (
-        <Stack spacing={3}>
+        <Stack spacing={2.5}>
           <Grid container spacing={2.5}>
             {statCards.map((item) => (
               <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={item.label}>
