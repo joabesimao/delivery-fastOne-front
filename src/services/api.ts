@@ -23,6 +23,7 @@ let refreshPromise: Promise<string | null> | null = null;
 const clearSessionAndRedirect = () => {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
+  localStorage.removeItem('currentUserEmail');
 
   if (window.location.pathname !== '/' && window.location.pathname !== '/login') {
     window.location.href = '/';
@@ -67,8 +68,10 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config as typeof error.config & { _retry?: boolean };
     const status = error?.response?.status;
+    const requestUrl = String(originalRequest?.url ?? '');
+    const isAuthRoute = /\/login|\/refresh-token|\/refreshToken|\/refresh$/.test(requestUrl);
 
-    if (status !== 401 || originalRequest?._retry) {
+    if ((status !== 401 && status !== 403) || originalRequest?._retry || isAuthRoute) {
       return Promise.reject(error);
     }
 

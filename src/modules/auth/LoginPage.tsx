@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { FormEvent } from "react";
 import {
   Alert,
@@ -26,8 +26,20 @@ import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import useThemeMode from "../../hooks/useThemeMode";
 
-const DEFAULT_LOGIN = import.meta.env.VITE_DEFAULT_LOGIN ?? "admin@fastone.local";
-const DEFAULT_PASSWORD = import.meta.env.VITE_DEFAULT_PASSWORD ?? "123456";
+const DEFAULT_LOGIN = import.meta.env.VITE_DEFAULT_LOGIN ?? "admin";
+const DEFAULT_PASSWORD = import.meta.env.VITE_DEFAULT_PASSWORD ?? "12345678";
+const ADMIN_TECH_EMAIL = "admin@fastone.local";
+
+const normalizeUserLabel = (value: string): string => {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return "";
+
+  if (normalized === "admin" || normalized === ADMIN_TECH_EMAIL) {
+    return "admin";
+  }
+
+  return value.trim();
+};
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -37,18 +49,15 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const canTryDefaultLogin = useMemo(
-    () => email.trim() === DEFAULT_LOGIN && password === DEFAULT_PASSWORD,
-    [email, password],
-  );
-
   const saveTokensAndEnter = (
     accessToken: string,
     userEmail: string,
     refreshToken?: string,
   ) => {
+    const userLabel = normalizeUserLabel(userEmail);
+
     localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("currentUserEmail", userEmail);
+    localStorage.setItem("currentUserEmail", userLabel || userEmail);
     localStorage.setItem(
       "refreshToken",
       refreshToken || `static-refresh-${Date.now()}`,
@@ -60,8 +69,13 @@ const LoginPage = () => {
     event.preventDefault();
     setError("");
 
-    const normalizedEmail = email.trim();
-    if (!normalizedEmail || !password) {
+    const normalizedLogin = email.trim();
+    const normalizedEmail =
+      normalizedLogin.toLowerCase() === "admin"
+        ? ADMIN_TECH_EMAIL
+        : normalizedLogin;
+
+    if (!normalizedLogin || !password) {
       setError("Informe login e senha.");
       return;
     }
@@ -80,25 +94,22 @@ const LoginPage = () => {
       if (response.data?.accessToken) {
         saveTokensAndEnter(
           response.data.accessToken,
-          normalizedEmail,
+          normalizedLogin,
           response.data.refreshToken,
         );
         return;
       }
 
-      if (canTryDefaultLogin) {
-        saveTokensAndEnter(`static-${Date.now()}`, normalizedEmail);
-        return;
-      }
-
       setError("Nao foi possivel autenticar com as credenciais informadas.");
-    } catch {
-      if (canTryDefaultLogin) {
-        saveTokensAndEnter(`static-${Date.now()}`, normalizedEmail);
-        return;
-      }
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { error?: string; message?: string } } })
+          ?.response?.data?.error ??
+        (err as { response?: { data?: { error?: string; message?: string } } })
+          ?.response?.data?.message ??
+        "Login ou senha invalidos.";
 
-      setError("Login ou senha invalidos.");
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -233,7 +244,7 @@ const LoginPage = () => {
                 <Stack spacing={2.25}>
                   <TextField
                     label="Login"
-                    type="email"
+                    type="text"
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     autoComplete="username"
