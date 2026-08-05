@@ -1,36 +1,13 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
-import {
-  Alert,
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  CircularProgress,
-  Divider,
-  MenuItem,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-import SendRoundedIcon from "@mui/icons-material/SendRounded";
-import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { Alert, Box, Card, CardContent, Stack, Container, Tab, Tabs } from "@mui/material";
 import type { Socket } from "socket.io-client";
 import {
   getRealtimeSocket,
   type RealtimeChatMessage,
   type RealtimeSessionReady,
 } from "../../services/realtime";
-
-const toDataImage = (base64: string | null, mimeType: string | null): string | null => {
-  if (!base64) {
-    return null;
-  }
-
-  const normalizedMime = mimeType || "image/jpeg";
-  return `data:${normalizedMime};base64,${base64}`;
-};
+import { ChatHeader, ChatMessages, ChatInput, ChatSearch } from "./components";
+import "./chat.css";
 
 const fileToBase64 = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -47,16 +24,6 @@ const fileToBase64 = (file: File): Promise<string> =>
     reader.readAsDataURL(file);
   });
 
-const formatDateTime = (isoDate: string): string => {
-  const date = new Date(isoDate);
-  return date.toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
 const ChatRealtime = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [session, setSession] = useState<RealtimeSessionReady | null>(null);
@@ -69,24 +36,29 @@ const ChatRealtime = () => {
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [imageMimeType, setImageMimeType] = useState<string | null>(null);
   const [imageName, setImageName] = useState<string>("");
+  const [isConnected, setIsConnected] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [tabValue, setTabValue] = useState(0);
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const listRef = useRef<HTMLDivElement | null>(null);
-
+  // Inicializar socket
   useEffect(() => {
     const currentSocket = getRealtimeSocket();
 
     if (!currentSocket) {
-      setError("Sessao sem token. Faca login para usar o chat.");
+      setError("Sessão sem token. Faça login para usar o chat.");
       setLoading(false);
       return;
     }
 
     setSocket(currentSocket);
+    setIsConnected(currentSocket.connected);
 
     const onSessionReady = (payload: RealtimeSessionReady) => {
       setSession(payload);
-      setSelectedUnitId(payload.account.unitStoreId ? String(payload.account.unitStoreId) : "");
+      setSelectedUnitId(
+        payload.account.unitStoreId ? String(payload.account.unitStoreId) : "",
+      );
+      setError(null);
     };
 
     const onHistory = (payload: RealtimeChatMessage[]) => {
@@ -96,71 +68,64 @@ const ChatRealtime = () => {
 
     const onMessage = (payload: RealtimeChatMessage) => {
       setMessages((current) => [...current, payload]);
-      setLoading(false);
     };
 
     const onConnectError = () => {
-      setError("Nao foi possivel conectar ao chat em tempo real.");
-      setLoading(false);
+      setIsConnected(false);
+      setError(
+        "Não foi possível conectar ao chat em tempo real. Reconectando...",
+      );
+    };
+
+    const onConnect = () => {
+      setIsConnected(true);
+      setError(null);
+    };
+
+    const onDisconnect = () => {
+      setIsConnected(false);
     };
 
     currentSocket.on("session:ready", onSessionReady);
     currentSocket.on("chat:history", onHistory);
     currentSocket.on("chat:message", onMessage);
     currentSocket.on("connect_error", onConnectError);
+    currentSocket.on("connect", onConnect);
+    currentSocket.on("disconnect", onDisconnect);
 
     return () => {
       currentSocket.off("session:ready", onSessionReady);
       currentSocket.off("chat:history", onHistory);
       currentSocket.off("chat:message", onMessage);
       currentSocket.off("connect_error", onConnectError);
+      currentSocket.off("connect", onConnect);
+      currentSocket.off("disconnect", onDisconnect);
     };
   }, []);
 
-  useEffect(() => {
-    if (!listRef.current) {
-      return;
-    }
+  const handleImageSelect = useCallback(
+    async (file: File) => {
+      try {
+        const imageDataUrl = await fileToBase64(file);
+        setImageBase64(imageDataUrl);
+        setImageMimeType(file.type || "image/jpeg");
+        setImageName(file.name);
+        setError(null);
+      } catch {
+        setError("Não foi possível carregar a imagem selecionada.");
+      }
+    },
+    [],
+  );
 
-    listRef.current.scrollTop = listRef.current.scrollHeight;
-  }, [messages.length]);
-
-  const canSend = useMemo(() => {
-    return (text.trim().length > 0 || Boolean(imageBase64)) && !sending;
-  }, [imageBase64, sending, text]);
-
-  const handleChooseFile = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
-    try {
-      const imageDataUrl = await fileToBase64(file);
-      setImageBase64(imageDataUrl);
-      setImageMimeType(file.type || "image/jpeg");
-      setImageName(file.name);
-      setError(null);
-    } catch {
-      setError("Nao foi possivel carregar a imagem selecionada.");
-    } finally {
-      event.target.value = "";
-    }
-  };
-
-  const clearImage = () => {
+  const handleImageClear = useCallback(() => {
     setImageBase64(null);
     setImageMimeType(null);
     setImageName("");
-  };
+  }, []);
 
-  const handleSend = () => {
-    if (!socket || !canSend) {
+  const handleSend = useCallback(() => {
+    if (!socket || (text.trim().length === 0 && !imageBase64)) {
       return;
     }
 
@@ -184,197 +149,144 @@ const ChatRealtime = () => {
         }
 
         setText("");
-        clearImage();
+        handleImageClear();
       },
     );
-  };
+  }, [socket, text, imageBase64, imageMimeType, selectedUnitId, handleImageClear]);
+
+  const handleRefresh = useCallback(() => {
+    if (socket) {
+      socket.emit("chat:fetch-history");
+      setLoading(true);
+    }
+  }, [socket]);
 
   const currentUserId = session?.account.id;
 
+  // Filtrar mensagens por busca
+  const filteredMessages = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return messages;
+    }
+
+    const query = searchQuery.toLowerCase();
+    return messages.filter(
+      (msg) =>
+        (msg.text && msg.text.toLowerCase().includes(query)) ||
+        msg.sender.name.toLowerCase().includes(query) ||
+        msg.unitStore?.name.toLowerCase().includes(query),
+    );
+  }, [messages, searchQuery]);
+
   return (
-    <Box sx={{ maxWidth: 1100, mx: "auto", px: { xs: 1, sm: 2 } }}>
-      <Typography variant="h4" fontWeight={700} gutterBottom>
-        Chat entre unidades
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Comunicação em tempo real entre matriz e filiais, com envio de texto e foto.
-      </Typography>
-
-      {error ? (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      ) : null}
-
-      <Card sx={{ borderRadius: 3, mb: 2 }}>
-        <CardContent>
-          <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ xs: "stretch", md: "center" }}>
-            <TextField
-              select
-              label="Loja de envio"
-              value={selectedUnitId}
-              onChange={(event) => setSelectedUnitId(event.target.value)}
-              disabled={!session || session.units.length === 0}
-              sx={{ minWidth: { xs: "100%", md: 300 } }}
-            >
-              {session?.units.map((unit) => (
-                <MenuItem key={unit.id} value={String(unit.id)}>
-                  {unit.name} {unit.isMain ? "(Matriz)" : "(Filial)"}
-                </MenuItem>
-              ))}
-            </TextField>
-
-            <Box sx={{ flexGrow: 1 }} />
-
-            {session ? (
-              <Chip
-                label={`Conectado como ${session.account.role === "principal" ? "Matriz" : "Filial"}`}
-                color="primary"
-                variant="outlined"
-              />
-            ) : null}
-          </Stack>
-        </CardContent>
-      </Card>
-
-      <Card sx={{ borderRadius: 3 }}>
-        <CardContent>
-          <Box
-            ref={listRef}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "grey.50",
+        py: { xs: 2, sm: 3 },
+      }}
+    >
+      <Container maxWidth="lg">
+        {/* Error Alert */}
+        {error && (
+          <Alert
+            severity="error"
+            onClose={() => setError(null)}
             sx={{
-              height: { xs: 360, md: 460 },
-              overflowY: "auto",
-              pr: 1,
               mb: 2,
+              borderRadius: 2,
             }}
           >
-            {loading ? (
-              <Box sx={{ display: "grid", placeItems: "center", py: 8 }}>
-                <CircularProgress size={28} />
-              </Box>
-            ) : null}
+            {error}
+          </Alert>
+        )}
 
-            {!loading && messages.length === 0 ? (
-              <Alert severity="info">Nenhuma mensagem ainda. Envie a primeira mensagem para sua rede.</Alert>
-            ) : null}
+        {/* Header */}
+        <ChatHeader
+          session={session}
+          selectedUnitId={selectedUnitId}
+          onUnitChange={setSelectedUnitId}
+          isConnected={isConnected}
+          unitsCount={session?.units.length ?? 0}
+          messagesCount={messages.length}
+          onRefresh={handleRefresh}
+        />
 
-            <Stack spacing={1.5}>
-              {messages.map((message) => {
-                const ownMessage = currentUserId === message.sender.id;
-                const imageSource = toDataImage(message.imageBase64, message.imageMimeType);
+        {/* Main Chat Area */}
+        <Card
+          sx={{
+            borderRadius: 3,
+            overflow: "hidden",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <CardContent
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              height: { xs: "calc(100vh - 450px)", md: "calc(100vh - 400px)" },
+              minHeight: 650,
+              p: { xs: 1.5, sm: 2.5 },
+              "&:last-child": { pb: 2.5 },
+            }}
+          >
+            {/* Search and Tabs */}
+            <Box sx={{ mb: 2 }}>
+              <ChatSearch onSearch={setSearchQuery} />
 
-                return (
-                  <Box
-                    key={message.id}
-                    sx={{
-                      display: "flex",
-                      justifyContent: ownMessage ? "flex-end" : "flex-start",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        maxWidth: { xs: "92%", md: "72%" },
-                        border: "1px solid",
-                        borderColor: "divider",
-                        borderRadius: 2,
-                        p: 1.5,
-                        bgcolor: ownMessage ? "primary.main" : "background.paper",
-                        color: ownMessage ? "primary.contrastText" : "text.primary",
-                      }}
-                    >
-                      <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                        <Avatar sx={{ width: 28, height: 28, fontSize: 12 }}>
-                          {(message.sender.name || "U").charAt(0).toUpperCase()}
-                        </Avatar>
-                        <Box sx={{ minWidth: 0 }}>
-                          <Typography variant="caption" sx={{ display: "block", lineHeight: 1.1, fontWeight: 700 }}>
-                            {message.sender.name}
-                          </Typography>
-                          <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                            {message.unitStore?.name || "Loja"} • {formatDateTime(message.createdAt)}
-                          </Typography>
-                        </Box>
-                      </Stack>
+              {searchQuery && (
+                <Box sx={{ mt: 1.5, fontSize: "0.875rem", color: "text.secondary" }}>
+                  {filteredMessages.length} resultado
+                  {filteredMessages.length !== 1 ? "s" : ""} para "{searchQuery}"
+                </Box>
+              )}
+            </Box>
 
-                      {message.text ? (
-                        <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-                          {message.text}
-                        </Typography>
-                      ) : null}
+            {/* Messages Area */}
+            <Box
+              sx={{
+                flex: 1,
+                overflowY: "auto",
+                mb: 2,
+                pr: 1,
+                "&::-webkit-scrollbar": {
+                  width: 6,
+                },
+                "&::-webkit-scrollbar-track": {
+                  bgcolor: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  bgcolor: "divider",
+                  borderRadius: 3,
+                  "&:hover": {
+                    bgcolor: "action.hover",
+                  },
+                },
+              }}
+            >
+              <ChatMessages
+                messages={filteredMessages}
+                loading={loading}
+                currentUserId={currentUserId}
+                selectedStoreId={selectedUnitId}
+              />
+            </Box>
 
-                      {imageSource ? (
-                        <Box
-                          component="img"
-                          src={imageSource}
-                          alt="Imagem da mensagem"
-                          sx={{
-                            mt: message.text ? 1 : 0,
-                            width: "100%",
-                            maxHeight: 280,
-                            objectFit: "cover",
-                            borderRadius: 1.5,
-                            border: "1px solid",
-                            borderColor: ownMessage ? "rgba(255,255,255,0.2)" : "divider",
-                          }}
-                        />
-                      ) : null}
-                    </Box>
-                  </Box>
-                );
-              })}
-            </Stack>
-          </Box>
-
-          <Divider sx={{ mb: 2 }} />
-
-          {imageBase64 ? (
-            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
-              <Chip label={`Imagem: ${imageName || "selecionada"}`} size="small" />
-              <Button size="small" onClick={clearImage}>Remover</Button>
-            </Stack>
-          ) : null}
-
-          <Stack direction={{ xs: "column", md: "row" }} spacing={1}>
-            <TextField
-              fullWidth
-              multiline
-              minRows={2}
-              maxRows={5}
-              placeholder="Digite sua mensagem para matriz e filiais..."
-              value={text}
-              onChange={(event) => setText(event.target.value)}
+            {/* Input Area */}
+            <ChatInput
+              disabled={!session || !isConnected}
+              sending={sending}
+              text={text}
+              imageName={imageName}
+              hasImage={Boolean(imageBase64)}
+              onTextChange={setText}
+              onImageSelect={handleImageSelect}
+              onImageClear={handleImageClear}
+              onSend={handleSend}
             />
-
-            <Stack direction="row" spacing={1}>
-              <Button
-                variant="outlined"
-                onClick={handleChooseFile}
-                startIcon={<PhotoCameraOutlinedIcon />}
-                sx={{ minWidth: 130 }}
-              >
-                Foto
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleSend}
-                disabled={!canSend}
-                startIcon={<SendRoundedIcon />}
-                sx={{ minWidth: 130 }}
-              >
-                {sending ? "Enviando" : "Enviar"}
-              </Button>
-            </Stack>
-          </Stack>
-        </CardContent>
-      </Card>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={handleFileChange}
-      />
+          </CardContent>
+        </Card>
+      </Container>
     </Box>
   );
 };
