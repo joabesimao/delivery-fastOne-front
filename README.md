@@ -436,12 +436,12 @@ docker run --rm -p 5173:80 fastone-front:public
 - npm run preview: preview do build.
 - npm run lint: verificacao de lint.
 
-## Publicacao Full Stack
+## Publicaçao Full Stack
 
 Para subir frontend + API + MySQL com um comando, use o compose publico do backend em:
 
 - ../nodejs-backend-delivery-manager/docker-compose.public.yml
 
-## Licenca
+## Licença
 
 Uso interno/projeto privado. Adapte conforme politica do seu repositorio publico.
