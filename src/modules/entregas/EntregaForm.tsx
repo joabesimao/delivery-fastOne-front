@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { flushSync } from "react-dom";
 import {
   Alert,
@@ -19,6 +20,7 @@ import {
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { Formik, Form } from "formik";
 import api from "../../services/api";
 import { exportHtmlToPdf } from "../../helpers/exportHtmlToPdf";
@@ -158,9 +160,23 @@ const validate = (values: DeliveryFormValues): FormErrors => {
 
 interface EntregaFormProps {
   onClose?: () => void;
+  preloadedClientData?: {
+    name: string;
+    lastName: string;
+    phone: string;
+    address: {
+      street: string;
+      neighborhood: string;
+      numberHouse: string;
+      reference: string;
+      city: string;
+    };
+  } | null;
+  preloadedClientId?: number | null;
 }
 
-const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
+const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData, preloadedClientId }) => {
+  const navigate = useNavigate();
   const printRef = useRef<HTMLDivElement | null>(null);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -180,6 +196,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
   });
   const [sheetData, setSheetData] = useState<DeliverySheetData | null>(null);
   const [sheetFormat, setSheetFormat] = useState<DeliverySheetFormat>(DELIVERY_DEFAULT_SHEET_FORMAT);
+  const [formInitialValues, setFormInitialValues] = useState<DeliveryFormValues>(initialValues);
 
   useEffect(() => {
     api
@@ -209,6 +226,30 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
       )
       .catch(() => setNeighborhoods([]));
   }, []);
+
+  useEffect(() => {
+    if (preloadedClientData) {
+      setFormInitialValues({
+        name: preloadedClientData.name,
+        lastName: preloadedClientData.lastName,
+        phone: phoneMask(preloadedClientData.phone),
+        deliverymanId: "",
+        address: {
+          street: preloadedClientData.address.street,
+          neighborhood: preloadedClientData.address.neighborhood,
+          numberHouse: preloadedClientData.address.numberHouse,
+          reference: preloadedClientData.address.reference || "",
+          city: preloadedClientData.address.city,
+        },
+        quantity: "",
+        amount: "",
+      });
+
+      if (preloadedClientId) {
+        setSelectedRegisterId(preloadedClientId);
+      }
+    }
+  }, [preloadedClientData, preloadedClientId]);
 
   const handleSubmit = async (
     values: DeliveryFormValues,
@@ -321,7 +362,21 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
       >
         {/* Título */}
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
-          <Box sx={{ width: 40 }} />
+          <Button
+            variant="contained"
+            startIcon={<PersonAddIcon />}
+            onClick={() => navigate("/cadastros/cliente")}
+            sx={{
+              bgcolor: "#0ea5e9",
+              "&:hover": { bgcolor: "#0284c7" },
+              textTransform: "none",
+              borderRadius: 2,
+              fontWeight: 600,
+              fontSize: 13,
+            }}
+          >
+            Cadastrar cliente
+          </Button>
           <Typography variant="h6" fontWeight={700} sx={{ color: "text.primary" }}>
             Novo pedido de entrega
           </Typography>
@@ -335,7 +390,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
         </Box>
         <Divider sx={{ mb: 4 }} />
 
-        <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit}>
+        <Formik initialValues={formInitialValues} validate={validate} onSubmit={handleSubmit} enableReinitialize={true}>
           {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setValues, setFieldValue }) => {
             const selectedCity = cities.find((c) => c.name === values.address.city);
             const neighborhoodSuggestions = selectedCity
@@ -346,45 +401,47 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
             <Form noValidate>
 
               {/* ── Buscar cliente existente ──────────────────────── */}
-              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2,mr:4 }}>
-                Buscar cliente existente
-              </Typography>
+              {!preloadedClientData && (
+                <>
+                  <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2,mr:4 }}>
+                    Buscar cliente existente
+                  </Typography>
 
-              <Grid container spacing={2} sx={{ mb: 1 }}>
-                <Grid size={{ xs: 12 }}>
-                  <FieldLabel label="Pesquisar por nome" />
-                  <Autocomplete
-                    options={registers}
-                    loading={registersLoading}
-                    getOptionLabel={(option) =>
-                      `${option.client.name} ${option.client.lastName}`
-                    }
-                    filterOptions={(options, { inputValue }) => {
-                      const term = inputValue.toLowerCase();
-                      return options.filter(
-                        (o) =>
-                          o.client.name.toLowerCase().includes(term) ||
-                          o.client.lastName.toLowerCase().includes(term)
-                      );
-                    }}
-                    onChange={(_, selected) => {
-                      if (selected) {
-                        setSelectedRegisterId(selected.id);
-                        setValues({
-                          ...values,
-                          name: selected.client.name,
-                          lastName: selected.client.lastName,
-                          phone: phoneMask(selected.client.phone),
-                          address: {
-                            street: selected.address.street,
-                            neighborhood: selected.address.neighborhood,
-                            numberHouse: String(selected.address.numberHouse),
-                            reference: selected.address.reference ?? "",
-                            city: selected.address.city,
-                          },
-                        });
-                      } else {
-                        setSelectedRegisterId(null);
+                  <Grid container spacing={2} sx={{ mb: 1 }}>
+                    <Grid size={{ xs: 12 }}>
+                      <FieldLabel label="Pesquisar por nome" />
+                      <Autocomplete
+                        options={registers}
+                        loading={registersLoading}
+                        getOptionLabel={(option) =>
+                          `${option.client.name} ${option.client.lastName}`
+                        }
+                        filterOptions={(options, { inputValue }) => {
+                          const term = inputValue.toLowerCase();
+                          return options.filter(
+                            (o) =>
+                              o.client.name.toLowerCase().includes(term) ||
+                              o.client.lastName.toLowerCase().includes(term)
+                          );
+                        }}
+                        onChange={(_, selected) => {
+                          if (selected) {
+                            setSelectedRegisterId(selected.id);
+                            setValues({
+                              ...values,
+                              name: selected.client.name,
+                              lastName: selected.client.lastName,
+                              phone: phoneMask(selected.client.phone),
+                              address: {
+                                street: selected.address.street,
+                                neighborhood: selected.address.neighborhood,
+                                numberHouse: String(selected.address.numberHouse),
+                                reference: selected.address.reference ?? "",
+                                city: selected.address.city,
+                              },
+                            });
+                          } else {
+                            setSelectedRegisterId(null);
                       }
                     }}
                     renderInput={(params) => (
@@ -399,7 +456,9 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose }) => {
                 </Grid>
               </Grid>
 
-              <Divider sx={{ my: 3 }} />
+                  <Divider sx={{ my: 3 }} />
+                </>
+              )}
 
               {/* ── Dados do Cliente ──────────────────────────────── */}
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>

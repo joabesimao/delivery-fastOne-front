@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Alert,
   Box,
   Button,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Divider,
   Grid,
   MenuItem,
@@ -29,6 +34,11 @@ interface ClienteFormValues {
   lastName: string;
   phone: string;
   address: AddressValues;
+}
+
+interface NewClientData {
+  id: number;
+  clientData: ClienteFormValues;
 }
 
 interface CityOption {
@@ -80,6 +90,7 @@ const validate = (values: ClienteFormValues): FormErrors => {
 };
 
 const ClienteForm: React.FC = () => {
+  const navigate = useNavigate();
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -88,6 +99,8 @@ const ClienteForm: React.FC = () => {
 
   const [cities, setCities] = useState<CityOption[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [newClientData, setNewClientData] = useState<NewClientData | null>(null);
 
   useEffect(() => {
     api
@@ -107,7 +120,7 @@ const ClienteForm: React.FC = () => {
     { resetForm }: { resetForm: () => void }
   ) => {
     try {
-      await api.post("/register", {
+      const response = await api.post("/register", {
         client: {
           name: values.name,
           lastName: values.lastName,
@@ -122,6 +135,11 @@ const ClienteForm: React.FC = () => {
         },
       });
       setSnackbar({ open: true, message: "Cliente cadastrado com sucesso!", severity: "success" });
+      setNewClientData({
+        id: response.data.id,
+        clientData: values,
+      });
+      setModalOpen(true);
       resetForm();
     } catch {
       setSnackbar({
@@ -130,6 +148,18 @@ const ClienteForm: React.FC = () => {
         severity: "error",
       });
     }
+  };
+
+  const handleModalYes = () => {
+    setModalOpen(false);
+    if (newClientData) {
+      navigate("/realizar-entrega", { state: { clientData: newClientData } });
+    }
+  };
+
+  const handleModalNo = () => {
+    setModalOpen(false);
+    setNewClientData(null);
   };
 
   return (
@@ -313,6 +343,27 @@ const ClienteForm: React.FC = () => {
           }}
         </Formik>
       </Paper>
+
+      <Dialog open={modalOpen} onClose={handleModalNo}>
+        <DialogTitle sx={{ fontWeight: 700 }}>Realizar entrega?</DialogTitle>
+        <DialogContent>
+          <Typography sx={{ mt: 1 }}>
+            Deseja realizar uma entrega para o cliente <strong>{newClientData?.name} {newClientData?.lastName}</strong>?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleModalNo} variant="outlined" sx={{ textTransform: "none" }}>
+            Não
+          </Button>
+          <Button 
+            onClick={handleModalYes} 
+            variant="contained"
+            sx={{ textTransform: "none", bgcolor: "#4361EE", "&:hover": { bgcolor: "#3451D1" } }}
+          >
+            Sim
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar
         open={snackbar.open} autoHideDuration={4000}
