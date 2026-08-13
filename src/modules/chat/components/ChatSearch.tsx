@@ -4,7 +4,6 @@ import {
   Box,
   Chip,
   Stack,
-  Typography,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -29,10 +28,6 @@ export const ChatSearch = ({
     },
     [onSearch],
   );
-
-  const handleAddFilter = useCallback((filter: string) => {
-    setFilters((prev) => [...prev, filter]);
-  }, []);
 
   const handleRemoveFilter = useCallback((filter: string) => {
     setFilters((prev) => prev.filter((f) => f !== filter));

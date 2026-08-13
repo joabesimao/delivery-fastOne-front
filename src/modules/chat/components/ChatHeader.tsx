@@ -8,7 +8,6 @@ import {
   Chip,
   Typography,
   Tooltip,
-  Button,
   Collapse,
   Alert,
   IconButton,
@@ -17,7 +16,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import GroupsIcon from "@mui/icons-material/Groups";
 import MessageIcon from "@mui/icons-material/Message";
-import StorefrontIcon from "@mui/icons-material/Storefront";
+
 import PersonIcon from "@mui/icons-material/Person";
 import { useState } from "react";
 import type { RealtimeSessionReady } from "../../../services/realtime";

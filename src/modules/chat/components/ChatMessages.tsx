@@ -1,4 +1,4 @@
-import { Box, Stack, Alert, CircularProgress, Typography } from "@mui/material";
+import { Box, Stack, CircularProgress, Typography } from "@mui/material";
 import { useEffect, useRef, useMemo } from "react";
 import type { RealtimeChatMessage } from "../../../services/realtime";
 import { ChatMessageItem } from "./ChatMessageItem";

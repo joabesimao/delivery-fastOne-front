@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Alert, Box, Card, CardContent, Stack, Container, Tab, Tabs } from "@mui/material";
+import { Alert, Box, Card, CardContent, Container } from "@mui/material";
 import type { Socket } from "socket.io-client";
 import {
   getRealtimeSocket,
@@ -38,7 +38,6 @@ const ChatRealtime = () => {
   const [imageName, setImageName] = useState<string>("");
   const [isConnected, setIsConnected] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [tabValue, setTabValue] = useState(0);
 
   // Inicializar socket
   useEffect(() => {

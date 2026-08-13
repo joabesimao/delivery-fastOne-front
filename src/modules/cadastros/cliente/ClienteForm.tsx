@@ -348,7 +348,7 @@ const ClienteForm: React.FC = () => {
         <DialogTitle sx={{ fontWeight: 700 }}>Realizar entrega?</DialogTitle>
         <DialogContent>
           <Typography sx={{ mt: 1 }}>
-            Deseja realizar uma entrega para o cliente <strong>{newClientData?.name} {newClientData?.lastName}</strong>?
+            Deseja realizar uma entrega para o cliente <strong>{newClientData?.clientData.name} {newClientData?.clientData.lastName}</strong>?
           </Typography>
         </DialogContent>
         <DialogActions>

@@ -142,7 +142,7 @@ export const useChat = (options?: UseChatOptions) => {
         }
 
         // Implementar quando backend suportar
-        socket.emit("chat:delete-message", { messageId }, (response) => {
+        socket.emit("chat:delete-message", { messageId }, (response: { ok: boolean; error?: string }) => {
           resolve(response);
         });
       });
