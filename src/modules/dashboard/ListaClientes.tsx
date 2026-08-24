@@ -333,7 +333,6 @@ const ListaClientes: React.FC = () => {
           border: `5px solid ${borderColor}`,
           bgcolor: cardBg,
           overflow: "hidden",
-          mr: 40,
         }}
       >
         {/* Título do card */}
