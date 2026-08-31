@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import { Formik, Form } from "formik";
 import api from "../../../services/api";
-import { isValidPhone, phoneMask, stripPhone } from "../../../helpers/masks";
+import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "../../../helpers/masks";
 
 interface AddressValues {
   street: string;
@@ -32,6 +32,7 @@ interface AddressValues {
 interface ClienteFormValues {
   name: string;
   lastName: string;
+  cpf: string;
   phone: string;
   address: AddressValues;
 }
@@ -55,6 +56,7 @@ interface NeighborhoodOption {
 const initialValues: ClienteFormValues = {
   name: "",
   lastName: "",
+  cpf: "",
   phone: "",
   address: {
     street: "",
@@ -68,6 +70,7 @@ const initialValues: ClienteFormValues = {
 type FormErrors = {
   name?: string;
   lastName?: string;
+  cpf?: string;
   phone?: string;
   address?: Partial<AddressValues>;
 };
@@ -78,6 +81,8 @@ const validate = (values: ClienteFormValues): FormErrors => {
 
   if (!values.name.trim()) errors.name = "Informe o nome.";
   if (!values.lastName.trim()) errors.lastName = "Informe o sobrenome.";
+  if (!values.cpf.trim()) errors.cpf = "Informe o CPF.";
+  else if (!isValidCPF(values.cpf)) errors.cpf = "CPF inválido. Use o formato XXX.XXX.XXX-XX ou apenas números.";
   if (!values.phone.trim()) errors.phone = "Informe o telefone.";
   else if (!isValidPhone(values.phone)) errors.phone = "Telefone inválido. Use DDD + número.";
   if (!values.address.street.trim()) addrErrors.street = "Informe a rua.";
@@ -124,6 +129,7 @@ const ClienteForm: React.FC = () => {
         client: {
           name: values.name,
           lastName: values.lastName,
+          cpf: stripCPF(values.cpf),
           phone: stripPhone(values.phone),
         },
         address: {
@@ -218,6 +224,21 @@ const ClienteForm: React.FC = () => {
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
+                  <FieldLabel label="CPF *" />
+                  <TextField
+                    fullWidth size="small" placeholder="000.000.000-00"
+                    name="cpf" value={values.cpf}
+                    onChange={(e) => setFieldValue("cpf", cpfMask(e.target.value))}
+                    onBlur={handleBlur}
+                    inputProps={{ maxLength: 14, inputMode: "numeric" }}
+                    error={Boolean(touched.cpf && errors.cpf)}
+                    helperText={touched.cpf && errors.cpf}
+                  />
+                </Grid>
+              </Grid>
+
+              <Grid container spacing={2} sx={{ mb: 1 }}>
+                <Grid size={{ xs: 12 }}>
                   <FieldLabel label="Telefone *" />
                   <TextField
                     fullWidth size="small" placeholder="(00) 00000-0000"

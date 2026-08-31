@@ -19,12 +19,16 @@ export const useMessageFilter = (
     // Filter by search query
     if (options?.searchQuery?.trim()) {
       const query = options.searchQuery.toLowerCase();
-      result = result.filter(
-        (msg) =>
+      result = result.filter((msg) => {
+        const senderName = msg.sender?.name ?? "";
+        const unitStoreName = msg.unitStore?.name ?? "";
+
+        return (
           (msg.text && msg.text.toLowerCase().includes(query)) ||
-          msg.sender.name.toLowerCase().includes(query) ||
-          msg.unitStore?.name.toLowerCase().includes(query),
-      );
+          senderName.toLowerCase().includes(query) ||
+          unitStoreName.toLowerCase().includes(query)
+        );
+      });
     }
 
     // Filter by store
@@ -38,7 +42,7 @@ export const useMessageFilter = (
 
     // Filter by sender
     if (options?.senderId) {
-      result = result.filter((msg) => msg.sender.id === options.senderId);
+      result = result.filter((msg) => msg.sender?.id === options.senderId);
     }
 
     // Filter by date range
@@ -80,7 +84,7 @@ export const useMessageFilter = (
       total: filtered.length,
       withImages: filtered.filter((m) => m.imageBase64).length,
       withText: filtered.filter((m) => m.text).length,
-      senderCount: new Set(filtered.map((m) => m.sender.id)).size,
+      senderCount: new Set(filtered.map((m) => m.sender?.id).filter((id): id is number => Boolean(id))).size,
       storeCount: new Set(filtered.map((m) => m.unitStoreId)).size,
     };
 
