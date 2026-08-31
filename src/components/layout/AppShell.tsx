@@ -155,7 +155,7 @@ const normalizeUserLabel = (value: string): string => {
 
 const getAvatarLabel = (email: string) => email.trim().charAt(0).toUpperCase() || "U";
 
-const AppShell = () => {
+const AppShell = ({ children }: { children?: React.ReactNode }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -444,7 +444,7 @@ const AppShell = () => {
             },
           }}
         >
-          <Outlet />
+          {children ?? <Outlet />}
         </Box>
       </Box>
 

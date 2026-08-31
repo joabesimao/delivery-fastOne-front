@@ -1,16 +1,15 @@
+import type { ReactNode } from "react";
 import ThemeModeProvider from "./context/ThemeModeProvider";
 import AppShell from "./components/layout/AppShell";
 
-function AppLayout() {
-  return (
-    <AppShell />
-  );
+function AppLayout({ children }: { children?: ReactNode }) {
+  return <AppShell>{children}</AppShell>;
 }
 
-function App() {
+function App({ children }: { children?: ReactNode }) {
   return (
     <ThemeModeProvider>
-      <AppLayout />
+      <AppLayout>{children}</AppLayout>
     </ThemeModeProvider>
   );
 }

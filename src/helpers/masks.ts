@@ -18,6 +18,26 @@ export const isValidPhone = (value: string = "") => {
   return digits.length === 10 || digits.length === 11;
 };
 
+export const stripCPF = (value: string = "") => value.replace(/\D/g, "").slice(0, 11);
+
+export const cpfMask = (value: string = "") => {
+  const digits = stripCPF(value);
+
+  if (!digits) return "";
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+  if (digits.length <= 9) {
+    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+  }
+
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+};
+
+export const isValidCPF = (value: string = "") => {
+  const digits = stripCPF(value);
+  return digits.length === 11 && /^\d+$/.test(digits);
+};
+
 export const currencyInputMask = (value: string = "") => {
   const digitsOnly = value.replace(/\D/g, "");
 

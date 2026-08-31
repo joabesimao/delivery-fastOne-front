@@ -63,6 +63,11 @@ const tryRefreshToken = async (): Promise<string | null> => {
   return null;
 };
 
+const isDemoToken = (): boolean => {
+  const accessToken = localStorage.getItem('accessToken') ?? '';
+  return Boolean(accessToken && (accessToken.includes('temporary-access-token-') || accessToken.includes('test')));
+};
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -72,6 +77,10 @@ api.interceptors.response.use(
     const isAuthRoute = /\/login|\/refresh-token|\/refreshToken|\/refresh$/.test(requestUrl);
 
     if ((status !== 401 && status !== 403) || originalRequest?._retry || isAuthRoute) {
+      return Promise.reject(error);
+    }
+
+    if (isDemoToken()) {
       return Promise.reject(error);
     }
 
