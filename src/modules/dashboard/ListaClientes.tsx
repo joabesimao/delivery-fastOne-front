@@ -38,7 +38,7 @@ import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
-import { isValidPhone, phoneMask, stripPhone } from "../../helpers/masks";
+import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "../../helpers/masks";
 
 interface Address {
   id?: number;
@@ -53,6 +53,7 @@ interface ClientItem {
   id: number;
   name: string;
   lastName: string;
+  cpf?: string;
   phone: string;
   status?: boolean;
   Register?: {
@@ -65,6 +66,7 @@ interface ClientItem {
 interface EditClientForm {
   name: string;
   lastName: string;
+  cpf?: string;
   phone: string;
   address: {
     street: string;
@@ -130,6 +132,7 @@ const ListaClientes: React.FC = () => {
     setEditValues({
       name: client.name,
       lastName: client.lastName,
+      cpf: client.cpf ? cpfMask(client.cpf) : "",
       phone: phoneMask(client.phone),
       address: {
         street: address?.street ?? "",
@@ -172,6 +175,11 @@ const ListaClientes: React.FC = () => {
       return;
     }
 
+    if (editValues.cpf && !isValidCPF(editValues.cpf)) {
+      showSnackbar("CPF inválido. Use o formato XXX.XXX.XXX-XX ou apenas números.", "error");
+      return;
+    }
+
     if (!isValidPhone(editValues.phone)) {
       showSnackbar("Telefone inválido. Use DDD + número.", "error");
       return;
@@ -202,6 +210,7 @@ const ListaClientes: React.FC = () => {
       await api.put(`/client/${editClient.id}`, {
         name: editValues.name,
         lastName: editValues.lastName,
+        cpf: editValues.cpf ? stripCPF(editValues.cpf) : undefined,
         phone: stripPhone(editValues.phone),
       });
 
@@ -531,6 +540,7 @@ const ListaClientes: React.FC = () => {
                     {[
                       "Nome do cliente",
                       "ID",
+                      "CPF",
                       "Telefone do cliente",
                       "Bairro",
                       "Cidade",
@@ -558,7 +568,7 @@ const ListaClientes: React.FC = () => {
                   {paginated.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={7}
+                        colSpan={8}
                         align="center"
                         sx={{
                           py: 6,
@@ -615,6 +625,11 @@ const ListaClientes: React.FC = () => {
                           </TableCell>
                           <TableCell sx={{ color: textSecondary }}>
                             {c.id}
+                          </TableCell>
+                          <TableCell
+                            sx={{ color: isDark ? "#d1d5db" : "#374151" }}
+                          >
+                            {c.cpf ? cpfMask(c.cpf) : "—"}
                           </TableCell>
                           <TableCell
                             sx={{ color: isDark ? "#d1d5db" : "#374151" }}
@@ -806,6 +821,9 @@ const ListaClientes: React.FC = () => {
                 <strong>Nome:</strong> {viewClient.name} {viewClient.lastName}
               </Typography>
               <Typography variant="body2">
+                <strong>CPF:</strong> {viewClient.cpf ? cpfMask(viewClient.cpf) : "—"}
+              </Typography>
+              <Typography variant="body2">
                 <strong>Telefone:</strong> {phoneMask(viewClient.phone)}
               </Typography>
               <Typography variant="body2">
@@ -872,6 +890,17 @@ const ListaClientes: React.FC = () => {
                     prev ? { ...prev, lastName: e.target.value } : prev,
                   )
                 }
+              />
+              <TextField
+                label="CPF"
+                size="small"
+                value={editValues.cpf}
+                onChange={(e) =>
+                  setEditValues((prev) =>
+                    prev ? { ...prev, cpf: cpfMask(e.target.value) } : prev,
+                  )
+                }
+                inputProps={{ maxLength: 14, inputMode: "numeric" }}
               />
               <TextField
                 label="Telefone"

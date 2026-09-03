@@ -10,6 +10,7 @@ import FinalizarEntrega from "./modules/entregas/FinalizarEntrega.tsx";
 import RelatoriosEntregas from "./modules/entregas/RelatoriosEntregas.tsx";
 import RelatoriosEntregasGeral from "./modules/entregas/RelatoriosEntregasGeral.tsx";
 import ListagemEntregas from "./modules/entregas/ListagemEntregas.tsx";
+import ListaEntregadores from "./modules/entregas/ListaEntregadores.tsx";
 import DashboardIndex from "./modules/dashboard/DashboardIndex";
 import RelatoriosDashboard from "./modules/dashboard/RelatoriosDashboard";
 import ListaClientes from "./modules/dashboard/ListaClientes";
@@ -102,6 +103,10 @@ const router = createBrowserRouter([
   {
     path: "/listagem-entregas",
     element: <RequireAuth><ListagemEntregas /></RequireAuth>,
+  },
+  {
+    path: "/listagem-entregadores",
+    element: <RequireAuth><ListaEntregadores /></RequireAuth>,
   },
   {
     path: "/cadastros/cliente",
