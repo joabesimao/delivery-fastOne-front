@@ -19,18 +19,21 @@ interface EntregadorFormValues {
   name: string;
   lastName: string;
   phone: string;
+  numberQualification: string;
 }
 
 const initialValues: EntregadorFormValues = {
   name: "",
   lastName: "",
   phone: "",
+  numberQualification: "",
 };
 
 type FormErrors = {
   name?: string;
   lastName?: string;
   phone?: string;
+  numberQualification?: string;
 };
 
 const validate = (values: EntregadorFormValues): FormErrors => {
@@ -39,6 +42,7 @@ const validate = (values: EntregadorFormValues): FormErrors => {
   if (!values.lastName.trim()) errors.lastName = "Informe o sobrenome.";
   if (!values.phone.trim()) errors.phone = "Informe o telefone.";
   else if (!isValidPhone(values.phone)) errors.phone = "Telefone inválido. Use DDD + número.";
+  if (!values.numberQualification.trim()) errors.numberQualification = "Informe o número da habilitação.";
   return errors;
 };
 
@@ -58,6 +62,7 @@ const EntregadorForm: React.FC = () => {
         name: values.name,
         lastName: values.lastName,
         phone: stripPhone(values.phone),
+        numberQualification: values.numberQualification,
       });
       setSnackbar({ open: true, message: "Entregador cadastrado com sucesso!", severity: "success" });
       resetForm();
@@ -129,6 +134,21 @@ const EntregadorForm: React.FC = () => {
                     inputProps={{ maxLength: 15, inputMode: "numeric" }}
                     error={Boolean(touched.phone && errors.phone)}
                     helperText={touched.phone && errors.phone}
+                  />
+                </Grid>
+              </Grid>
+
+              <Grid container spacing={2} sx={{ mb: 1 }}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FieldLabel label="Número da Habilitação *" />
+                  <TextField
+                    fullWidth size="small" placeholder="Número da CNH"
+                    name="numberQualification" value={values.numberQualification}
+                    onChange={(e) => setFieldValue("numberQualification", e.target.value.replace(/\D/g, ""))}
+                    onBlur={handleBlur}
+                    inputProps={{ maxLength: 12, inputMode: "numeric" }}
+                    error={Boolean(touched.numberQualification && errors.numberQualification)}
+                    helperText={touched.numberQualification && errors.numberQualification}
                   />
                 </Grid>
               </Grid>

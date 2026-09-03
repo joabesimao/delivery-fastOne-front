@@ -147,10 +147,13 @@ const ClienteForm: React.FC = () => {
       });
       setModalOpen(true);
       resetForm();
-    } catch {
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || "Erro ao cadastrar cliente. Tente novamente.";
+      const isCpfDuplicate = errorMessage.toLowerCase().includes("cpf") && errorMessage.toLowerCase().includes("cadastrado");
+      
       setSnackbar({
         open: true,
-        message: "Erro ao cadastrar cliente. Tente novamente.",
+        message: isCpfDuplicate ? "Este CPF já está cadastrado no sistema." : errorMessage,
         severity: "error",
       });
     }

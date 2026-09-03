@@ -18,6 +18,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -35,6 +36,9 @@ const Sidebar = ({
   const location = useLocation();
   const [dashboardOpen, setDashboardOpen] = useState(
     location.pathname.startsWith("/dashboard")
+  );
+  const [entregasOpen, setEntregasOpen] = useState(
+    location.pathname.startsWith("/listagem") || location.pathname.startsWith("/realizar") || location.pathname.startsWith("/finalizar") || location.pathname.startsWith("/relatorios-entregas")
   );
 
   const handleMenuToggle = () => {
@@ -142,6 +146,54 @@ const Sidebar = ({
                 </ListItemIcon>
                 <ListItemText
                   primary="Lista de Clientes"
+                  primaryTypographyProps={{ fontSize: 13 }}
+                />
+              </ListItemButton>
+            </List>
+          </Collapse>
+
+          {/* Entregas com submenu */}
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => setEntregasOpen((prev) => !prev)}
+              sx={{
+                backgroundColor: (
+                  location.pathname.startsWith("/listagem") ||
+                  location.pathname.startsWith("/realizar") ||
+                  location.pathname.startsWith("/finalizar") ||
+                  location.pathname.startsWith("/relatorios-entregas")
+                ) ? "#1e293b" : "transparent",
+                borderRadius: 1,
+                "&:hover": { backgroundColor: "#334155" },
+              }}
+            >
+              <ListItemIcon>
+                <LocalShippingIcon sx={{ color: "#fff" }} />
+              </ListItemIcon>
+              <ListItemText primary="Entregas" />
+              {open && (entregasOpen ? <ExpandLess sx={{ color: "#fff" }} /> : <ExpandMore sx={{ color: "#fff" }} />)}
+            </ListItemButton>
+          </ListItem>
+
+          <Collapse in={entregasOpen && open} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItemButton
+                onClick={() => navigate("/listagem-entregadores")}
+                sx={{
+                  pl: 4,
+                  backgroundColor:
+                    location.pathname === "/listagem-entregadores"
+                      ? "#0f172a"
+                      : "transparent",
+                  borderRadius: 1,
+                  "&:hover": { backgroundColor: "#334155" },
+                }}
+              >
+                <ListItemIcon>
+                  <FormatListBulletedIcon sx={{ color: "#94a3b8", fontSize: 18 }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Entregadores"
                   primaryTypographyProps={{ fontSize: 13 }}
                 />
               </ListItemButton>

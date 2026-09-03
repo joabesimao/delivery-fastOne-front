@@ -33,9 +33,40 @@ export const cpfMask = (value: string = "") => {
   return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
 };
 
-export const isValidCPF = (value: string = "") => {
+export const isValidCPF = (value: string = ""): boolean => {
   const digits = stripCPF(value);
-  return digits.length === 11 && /^\d+$/.test(digits);
+
+  // Verificar se tem exatamente 11 dígitos
+  if (digits.length !== 11 || !/^\d+$/.test(digits)) {
+    return false;
+  }
+
+  // Rejeitar sequências repetidas (111.111.111-11, 222.222.222-22, etc)
+  if (/^(\d)\1{10}$/.test(digits)) {
+    return false;
+  }
+
+  // Calcular primeiro dígito verificador
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += parseInt(digits[i]) * (10 - i);
+  }
+  let remainder = sum % 11;
+  const firstDigit = remainder < 2 ? 0 : 11 - remainder;
+
+  // Calcular segundo dígito verificador
+  sum = 0;
+  for (let i = 0; i < 10; i++) {
+    sum += parseInt(digits[i]) * (11 - i);
+  }
+  remainder = sum % 11;
+  const secondDigit = remainder < 2 ? 0 : 11 - remainder;
+
+  // Validar dígitos verificadores
+  return (
+    parseInt(digits[9]) === firstDigit &&
+    parseInt(digits[10]) === secondDigit
+  );
 };
 
 export const currencyInputMask = (value: string = "") => {
