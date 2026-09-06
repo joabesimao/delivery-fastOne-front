@@ -27,6 +27,7 @@ import {
   DashboardCustomize as DashboardCustomizeIcon,
   Palette as PaletteIcon,
   FormatListBulleted as FormatListBulletedIcon,
+  Inventory2 as Inventory2Icon,
 } from "@mui/icons-material";
 import { FaRoute, FaClipboardCheck } from "react-icons/fa";
 import { IoDocumentText } from "react-icons/io5";
@@ -104,6 +105,13 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth, onClose 
             title: "Lista de Clientes",
           },
           {
+            text: "Lista de Produtos",
+            icon: <Inventory2Icon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <Inventory2Icon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/dashboard/produtos",
+            title: "Lista de Produtos",
+          },
+          {
             text: "Relatórios",
             icon: <IoDocumentText size={19} color={ICON_COLOR} />,
             activeIcon: <IoDocumentText size={19} color={ACTIVE_ICON} />,
@@ -176,6 +184,13 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth, onClose 
             activeIcon: <LocationCityIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
             path: "/cadastros/cidades",
             title: "Cadastrar Cidades",
+          },
+          {
+            text: "Cadastrar produto",
+            icon: <Inventory2Icon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <Inventory2Icon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/cadastros/produto",
+            title: "Cadastrar Produto",
           },
         ],
       },
