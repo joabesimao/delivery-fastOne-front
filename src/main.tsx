@@ -14,7 +14,9 @@ import ListaEntregadores from "./modules/entregas/ListaEntregadores.tsx";
 import DashboardIndex from "./modules/dashboard/DashboardIndex";
 import RelatoriosDashboard from "./modules/dashboard/RelatoriosDashboard";
 import ListaClientes from "./modules/dashboard/ListaClientes";
+import ListaProdutos from "./modules/dashboard/ListaProdutos";
 import CadastrarCliente from "./modules/cadastros/cliente/CadastrarCliente.tsx";
+import CadastrarProduto from "./modules/cadastros/produto/CadastrarProduto.tsx";
 import CadastrarEntregador from "./modules/cadastros/entregador/CadastrarEntregador.tsx";
 import CadastrarBairros from "./modules/cadastros/bairros/CadastrarBairros.tsx";
 import CadastrarCidades from "./modules/cadastros/cidades/CadastrarCidades.tsx";
@@ -85,6 +87,10 @@ const router = createBrowserRouter([
     element: <RequireAuth><ListaClientes /></RequireAuth>,
   },
   {
+    path: "/dashboard/produtos",
+    element: <RequireAuth><ListaProdutos /></RequireAuth>,
+  },
+  {
     path: "/realizar-entrega",
     element: <RequireAuth><RealizarEntrega /></RequireAuth>,
   },
@@ -111,6 +117,10 @@ const router = createBrowserRouter([
   {
     path: "/cadastros/cliente",
     element: <RequireAuth><CadastrarCliente /></RequireAuth>,
+  },
+  {
+    path: "/cadastros/produto",
+    element: <RequireAuth><CadastrarProduto /></RequireAuth>,
   },
   {
     path: "/cadastros/entregador",
