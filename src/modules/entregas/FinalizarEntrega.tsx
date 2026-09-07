@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -92,6 +93,9 @@ interface DeliverymanFilterOption {
 const FinalizarEntrega: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const location = useLocation();
+  const orderIdFromState = (location.state as { orderId?: number } | null)?.orderId;
+  const [autoSelectHandled, setAutoSelectHandled] = useState(false);
 
   const cardBg = isDark ? "#111827" : "#ffffff";
   const borderColor = isDark ? "rgba(255,255,255,0.08)" : "#e5e7eb";
@@ -130,6 +134,17 @@ const FinalizarEntrega: React.FC = () => {
   };
 
   useEffect(() => { fetchOrders(); }, []);
+
+  useEffect(() => {
+    if (autoSelectHandled || !orderIdFromState || orders.length === 0) return;
+
+    const match = orders.find((o) => o.id === orderIdFromState);
+    if (match) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time selection driven by navigation state, guarded by autoSelectHandled
+      setSelectedOrder(match);
+    }
+    setAutoSelectHandled(true);
+  }, [orders, orderIdFromState, autoSelectHandled]);
 
   useEffect(() => {
     const socket = getRealtimeSocket();

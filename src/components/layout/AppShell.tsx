@@ -29,6 +29,7 @@ import {
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import ApartmentRoundedIcon from "@mui/icons-material/ApartmentRounded";
 import ChatOutlinedIcon from "@mui/icons-material/ChatOutlined";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
@@ -63,6 +64,7 @@ const drawerWidth = 272;
 const navItems: NavItem[] = [
   { label: "Dashboard", path: "/dashboard", icon: <DashboardOutlinedIcon fontSize="small" /> },
   { label: "Pedidos de Entrega", path: "/listagem-entregas", icon: <ListAltOutlinedIcon fontSize="small" /> },
+  { label: "Finalizar Entregas", path: "/finalizar-entrega", icon: <CheckCircleOutlineIcon fontSize="small" /> },
   { label: "Clientes", path: "/dashboard/clientes", icon: <GroupOutlinedIcon fontSize="small" /> },
   { label: "Entregadores", path: "/listagem-entregadores", icon: <TwoWheelerOutlinedIcon fontSize="small" /> },
   { label: "Produtos", path: "/dashboard/produtos", icon: <Inventory2OutlinedIcon fontSize="small" /> },
