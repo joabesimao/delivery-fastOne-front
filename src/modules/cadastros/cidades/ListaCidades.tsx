@@ -2,19 +2,30 @@ import React, { useEffect, useState } from "react";
 import {
   Alert,
   Box,
+  Button,
   Chip,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
   Paper,
+  Snackbar,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
+  Tooltip,
   Typography,
   useTheme,
 } from "@mui/material";
 import LocationCityIcon from "@mui/icons-material/LocationCity";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import api from "../../../services/api";
 
 interface CidadeItem {
@@ -33,15 +44,66 @@ const ListaCidades: React.FC<ListaCidadesProps> = ({ refreshKey }) => {
   const [cidades, setCidades] = useState<CidadeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
+  const [editCidade, setEditCidade] = useState<CidadeItem | null>(null);
+  const [editName, setEditName] = useState("");
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
-  useEffect(() => {
+  const loadCidades = () => {
     setLoading(true);
     api
       .get<CidadeItem[]>("/city")
       .then((res) => setCidades(Array.isArray(res.data) ? res.data : []))
       .catch(() => setError("Erro ao carregar a lista de cidades."))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadCidades();
   }, [refreshKey]);
+
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editCidade || !editName.trim()) return;
+
+    try {
+      setActionLoadingId(editCidade.id);
+      await api.put(`/city/${editCidade.id}`, { name: editName.trim() });
+      setEditCidade(null);
+      setEditName("");
+      loadCidades();
+      showSnackbar("Cidade atualizada com sucesso.", "success");
+    } catch {
+      showSnackbar("Erro ao atualizar cidade. Tente novamente.", "error");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      setActionLoadingId(id);
+      await api.delete(`/city/${id}`);
+      setDeleteConfirmId(null);
+      loadCidades();
+      showSnackbar("Cidade deletada com sucesso.", "success");
+    } catch {
+      showSnackbar(
+        "Erro ao deletar cidade. Verifique se não há bairros vinculados a ela.",
+        "error",
+      );
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
 
   return (
     <Box>
@@ -79,7 +141,7 @@ const ListaCidades: React.FC<ListaCidadesProps> = ({ refreshKey }) => {
                     : "linear-gradient(90deg, #003459 0%, #005588 100%)",
                 }}
               >
-                {["#", "Nome"].map((col) => (
+                {["#", "Nome", "Ações"].map((col) => (
                   <TableCell
                     key={col}
                     sx={{
@@ -101,7 +163,7 @@ const ListaCidades: React.FC<ListaCidadesProps> = ({ refreshKey }) => {
               {cidades.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={2}
+                    colSpan={3}
                     align="center"
                     sx={{ py: 5, color: isDark ? "#7C7F8E" : "#94a3b8", fontSize: 14 }}
                   >
@@ -143,6 +205,41 @@ const ListaCidades: React.FC<ListaCidadesProps> = ({ refreshKey }) => {
                     <TableCell sx={{ fontWeight: 600, color: isDark ? "#E2E4EC !important" : "#111827 !important" }}>
                       {c.name}
                     </TableCell>
+                    <TableCell>
+                      <Box display="flex" gap={0.5}>
+                        <Tooltip title="Editar">
+                          <IconButton
+                            size="small"
+                            disabled={actionLoadingId === c.id}
+                            onClick={() => {
+                              setEditCidade(c);
+                              setEditName(c.name);
+                            }}
+                            sx={{
+                              bgcolor: "#f59e0b",
+                              borderRadius: 1.5,
+                              "&:hover": { bgcolor: "#d97706" },
+                            }}
+                          >
+                            <EditIcon sx={{ fontSize: 16, color: "#fff" }} />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Deletar">
+                          <IconButton
+                            size="small"
+                            disabled={actionLoadingId === c.id}
+                            onClick={() => setDeleteConfirmId(c.id)}
+                            sx={{
+                              bgcolor: "#ef4444",
+                              borderRadius: 1.5,
+                              "&:hover": { bgcolor: "#dc2626" },
+                            }}
+                          >
+                            <DeleteIcon sx={{ fontSize: 16, color: "#fff" }} />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
@@ -150,6 +247,88 @@ const ListaCidades: React.FC<ListaCidadesProps> = ({ refreshKey }) => {
           </Table>
         </TableContainer>
       )}
+
+      {/* Dialog Editar */}
+      <Dialog
+        open={Boolean(editCidade)}
+        onClose={() => {
+          setEditCidade(null);
+          setEditName("");
+        }}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>Editar cidade</DialogTitle>
+        <DialogContent dividers>
+          <TextField
+            label="Nome"
+            size="small"
+            fullWidth
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            sx={{ mt: 0.5 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setEditCidade(null);
+              setEditName("");
+            }}
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={() => void handleSaveEdit()}
+            variant="contained"
+            disabled={!editName.trim() || actionLoadingId === editCidade?.id}
+          >
+            {actionLoadingId === editCidade?.id ? (
+              <CircularProgress size={20} sx={{ color: "#fff" }} />
+            ) : (
+              "Salvar"
+            )}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog Confirmar Deleção */}
+      <Dialog open={Boolean(deleteConfirmId)} onClose={() => setDeleteConfirmId(null)} maxWidth="xs">
+        <DialogTitle>Confirmar exclusão</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Tem certeza que deseja deletar esta cidade? Bairros vinculados a ela impedem a exclusão.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteConfirmId(null)}>Cancelar</Button>
+          <Button
+            onClick={() => {
+              if (deleteConfirmId) void handleDelete(deleteConfirmId);
+            }}
+            variant="contained"
+            color="error"
+            disabled={actionLoadingId === deleteConfirmId}
+          >
+            {actionLoadingId === deleteConfirmId ? (
+              <CircularProgress size={20} sx={{ color: "#fff" }} />
+            ) : (
+              "Deletar"
+            )}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
