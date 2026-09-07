@@ -173,9 +173,11 @@ interface EntregaFormProps {
     };
   } | null;
   preloadedClientId?: number | null;
+  /** Quando true, remove o Paper/cabeçalho próprio para uso dentro de um Drawer que já fornece esse chrome. */
+  embedded?: boolean;
 }
 
-const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData, preloadedClientId }) => {
+const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData, preloadedClientId, embedded = false }) => {
   const navigate = useNavigate();
   const printRef = useRef<HTMLDivElement | null>(null);
   const [snackbar, setSnackbar] = useState<{
@@ -346,49 +348,71 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
     }
   };
 
+  const Container: React.ElementType = embedded ? Box : Paper;
+
   return (
     <>
-      <Paper
-        elevation={0}
-        sx={{
-          p: { xs: 3, md: 5 },
-          maxWidth: 960,
-          mx: "auto",
-          bgcolor: "background.paper",
-          border: "1px solid", borderColor: "divider",
-          borderRadius: 2,
-          mr:40
-        }}
+      <Container
+        elevation={embedded ? undefined : 0}
+        sx={
+          embedded
+            ? { p: 0 }
+            : {
+                p: { xs: 3, md: 5 },
+                maxWidth: 960,
+                mx: "auto",
+                bgcolor: "background.paper",
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: 2,
+              }
+        }
       >
-        {/* Título */}
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
-          <Button
-            variant="contained"
-            startIcon={<PersonAddIcon />}
-            onClick={() => navigate("/cadastros/cliente")}
-            sx={{
-              bgcolor: "#0ea5e9",
-              "&:hover": { bgcolor: "#0284c7" },
-              textTransform: "none",
-              borderRadius: 2,
-              fontWeight: 600,
-              fontSize: 13,
-            }}
-          >
-            Cadastrar cliente
-          </Button>
-          <Typography variant="h6" fontWeight={700} sx={{ color: "text.primary" }}>
-            Novo pedido de entrega
-          </Typography>
-          {onClose ? (
-            <IconButton onClick={onClose} size="small" aria-label="fechar">
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          ) : (
-            <Box sx={{ width: 40 }} />
-          )}
-        </Box>
-        <Divider sx={{ mb: 4 }} />
+        {embedded ? (
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<PersonAddIcon fontSize="small" />}
+              onClick={() => navigate("/cadastros/cliente")}
+              sx={{ textTransform: "none", borderRadius: 999, fontWeight: 600, fontSize: 12.5 }}
+            >
+              Cadastrar novo cliente
+            </Button>
+          </Box>
+        ) : (
+          <>
+            {/* Título */}
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
+              <Button
+                variant="contained"
+                startIcon={<PersonAddIcon />}
+                onClick={() => navigate("/cadastros/cliente")}
+                sx={{
+                  bgcolor: "#0ea5e9",
+                  "&:hover": { bgcolor: "#0284c7" },
+                  textTransform: "none",
+                  borderRadius: 2,
+                  fontWeight: 600,
+                  fontSize: 13,
+                }}
+              >
+                Cadastrar cliente
+              </Button>
+              <Typography variant="h6" fontWeight={700} sx={{ color: "text.primary" }}>
+                Novo pedido de entrega
+              </Typography>
+              {onClose ? (
+                <IconButton onClick={onClose} size="small" aria-label="fechar">
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              ) : (
+                <Box sx={{ width: 40 }} />
+              )}
+            </Box>
+            <Divider sx={{ mb: 4 }} />
+          </>
+        )}
 
         <Formik initialValues={formInitialValues} validate={validate} onSubmit={handleSubmit} enableReinitialize={true}>
           {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setValues, setFieldValue }) => {
@@ -693,7 +717,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
                   sx={{ textTransform: "none", bgcolor: "#4361EE", "&:hover": { bgcolor: "#3451D1" } }}
                   startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : undefined}
                 >
-                  {isSubmitting ? "Enviando..." : "Criar pedido"}
+                  {isSubmitting ? "Enviando..." : "Criar e Despachar"}
                 </Button>
               </Box>
 
@@ -701,7 +725,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
             );
           }}
         </Formik>
-      </Paper>
+      </Container>
 
       <Snackbar
         open={snackbar.open} autoHideDuration={4000}
