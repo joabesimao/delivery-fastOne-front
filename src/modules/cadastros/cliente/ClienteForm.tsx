@@ -162,7 +162,7 @@ const ClienteForm: React.FC = () => {
   const handleModalYes = () => {
     setModalOpen(false);
     if (newClientData) {
-      navigate("/realizar-entrega", { state: { clientData: newClientData } });
+      navigate("/listagem-entregas", { state: { openCreate: true, clientData: newClientData } });
     }
   };
 

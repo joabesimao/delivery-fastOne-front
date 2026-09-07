@@ -30,7 +30,7 @@ import ChatRealtime from "./modules/chat/ChatRealtime.tsx";
 // requisições do cliente saibam que o usuário já entrou no sistema.
 const TEMP_BYPASS_AUTH = true;
 const TEMP_FAKE_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImFkbWluQGZhc3RvbmUubG9jYWwiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MjU3NzAwMDAsImV4cCI6OTk5OTk5OTk5OX0.test";
-const HOME_ROUTE = "/dashboard/relatorios";
+const HOME_ROUTE = "/dashboard";
 const LOGIN_ROUTE = "/login";
 
 const ensureDemoSession = () => {

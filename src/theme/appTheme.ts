@@ -14,8 +14,9 @@ type ThemeTokens = {
   shadow: string;
 };
 
-const ACCENT = "#4f46e5";
-const SECONDARY = "#0ea5e9";
+const ACCENT = "#0ea5e9";
+const SECONDARY = "#0f172a";
+const TERTIARY = "#10b981";
 
 const lightTokens: ThemeTokens = {
   background: "#f5f7fb",
@@ -53,7 +54,8 @@ const createAppTheme = (mode: ThemeMode) => {
     palette: {
       mode,
       primary: { main: ACCENT, contrastText: "#ffffff" },
-      secondary: { main: SECONDARY },
+      secondary: { main: SECONDARY, contrastText: "#ffffff" },
+      success: { main: TERTIARY, contrastText: "#ffffff" },
       background: {
         default: tokens.background,
         paper: tokens.surfaceAlt,
