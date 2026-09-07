@@ -1,7 +1,8 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { alpha } from "@mui/material/styles";
 import {
+  Alert,
   Avatar,
   Box,
   Button,
@@ -11,6 +12,7 @@ import {
   IconButton,
   MenuItem,
   Select,
+  Skeleton,
   Stack,
   Table,
   TableBody,
@@ -18,6 +20,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -27,7 +30,6 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import CalendarTodayRoundedIcon from "@mui/icons-material/CalendarTodayRounded";
 import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
-import DirectionsBikeRoundedIcon from "@mui/icons-material/DirectionsBikeRounded";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import Inventory2RoundedIcon from "@mui/icons-material/Inventory2Rounded";
 import LocationCityOutlinedIcon from "@mui/icons-material/LocationCityOutlined";
@@ -39,30 +41,57 @@ import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import TwoWheelerOutlinedIcon from "@mui/icons-material/TwoWheelerOutlined";
 import WifiTetheringRoundedIcon from "@mui/icons-material/WifiTetheringRounded";
+import api from "../../services/api";
+import { getRealtimeSocket } from "../../services/realtime";
 
 type Period = "hoje" | "7dias" | "30dias" | "personalizado";
 
 type StatCardItem = {
   label: string;
   value: string;
-  delta: string;
-  deltaTone: "success" | "warning";
+  delta?: string;
+  deltaTone?: "success" | "warning";
   hint: string;
   icon: ReactNode;
   color: string;
 };
 
-type OrderStatus = "transito" | "aguardando" | "entregue" | "cancelado";
+type BackendOrderStatus = "actived" | "delivered" | "finished";
 
-type RealtimeOrder = {
-  id: string;
-  clientName: string;
-  clientPhone: string;
-  address: string;
-  neighborhood: string;
-  deliveryman: string | null;
+type OrderDeliveryApiModel = {
+  id: number;
+  status: BackendOrderStatus;
   amount: number;
-  status: OrderStatus;
+  deliveryman: { name: string; lastName: string } | null;
+  Register: {
+    client: { name: string; lastName: string; phone: string };
+    address: { street: string; numberHouse: number; neighborhood: string; city: string };
+  };
+};
+
+type OverviewResponse = {
+  metrics: {
+    clients: number;
+    deliverymen: number;
+    activeDeliveries: number;
+    deliveredRevenue: number;
+    deliveredRevenuePreviousPeriod: number | null;
+    cities: number;
+    neighborhoods: number;
+  };
+};
+
+type PerformanceResponse = {
+  days: Array<{ date: string; label: string; total: number }>;
+  totalOrders: number;
+  avgDeliveryMinutes: number | null;
+  peakDay: { date: string; label: string; total: number } | null;
+};
+
+type RankingItem = {
+  deliverymanId: number;
+  deliverymanName: string;
+  totalDeliveries: number;
 };
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -71,81 +100,11 @@ const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   minimumFractionDigits: 2,
 });
 
-const statusConfig: Record<OrderStatus, { label: string; color: string; bg: string }> = {
-  transito: { label: "Em Trânsito", color: "#0EA5E9", bg: alpha("#0EA5E9", 0.12) },
-  aguardando: { label: "Aguardando aceite", color: "#F59E0B", bg: alpha("#F59E0B", 0.14) },
-  entregue: { label: "Entregue", color: "#10B981", bg: alpha("#10B981", 0.14) },
-  cancelado: { label: "Cancelado", color: "#EF4444", bg: alpha("#EF4444", 0.12) },
+const statusConfig: Record<BackendOrderStatus, { label: string; color: string; bg: string }> = {
+  delivered: { label: "Em Trânsito", color: "#0EA5E9", bg: alpha("#0EA5E9", 0.12) },
+  actived: { label: "Aguardando aceite", color: "#F59E0B", bg: alpha("#F59E0B", 0.14) },
+  finished: { label: "Entregue", color: "#10B981", bg: alpha("#10B981", 0.14) },
 };
-
-const weeklyPerformance = [
-  { day: "Seg", realizado: 92, media: 85 },
-  { day: "Ter", realizado: 105, media: 95 },
-  { day: "Qua", realizado: 98, media: 90 },
-  { day: "Qui (Hoje)", realizado: 138, media: 100, highlight: true },
-  { day: "Sex", realizado: 154, media: 120, highlight: true },
-  { day: "Sáb", realizado: 110, media: 90 },
-  { day: "Dom", realizado: 60, media: 55 },
-];
-
-const topDeliverers = [
-  { rank: 1, name: "Rodrigo Alves", deliveries: 84, meta: 96, vehicle: "Moto", medal: "#F59E0B" },
-  { rank: 2, name: "Marcos Lima", deliveries: 76, meta: 88, vehicle: "Bike", medal: "#94A3B8" },
-  { rank: 3, name: "Juliana Santos", deliveries: 69, meta: 79, vehicle: "Carro", medal: "#B45309" },
-];
-
-const realtimeOrders: RealtimeOrder[] = [
-  {
-    id: "#4825",
-    clientName: "Lucas Peixoto",
-    clientPhone: "(11) 98842-1102",
-    address: "Av. Paulista, 1578 - Apto 62",
-    neighborhood: "Bela Vista, São Paulo",
-    deliveryman: "Rodrigo Alves",
-    amount: 142.5,
-    status: "transito",
-  },
-  {
-    id: "#4824",
-    clientName: "Mariana Albuquerque",
-    clientPhone: "(11) 97120-9482",
-    address: "Rua Oscar Freire, 920",
-    neighborhood: "Cerqueira César, São Paulo",
-    deliveryman: null,
-    amount: 89.9,
-    status: "aguardando",
-  },
-  {
-    id: "#4823",
-    clientName: "Fernando Moreira",
-    clientPhone: "(11) 99234-1290",
-    address: "Av. Farmacêutica, 450 - Bloco B",
-    neighborhood: "Vila Bela, São Paulo",
-    deliveryman: "Marcos Lima",
-    amount: 25.0,
-    status: "entregue",
-  },
-  {
-    id: "#4822",
-    clientName: "Carolina Diniz",
-    clientPhone: "(11) 98123-4477",
-    address: "Rua Pamplona, 1140",
-    neighborhood: "Jardim Paulista, São Paulo",
-    deliveryman: "Não atribuído",
-    amount: 64.0,
-    status: "cancelado",
-  },
-  {
-    id: "#4821",
-    clientName: "Rafael Guimarães",
-    clientPhone: "(11) 96543-2201",
-    address: "Av. Brigadeiro Faria Lima, 3477",
-    neighborhood: "Itaim Bibi, São Paulo",
-    deliveryman: "Juliana Santos",
-    amount: 178.0,
-    status: "entregue",
-  },
-];
 
 const periodOptions: Array<{ value: Period; label: string }> = [
   { value: "hoje", label: "Hoje" },
@@ -154,7 +113,63 @@ const periodOptions: Array<{ value: Period; label: string }> = [
   { value: "personalizado", label: "Personalizado" },
 ];
 
-const StatCard = ({ item }: { item: StatCardItem }) => (
+const ROWS_PER_PAGE = 5;
+
+const toInputDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const startOfDay = (date: Date): Date => {
+  const copy = new Date(date);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
+};
+
+const endOfDay = (date: Date): Date => {
+  const copy = new Date(date);
+  copy.setHours(23, 59, 59, 999);
+  return copy;
+};
+
+const getRangeForPeriod = (
+  period: Period,
+  customRange: { start: string; end: string },
+): { startDate: string; endDate: string } => {
+  const now = new Date();
+
+  if (period === "7dias") {
+    const start = new Date(now);
+    start.setDate(start.getDate() - 6);
+    return { startDate: startOfDay(start).toISOString(), endDate: endOfDay(now).toISOString() };
+  }
+
+  if (period === "30dias") {
+    const start = new Date(now);
+    start.setDate(start.getDate() - 29);
+    return { startDate: startOfDay(start).toISOString(), endDate: endOfDay(now).toISOString() };
+  }
+
+  if (period === "personalizado") {
+    const start = customRange.start ? new Date(`${customRange.start}T00:00:00`) : startOfDay(now);
+    const end = customRange.end ? new Date(`${customRange.end}T23:59:59`) : endOfDay(now);
+    return { startDate: startOfDay(start).toISOString(), endDate: endOfDay(end).toISOString() };
+  }
+
+  return { startDate: startOfDay(now).toISOString(), endDate: endOfDay(now).toISOString() };
+};
+
+const currentUserGreeting = (): string => {
+  if (typeof window === "undefined") return "Operador";
+  const email = localStorage.getItem("currentUserEmail") ?? "";
+  if (!email) return "Operador";
+  if (email.toLowerCase() === "admin@fastone.local") return "Operador Admin";
+  return email;
+};
+
+const StatCard = ({ item, loading }: { item: StatCardItem; loading: boolean }) => (
   <Card sx={{ borderRadius: 3, border: 1, borderColor: "divider", height: "100%" }}>
     <Stack spacing={1.25} sx={{ p: 2.25 }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
@@ -177,17 +192,19 @@ const StatCard = ({ item }: { item: StatCardItem }) => (
       </Stack>
 
       <Typography variant="h4" sx={{ fontWeight: 800, fontSize: { xs: 26, md: 30 }, lineHeight: 1 }}>
-        {item.value}
+        {loading ? <Skeleton variant="text" width={90} /> : item.value}
       </Typography>
 
       <Stack direction="row" spacing={0.75} alignItems="center">
-        <Chip
-          label={item.delta}
-          size="small"
-          color={item.deltaTone}
-          variant="filled"
-          sx={{ height: 20, fontSize: 11, fontWeight: 800, "& .MuiChip-label": { px: 0.9 } }}
-        />
+        {item.delta ? (
+          <Chip
+            label={item.delta}
+            size="small"
+            color={item.deltaTone ?? "success"}
+            variant="filled"
+            sx={{ height: 20, fontSize: 11, fontWeight: 800, "& .MuiChip-label": { px: 0.9 } }}
+          />
+        ) : null}
         <Typography variant="caption" color="text.secondary" noWrap>
           {item.hint}
         </Typography>
@@ -199,72 +216,183 @@ const StatCard = ({ item }: { item: StatCardItem }) => (
 const DashboardIndex = () => {
   const navigate = useNavigate();
   const [period, setPeriod] = useState<Period>("hoje");
-  const [statusFilter, setStatusFilter] = useState<OrderStatus | "todos">("todos");
+  const [customRange, setCustomRange] = useState(() => ({
+    start: toInputDate(new Date()),
+    end: toInputDate(new Date()),
+  }));
+  const [statusFilter, setStatusFilter] = useState<BackendOrderStatus | "todos">("todos");
+  const [page, setPage] = useState(1);
 
-  const statCards = useMemo(
-    (): StatCardItem[] => [
+  const [overview, setOverview] = useState<OverviewResponse | null>(null);
+  const [performance, setPerformance] = useState<PerformanceResponse | null>(null);
+  const [ranking, setRanking] = useState<RankingItem[]>([]);
+  const [orders, setOrders] = useState<OrderDeliveryApiModel[]>([]);
+
+  const [loadingSummary, setLoadingSummary] = useState(true);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [socketConnected, setSocketConnected] = useState(false);
+
+  const { startDate, endDate } = useMemo(
+    () => getRangeForPeriod(period, customRange),
+    [period, customRange],
+  );
+
+  const loadSummary = async () => {
+    setLoadingSummary(true);
+    setError(null);
+
+    try {
+      const [overviewRes, performanceRes, rankingRes] = await Promise.all([
+        api.get<OverviewResponse>("/dashboard/overview", { params: { startDate, endDate } }),
+        api.get<PerformanceResponse>("/dashboard/performance", { params: { startDate, endDate } }),
+        api.get<{ items: RankingItem[] }>("/orderDelivery/ranking/deliveryman", {
+          params: { startDate, endDate, status: "all", page: 1, pageSize: 3 },
+        }),
+      ]);
+
+      setOverview(overviewRes.data);
+      setPerformance(performanceRes.data);
+      setRanking(Array.isArray(rankingRes.data?.items) ? rankingRes.data.items : []);
+    } catch {
+      setError("Não foi possível carregar os indicadores do dashboard.");
+    } finally {
+      setLoadingSummary(false);
+    }
+  };
+
+  const loadOrders = async () => {
+    setLoadingOrders(true);
+
+    try {
+      const response = await api.get<OrderDeliveryApiModel[]>("/orderDelivery");
+      setOrders(Array.isArray(response.data) ? response.data : []);
+    } catch {
+      setOrders([]);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadSummary();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startDate, endDate]);
+
+  useEffect(() => {
+    void loadOrders();
+  }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter]);
+
+  useEffect(() => {
+    const socket = getRealtimeSocket();
+    if (!socket) return;
+
+    setSocketConnected(socket.connected);
+
+    const onConnect = () => setSocketConnected(true);
+    const onDisconnect = () => setSocketConnected(false);
+    const onDeliveryChanged = () => {
+      void loadOrders();
+      void loadSummary();
+    };
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.on("delivery:changed", onDeliveryChanged);
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+      socket.off("delivery:changed", onDeliveryChanged);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const revenueDelta = useMemo(() => {
+    const previous = overview?.metrics.deliveredRevenuePreviousPeriod;
+    const current = overview?.metrics.deliveredRevenue;
+    if (previous === null || previous === undefined || current === undefined || previous === 0) {
+      return null;
+    }
+    const percent = ((current - previous) / previous) * 100;
+    return `${percent >= 0 ? "+" : ""}${percent.toFixed(1)}%`;
+  }, [overview]);
+
+  const statCards = useMemo((): StatCardItem[] => {
+    const metrics = overview?.metrics;
+
+    return [
       {
         label: "Entregas em andamento",
-        value: "34",
-        delta: "+12%",
-        deltaTone: "success",
-        hint: "vs. ontem",
+        value: metrics ? String(metrics.activeDeliveries) : "—",
+        hint: "no período selecionado",
         icon: <Inventory2RoundedIcon fontSize="small" />,
         color: "#0EA5E9",
       },
       {
         label: "Receita entregue",
-        value: currencyFormatter.format(14850),
-        delta: "+8,4%",
-        deltaTone: "success",
+        value: metrics ? currencyFormatter.format(metrics.deliveredRevenue) : "—",
+        delta: revenueDelta ?? undefined,
+        deltaTone: revenueDelta?.startsWith("-") ? "warning" : "success",
         hint: "no período",
         icon: <MonetizationOnOutlinedIcon fontSize="small" />,
         color: "#10B981",
       },
       {
-        label: "Clientes online",
-        value: "1.280",
-        delta: "+5%",
-        deltaTone: "success",
-        hint: "novos este mês",
+        label: "Total de Clientes",
+        value: metrics ? String(metrics.clients) : "—",
+        hint: "cadastrados no sistema",
         icon: <GroupOutlinedIcon fontSize="small" />,
         color: "#8B5CF6",
       },
       {
-        label: "Entregadores online",
-        value: "28/35",
-        delta: "80%",
-        deltaTone: "warning",
-        hint: "disponível",
+        label: "Entregadores Cadastrados",
+        value: metrics ? String(metrics.deliverymen) : "—",
+        hint: "na frota",
         icon: <TwoWheelerOutlinedIcon fontSize="small" />,
         color: "#F59E0B",
       },
       {
         label: "Cidades atendidas",
-        value: "4",
-        delta: "ativo",
-        deltaTone: "success",
-        hint: "SP, Guarulhos, ABC",
+        value: metrics ? String(metrics.cities) : "—",
+        hint: "cadastradas",
         icon: <LocationCityOutlinedIcon fontSize="small" />,
         color: "#0891B2",
       },
       {
         label: "Bairros atendidos",
-        value: "42",
-        delta: "+2",
-        deltaTone: "success",
+        value: metrics ? String(metrics.neighborhoods) : "—",
         hint: "mapeados",
         icon: <MapOutlinedIcon fontSize="small" />,
         color: "#4F46E5",
       },
-    ],
-    [],
+    ];
+  }, [overview, revenueDelta]);
+
+  const maxVolume = useMemo(() => {
+    if (!performance?.days.length) return 1;
+    return Math.max(...performance.days.map((d) => d.total), 1);
+  }, [performance]);
+
+  const filteredOrders = useMemo(
+    () => (statusFilter === "todos" ? orders : orders.filter((order) => order.status === statusFilter)),
+    [orders, statusFilter],
   );
 
-  const maxVolume = Math.max(...weeklyPerformance.map((d) => Math.max(d.realizado, d.media)));
+  const pageCount = Math.max(1, Math.ceil(filteredOrders.length / ROWS_PER_PAGE));
+  const pagedOrders = filteredOrders.slice((page - 1) * ROWS_PER_PAGE, page * ROWS_PER_PAGE);
 
-  const filteredOrders =
-    statusFilter === "todos" ? realtimeOrders : realtimeOrders.filter((order) => order.status === statusFilter);
+  const todayLabel = useMemo(
+    () =>
+      new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" }).format(
+        new Date(),
+      ),
+    [],
+  );
 
   return (
     <Stack spacing={2.5}>
@@ -277,11 +405,11 @@ const DashboardIndex = () => {
         <Box>
           <Stack direction="row" spacing={1.25} alignItems="center" flexWrap="wrap">
             <Typography variant="h4" sx={{ fontWeight: 800 }}>
-              Olá, Carlos (Operador)
+              Olá, {currentUserGreeting()}
             </Typography>
             <Chip
-              label="Turno Ativo"
-              color="success"
+              label={socketConnected ? "Sincronização ativa" : "Reconectando..."}
+              color={socketConnected ? "success" : "warning"}
               size="small"
               sx={{ fontWeight: 700, "& .MuiChip-label": { px: 1.2 } }}
             />
@@ -290,14 +418,16 @@ const DashboardIndex = () => {
           <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" sx={{ mt: 0.5 }}>
             <Stack direction="row" spacing={0.6} alignItems="center">
               <CalendarTodayRoundedIcon sx={{ fontSize: 15, color: "text.secondary" }} />
-              <Typography variant="body2" color="text.secondary">
-                Quinta-feira, 24 de Outubro de 2024
+              <Typography variant="body2" color="text.secondary" sx={{ textTransform: "capitalize" }}>
+                {todayLabel}
               </Typography>
             </Stack>
             <Stack direction="row" spacing={0.6} alignItems="center">
-              <WifiTetheringRoundedIcon sx={{ fontSize: 15, color: "success.main" }} />
+              <WifiTetheringRoundedIcon
+                sx={{ fontSize: 15, color: socketConnected ? "success.main" : "text.disabled" }}
+              />
               <Typography variant="body2" color="text.secondary">
-                Sincronização em tempo real ativa (Latência 12ms)
+                {socketConnected ? "Conectado em tempo real" : "Sem conexão em tempo real"}
               </Typography>
             </Stack>
           </Stack>
@@ -330,6 +460,23 @@ const DashboardIndex = () => {
             ))}
           </ToggleButtonGroup>
 
+          {period === "personalizado" ? (
+            <Stack direction="row" spacing={1}>
+              <TextField
+                type="date"
+                size="small"
+                value={customRange.start}
+                onChange={(e) => setCustomRange((prev) => ({ ...prev, start: e.target.value }))}
+              />
+              <TextField
+                type="date"
+                size="small"
+                value={customRange.end}
+                onChange={(e) => setCustomRange((prev) => ({ ...prev, end: e.target.value }))}
+              />
+            </Stack>
+          ) : null}
+
           <Button
             variant="contained"
             startIcon={<AddRoundedIcon />}
@@ -341,10 +488,12 @@ const DashboardIndex = () => {
         </Stack>
       </Stack>
 
+      {error ? <Alert severity="error">{error}</Alert> : null}
+
       <Grid container spacing={2}>
         {statCards.map((item) => (
           <Grid key={item.label} size={{ xs: 12, sm: 6, lg: 4, xl: 2 }}>
-            <StatCard item={item} />
+            <StatCard item={item} loading={loadingSummary} />
           </Grid>
         ))}
       </Grid>
@@ -359,7 +508,7 @@ const DashboardIndex = () => {
                     Desempenho de Entregas
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Volume semanal da Matriz Central com comparação de horários de pico
+                    Volume de pedidos por dia no período selecionado
                   </Typography>
                 </Box>
 
@@ -368,11 +517,11 @@ const DashboardIndex = () => {
                     <Stack direction="row" spacing={0.4} alignItems="center">
                       <ScheduleRoundedIcon sx={{ fontSize: 14, color: "text.secondary" }} />
                       <Typography variant="caption" color="text.secondary">
-                        Média Tempo
+                        Tempo médio
                       </Typography>
                     </Stack>
                     <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                      32 min
+                      {performance?.avgDeliveryMinutes != null ? `${performance.avgDeliveryMinutes} min` : "—"}
                     </Typography>
                   </Stack>
                   <Stack alignItems="center" spacing={0.25}>
@@ -382,8 +531,8 @@ const DashboardIndex = () => {
                         Pico
                       </Typography>
                     </Stack>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                      Sexta-feira
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, textTransform: "capitalize" }}>
+                      {performance?.peakDay?.label ?? "—"}
                     </Typography>
                   </Stack>
                   <Stack alignItems="center" spacing={0.25}>
@@ -394,40 +543,58 @@ const DashboardIndex = () => {
                       </Typography>
                     </Stack>
                     <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                      154 entregas
+                      {performance ? `${performance.totalOrders} entregas` : "—"}
                     </Typography>
                   </Stack>
                 </Stack>
               </Stack>
 
-              <Stack direction="row" spacing={{ xs: 1.5, sm: 3 }} alignItems="flex-end" sx={{ height: 220, px: 1 }}>
-                {weeklyPerformance.map((item) => (
-                  <Stack key={item.day} spacing={0.75} alignItems="center" sx={{ flex: 1, height: "100%", justifyContent: "flex-end" }}>
-                    {item.highlight ? (
-                      <Typography variant="caption" sx={{ fontWeight: 800 }}>
-                        {item.realizado}
-                      </Typography>
-                    ) : null}
-                    <Box
-                      sx={{
-                        width: "100%",
-                        maxWidth: 34,
-                        borderRadius: "8px 8px 0 0",
-                        height: `${(item.realizado / maxVolume) * 100}%`,
-                        bgcolor: item.highlight ? "primary.main" : alpha("#0EA5E9", 0.28),
-                        transition: "height 240ms ease",
-                      }}
-                    />
-                    <Typography
-                      variant="caption"
-                      sx={{ color: item.highlight ? "primary.main" : "text.secondary", fontWeight: item.highlight ? 800 : 600 }}
-                      noWrap
-                    >
-                      {item.day}
-                    </Typography>
-                  </Stack>
-                ))}
-              </Stack>
+              {loadingSummary ? (
+                <Skeleton variant="rounded" height={220} />
+              ) : performance && performance.days.length > 0 ? (
+                <Stack direction="row" spacing={{ xs: 1.5, sm: 3 }} alignItems="flex-end" sx={{ height: 220, px: 1 }}>
+                  {performance.days.map((item) => {
+                    const isPeak = performance.peakDay?.date === item.date;
+                    return (
+                      <Stack
+                        key={item.date}
+                        spacing={0.75}
+                        alignItems="center"
+                        sx={{ flex: 1, height: "100%", justifyContent: "flex-end" }}
+                      >
+                        {isPeak ? (
+                          <Typography variant="caption" sx={{ fontWeight: 800 }}>
+                            {item.total}
+                          </Typography>
+                        ) : null}
+                        <Box
+                          sx={{
+                            width: "100%",
+                            maxWidth: 34,
+                            borderRadius: "8px 8px 0 0",
+                            height: `${(item.total / maxVolume) * 100}%`,
+                            bgcolor: isPeak ? "primary.main" : alpha("#0EA5E9", 0.28),
+                            transition: "height 240ms ease",
+                          }}
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{ color: isPeak ? "primary.main" : "text.secondary", fontWeight: isPeak ? 800 : 600, textTransform: "capitalize" }}
+                          noWrap
+                        >
+                          {item.label}
+                        </Typography>
+                      </Stack>
+                    );
+                  })}
+                </Stack>
+              ) : (
+                <Box sx={{ height: 220, display: "grid", placeItems: "center" }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Nenhuma entrega registrada no período.
+                  </Typography>
+                </Box>
+              )}
 
               <Stack
                 direction={{ xs: "column", sm: "row" }}
@@ -436,28 +603,16 @@ const DashboardIndex = () => {
                 gap={1}
                 sx={{ pt: 1, borderTop: 1, borderColor: "divider" }}
               >
-                <Stack direction="row" spacing={2.5}>
-                  <Stack direction="row" spacing={0.75} alignItems="center">
-                    <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: "primary.main" }} />
-                    <Typography variant="caption" color="text.secondary">
-                      Volume Realizado
-                    </Typography>
-                  </Stack>
-                  <Stack direction="row" spacing={0.75} alignItems="center">
-                    <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: alpha("#0EA5E9", 0.28) }} />
-                    <Typography variant="caption" color="text.secondary">
-                      Média Histórica
-                    </Typography>
-                  </Stack>
+                <Stack direction="row" spacing={0.75} alignItems="center">
+                  <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: "primary.main" }} />
+                  <Typography variant="caption" color="text.secondary">
+                    Dia de pico no período
+                  </Typography>
                 </Stack>
 
-                <Chip
-                  label="Taxa de pontualidade: 98,2% na semana"
-                  size="small"
-                  variant="outlined"
-                  color="success"
-                  sx={{ fontWeight: 700 }}
-                />
+                <Typography variant="caption" color="text.secondary">
+                  Tempo médio calculado a partir de pedidos finalizados
+                </Typography>
               </Stack>
             </Stack>
           </Card>
@@ -471,66 +626,73 @@ const DashboardIndex = () => {
                   Top Entregadores
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Ranking semanal · 50 entregas
+                  Ranking no período selecionado
                 </Typography>
               </Box>
 
               <Stack spacing={1.25} sx={{ flex: 1 }}>
-                {topDeliverers.map((deliverer) => (
-                  <Stack
-                    key={deliverer.rank}
-                    direction="row"
-                    spacing={1.25}
-                    alignItems="center"
-                    sx={{ p: 1.25, borderRadius: 2.5, border: 1, borderColor: "divider" }}
-                  >
-                    <Box
-                      sx={{
-                        width: 22,
-                        height: 22,
-                        borderRadius: "50%",
-                        display: "grid",
-                        placeItems: "center",
-                        fontSize: 11,
-                        fontWeight: 800,
-                        color: "#fff",
-                        bgcolor: deliverer.medal,
-                        flexShrink: 0,
-                      }}
+                {loadingSummary ? (
+                  Array.from({ length: 3 }).map((_, index) => (
+                    <Skeleton key={index} variant="rounded" height={62} />
+                  ))
+                ) : ranking.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary">
+                    Nenhuma entrega finalizada no período.
+                  </Typography>
+                ) : (
+                  ranking.map((deliverer, index) => (
+                    <Stack
+                      key={deliverer.deliverymanId}
+                      direction="row"
+                      spacing={1.25}
+                      alignItems="center"
+                      sx={{ p: 1.25, borderRadius: 2.5, border: 1, borderColor: "divider" }}
                     >
-                      {deliverer.rank}
-                    </Box>
+                      <Box
+                        sx={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: "50%",
+                          display: "grid",
+                          placeItems: "center",
+                          fontSize: 11,
+                          fontWeight: 800,
+                          color: "#fff",
+                          bgcolor: ["#F59E0B", "#94A3B8", "#B45309"][index] ?? "#64748B",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {index + 1}
+                      </Box>
 
-                    <Avatar sx={{ width: 38, height: 38, bgcolor: "secondary.main", fontSize: 13 }}>
-                      {deliverer.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .slice(0, 2)
-                        .join("")}
-                    </Avatar>
+                      <Avatar sx={{ width: 38, height: 38, bgcolor: "secondary.main", fontSize: 13 }}>
+                        {deliverer.deliverymanName
+                          .split(" ")
+                          .map((n) => n[0])
+                          .slice(0, 2)
+                          .join("")}
+                      </Avatar>
 
-                    <Box sx={{ minWidth: 0, flex: 1 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 700 }} noWrap>
-                        {deliverer.name}
-                      </Typography>
-                      <Stack direction="row" spacing={0.6} alignItems="center">
-                        <DirectionsBikeRoundedIcon sx={{ fontSize: 13, color: "text.secondary" }} />
-                        <Typography variant="caption" color="text.secondary" noWrap>
-                          {deliverer.vehicle} · Meta {deliverer.meta}%
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }} noWrap>
+                          {deliverer.deliverymanName}
                         </Typography>
-                      </Stack>
-                    </Box>
+                        <Typography variant="caption" color="text.secondary" noWrap>
+                          Entregador
+                        </Typography>
+                      </Box>
 
-                    <Box sx={{ textAlign: "right", flexShrink: 0 }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 800, lineHeight: 1 }}>
-                        {deliverer.deliveries}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        entregas
-                      </Typography>
-                    </Box>
-                  </Stack>
-                ))}
+                      <Box sx={{ textAlign: "right", flexShrink: 0 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 800, lineHeight: 1 }}>
+                          {deliverer.totalDeliveries}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          entregas
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  ))
+                )}
               </Stack>
 
               <Button
@@ -564,7 +726,7 @@ const DashboardIndex = () => {
                 />
               </Stack>
               <Typography variant="body2" color="text.secondary">
-                Monitoramento de despachos e status com rastreamento GPS instantâneo
+                Todos os pedidos cadastrados, com status e entregador responsável
               </Typography>
             </Box>
 
@@ -572,7 +734,7 @@ const DashboardIndex = () => {
               <Select
                 size="small"
                 value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value as OrderStatus | "todos")}
+                onChange={(event) => setStatusFilter(event.target.value as BackendOrderStatus | "todos")}
                 sx={{ minWidth: 168, borderRadius: 999 }}
               >
                 <MenuItem value="todos">Todos os Status</MenuItem>
@@ -583,7 +745,7 @@ const DashboardIndex = () => {
                 ))}
               </Select>
               <Tooltip title="Atualizar">
-                <IconButton>
+                <IconButton onClick={() => void loadOrders()}>
                   <RefreshRoundedIcon />
                 </IconButton>
               </Tooltip>
@@ -606,94 +768,121 @@ const DashboardIndex = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredOrders.map((order) => {
-                  const status = statusConfig[order.status];
-                  return (
-                    <TableRow key={order.id} hover>
-                      <TableCell sx={{ fontWeight: 700 }}>{order.id}</TableCell>
-                      <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 650 }} noWrap>
-                          {order.clientName}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary" noWrap>
-                          {order.clientPhone}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" noWrap>
-                          {order.address}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary" noWrap>
-                          {order.neighborhood}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        {order.deliveryman ? (
-                          <Stack direction="row" spacing={0.75} alignItems="center">
-                            <Avatar sx={{ width: 24, height: 24, fontSize: 11, bgcolor: "secondary.main" }}>
-                              {order.deliveryman.charAt(0)}
-                            </Avatar>
-                            <Typography variant="body2" noWrap>
-                              {order.deliveryman}
+                {loadingOrders
+                  ? Array.from({ length: ROWS_PER_PAGE }).map((_, index) => (
+                      <TableRow key={index}>
+                        {Array.from({ length: 7 }).map((__, cellIndex) => (
+                          <TableCell key={cellIndex}>
+                            <Skeleton variant="text" />
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  : pagedOrders.map((order) => {
+                      const status = statusConfig[order.status];
+                      const clientName = `${order.Register.client.name} ${order.Register.client.lastName}`.trim();
+                      const deliverymanName = order.deliveryman
+                        ? `${order.deliveryman.name} ${order.deliveryman.lastName}`.trim()
+                        : null;
+                      const address = order.Register.address;
+
+                      return (
+                        <TableRow key={order.id} hover>
+                          <TableCell sx={{ fontWeight: 700 }}>#{order.id}</TableCell>
+                          <TableCell>
+                            <Typography variant="body2" sx={{ fontWeight: 650 }} noWrap>
+                              {clientName}
                             </Typography>
-                          </Stack>
-                        ) : (
-                          <Typography variant="body2" color="text.disabled">
-                            Não atribuído
-                          </Typography>
-                        )}
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 700 }}>{currencyFormatter.format(order.amount)}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={status.label}
-                          size="small"
-                          sx={{ bgcolor: status.bg, color: status.color, fontWeight: 700 }}
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        <Tooltip title="Conversar">
-                          <IconButton size="small">
-                            <ChatBubbleOutlineRoundedIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Ver detalhes">
-                          <IconButton size="small">
-                            <RemoveRedEyeOutlinedIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Mais opções">
-                          <IconButton size="small">
-                            <MoreVertRoundedIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                            <Typography variant="caption" color="text.secondary" noWrap>
+                              {order.Register.client.phone}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2" noWrap>
+                              {address.street}, {address.numberHouse}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" noWrap>
+                              {address.neighborhood}, {address.city}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            {deliverymanName ? (
+                              <Stack direction="row" spacing={0.75} alignItems="center">
+                                <Avatar sx={{ width: 24, height: 24, fontSize: 11, bgcolor: "secondary.main" }}>
+                                  {deliverymanName.charAt(0)}
+                                </Avatar>
+                                <Typography variant="body2" noWrap>
+                                  {deliverymanName}
+                                </Typography>
+                              </Stack>
+                            ) : (
+                              <Typography variant="body2" color="text.disabled">
+                                Não atribuído
+                              </Typography>
+                            )}
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 700 }}>{currencyFormatter.format(order.amount)}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label={status.label}
+                              size="small"
+                              sx={{ bgcolor: status.bg, color: status.color, fontWeight: 700 }}
+                            />
+                          </TableCell>
+                          <TableCell align="right">
+                            <Tooltip title="Conversar">
+                              <IconButton size="small" onClick={() => navigate("/chat")}>
+                                <ChatBubbleOutlineRoundedIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Ver detalhes">
+                              <IconButton size="small" onClick={() => navigate("/listagem-entregas")}>
+                                <RemoveRedEyeOutlinedIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Mais opções">
+                              <IconButton size="small">
+                                <MoreVertRoundedIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+
+                {!loadingOrders && pagedOrders.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7}>
+                      <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: "center" }}>
+                        Nenhum pedido encontrado para o filtro selecionado.
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                ) : null}
               </TableBody>
             </Table>
           </TableContainer>
 
           <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems="center" gap={1}>
             <Typography variant="caption" color="text.secondary">
-              Mostrando 1 a {filteredOrders.length} de 89 pedidos em andamento
+              Mostrando {pagedOrders.length === 0 ? 0 : (page - 1) * ROWS_PER_PAGE + 1} a{" "}
+              {Math.min(page * ROWS_PER_PAGE, filteredOrders.length)} de {filteredOrders.length} pedidos
             </Typography>
             <Stack direction="row" spacing={0.5}>
-              {[1, 2, 3].map((page) => (
-                <Chip
-                  key={page}
-                  label={page}
-                  size="small"
-                  color={page === 1 ? "primary" : "default"}
-                  variant={page === 1 ? "filled" : "outlined"}
-                  sx={{ fontWeight: 700, minWidth: 30 }}
-                />
-              ))}
-              <Typography variant="caption" color="text.secondary" sx={{ alignSelf: "center", px: 0.5 }}>
-                …
-              </Typography>
-              <Chip label={9} size="small" variant="outlined" sx={{ fontWeight: 700, minWidth: 30 }} />
+              {Array.from({ length: pageCount }).map((_, index) => {
+                const pageNumber = index + 1;
+                return (
+                  <Chip
+                    key={pageNumber}
+                    label={pageNumber}
+                    size="small"
+                    onClick={() => setPage(pageNumber)}
+                    color={pageNumber === page ? "primary" : "default"}
+                    variant={pageNumber === page ? "filled" : "outlined"}
+                    sx={{ fontWeight: 700, minWidth: 30, cursor: "pointer" }}
+                  />
+                );
+              })}
             </Stack>
           </Stack>
         </Stack>

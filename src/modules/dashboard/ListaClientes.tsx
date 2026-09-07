@@ -29,7 +29,6 @@ import {
   useTheme,
 } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -302,20 +301,6 @@ const ListaClientes: React.FC = () => {
           Visualizar clientes cadastrados
         </Typography>
         <Box display="flex" gap={1.5}>
-          <Button
-            variant="contained"
-            startIcon={<FileDownloadIcon />}
-            sx={{
-              bgcolor: "#0ea5e9",
-              "&:hover": { bgcolor: "#0284c7" },
-              textTransform: "none",
-              borderRadius: 2,
-              fontWeight: 600,
-              fontSize: 13,
-            }}
-          >
-            Importar dados
-          </Button>
           <Button
             variant="contained"
             startIcon={<PersonAddIcon />}

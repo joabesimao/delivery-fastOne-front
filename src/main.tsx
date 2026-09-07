@@ -11,8 +11,7 @@ import RelatoriosEntregas from "./modules/entregas/RelatoriosEntregas.tsx";
 import RelatoriosEntregasGeral from "./modules/entregas/RelatoriosEntregasGeral.tsx";
 import ListagemEntregas from "./modules/entregas/ListagemEntregas.tsx";
 import ListaEntregadores from "./modules/entregas/ListaEntregadores.tsx";
-import DashboardIndex from "./modules/dashboard/DashboardIndex";
-import RelatoriosDashboard from "./modules/dashboard/RelatoriosDashboard";
+import DashboardPage from "./modules/dashboard/DashboardPage";
 import ListaClientes from "./modules/dashboard/ListaClientes";
 import ListaProdutos from "./modules/dashboard/ListaProdutos";
 import CadastrarCliente from "./modules/cadastros/cliente/CadastrarCliente.tsx";
@@ -76,11 +75,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <RequireAuth><DashboardIndex /></RequireAuth>,
+    element: <RequireAuth><DashboardPage /></RequireAuth>,
   },
   {
     path: "/dashboard/relatorios",
-    element: <RequireAuth><RelatoriosDashboard /></RequireAuth>,
+    element: <RequireAuth><DashboardPage /></RequireAuth>,
   },
   {
     path: "/dashboard/clientes",
