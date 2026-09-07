@@ -165,7 +165,9 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
       <Box sx={{ px: 1.5, overflowY: "auto", flex: 1 }}>
         <List disablePadding>
           {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive =
+              location.pathname === item.path ||
+              (item.path === "/dashboard" && location.pathname === "/dashboard/relatorios");
 
             return (
               <ListItemButton
