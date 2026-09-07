@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { alpha } from "@mui/material/styles";
 import {
   Alert,
@@ -10,6 +10,7 @@ import {
   Chip,
   CircularProgress,
   Grid,
+  IconButton,
   InputAdornment,
   MenuItem,
   Stack,
@@ -21,9 +22,11 @@ import {
   TablePagination,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import api from "../../services/api";
 import { getRealtimeSocket } from "../../services/realtime";
@@ -100,6 +103,7 @@ const getInitials = (name: string, lastName: string) => `${name.charAt(0)}${last
 
 const ListagemEntregas: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [orders, setOrders] = useState<OrderData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -448,12 +452,15 @@ const ListagemEntregas: React.FC = () => {
                       <TableCell sx={{ fontWeight: 800 }}>Valor</TableCell>
                       <TableCell sx={{ fontWeight: 800 }}>Recebido em</TableCell>
                       <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: 800 }} align="right">
+                        Ações
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {paginated.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={7} align="center" sx={{ py: 5 }}>
+                        <TableCell colSpan={8} align="center" sx={{ py: 5 }}>
                           Nenhuma entrega encontrada para os filtros selecionados.
                         </TableCell>
                       </TableRow>
@@ -501,6 +508,21 @@ const ListagemEntregas: React.FC = () => {
                                 size="small"
                                 sx={{ bgcolor: alpha(status.color, 0.14), color: status.color, fontWeight: 700 }}
                               />
+                            </TableCell>
+                            <TableCell align="right">
+                              {order.status !== "finished" ? (
+                                <Tooltip title="Finalizar entrega">
+                                  <IconButton
+                                    size="small"
+                                    color="success"
+                                    onClick={() =>
+                                      navigate("/finalizar-entrega", { state: { orderId: order.id } })
+                                    }
+                                  >
+                                    <CheckCircleOutlineIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              ) : null}
                             </TableCell>
                           </TableRow>
                         );
