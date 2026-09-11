@@ -51,7 +51,6 @@ interface OrderData {
   Register: {
     client: {
       name: string;
-      lastName: string;
     };
     address: {
       street: string;
@@ -64,7 +63,6 @@ interface OrderData {
 
 interface PreloadedClientData {
   name: string;
-  lastName: string;
   phone: string;
   address: {
     street: string;
@@ -237,7 +235,7 @@ const ListagemEntregas: React.FC = () => {
 
       const matchesSearch =
         !term ||
-        `${order.Register.client.name} ${order.Register.client.lastName}`.toLowerCase().includes(term) ||
+        order.Register.client.name.toLowerCase().includes(term) ||
         order.Register.address.street.toLowerCase().includes(term) ||
         String(order.id).includes(term);
 
@@ -473,7 +471,7 @@ const ListagemEntregas: React.FC = () => {
                             <TableCell sx={{ fontWeight: 700 }}>#{order.id}</TableCell>
                             <TableCell>
                               <Typography variant="body2" sx={{ fontWeight: 650 }} noWrap>
-                                {order.Register.client.name} {order.Register.client.lastName}
+                                {order.Register.client.name}
                               </Typography>
                             </TableCell>
                             <TableCell>

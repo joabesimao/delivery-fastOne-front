@@ -67,7 +67,7 @@ interface OrderData {
     phone: string;
   };
   Register: {
-    client: { name: string; lastName: string; phone: string };
+    client: { name: string; phone: string };
     address: {
       street: string;
       neighborhood: string;
@@ -176,7 +176,7 @@ const FinalizarEntrega: React.FC = () => {
         const term = search.trim().toLowerCase();
         const matchesSearch =
           !term ||
-          `${o.Register.client.name} ${o.Register.client.lastName}`.toLowerCase().includes(term) ||
+          o.Register.client.name.toLowerCase().includes(term) ||
           String(o.id).includes(term) ||
           o.Register.address.city.toLowerCase().includes(term) ||
           o.Register.address.neighborhood.toLowerCase().includes(term) ||
@@ -298,7 +298,7 @@ const FinalizarEntrega: React.FC = () => {
                     Cliente
                   </Typography>
                   <Typography variant="body2" fontWeight={600} sx={{ mt: 0.5, color: "text.primary" }}>
-                    {o.Register.client.name} {o.Register.client.lastName}
+                    {o.Register.client.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {phoneMask(o.Register.client.phone)}
@@ -647,7 +647,7 @@ const FinalizarEntrega: React.FC = () => {
                           <TableCell>
                             <Box>
                               <Typography sx={{ fontWeight: 600, fontSize: 13, color: textPrimary }}>
-                                {o.Register.client.name} {o.Register.client.lastName}
+                                {o.Register.client.name}
                               </Typography>
                               <Typography sx={{ fontSize: 11, color: textSecondary }}>
                                 {phoneMask(o.Register.client.phone)}

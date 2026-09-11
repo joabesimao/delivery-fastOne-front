@@ -42,7 +42,6 @@ interface OrderData {
   Register: {
     client: {
       name: string;
-      lastName: string;
       phone: string;
     };
     address: {

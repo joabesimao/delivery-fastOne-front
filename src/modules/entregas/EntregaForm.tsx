@@ -36,7 +36,6 @@ interface RegisterResult {
   id: number;
   client: {
     name: string;
-    lastName: string;
     phone: string;
   };
   address: {
@@ -58,7 +57,6 @@ interface AddressValues {
 
 interface DeliveryFormValues {
   name: string;
-  lastName: string;
   phone: string;
   deliverymanId: string;
   address: AddressValues;
@@ -88,7 +86,6 @@ interface DeliverySheetData {
   orderId: number | null;
   createdAt: string;
   name: string;
-  lastName: string;
   phone: string;
   street: string;
   neighborhood: string;
@@ -113,7 +110,6 @@ const CURRENCY_FORMATTER = new Intl.NumberFormat("pt-BR", {
 
 const initialValues: DeliveryFormValues = {
   name: "",
-  lastName: "",
   phone: "",
   deliverymanId: "",
   address: {
@@ -129,7 +125,6 @@ const initialValues: DeliveryFormValues = {
 
 type FormErrors = {
   name?: string;
-  lastName?: string;
   phone?: string;
   address?: Partial<AddressValues>;
   quantity?: string;
@@ -140,8 +135,7 @@ const validate = (values: DeliveryFormValues): FormErrors => {
   const errors: FormErrors = {};
   const addrErrors: Partial<AddressValues> = {};
 
-  if (!values.name.trim()) errors.name = "Informe o nome.";
-  if (!values.lastName.trim()) errors.lastName = "Informe o sobrenome.";
+  if (!values.name.trim()) errors.name = "Informe o nome completo.";
   if (!values.phone.trim()) errors.phone = "Informe o telefone.";
   else if (!isValidPhone(values.phone)) errors.phone = "Telefone inválido. Use DDD + número.";
   if (!values.address.street.trim()) addrErrors.street = "Informe a rua.";
@@ -162,7 +156,6 @@ interface EntregaFormProps {
   onClose?: () => void;
   preloadedClientData?: {
     name: string;
-    lastName: string;
     phone: string;
     address: {
       street: string;
@@ -233,7 +226,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
     if (preloadedClientData) {
       setFormInitialValues({
         name: preloadedClientData.name,
-        lastName: preloadedClientData.lastName,
         phone: phoneMask(preloadedClientData.phone),
         deliverymanId: "",
         address: {
@@ -266,7 +258,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
         const registerRes = await api.post("/register", {
           client: {
             name: values.name,
-            lastName: values.lastName,
             phone: stripPhone(values.phone),
           },
           address: {
@@ -302,7 +293,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
         orderId: typeof orderRes?.data?.id === "number" ? orderRes.data.id : null,
         createdAt: new Date().toISOString(),
         name: values.name,
-        lastName: values.lastName,
         phone: values.phone,
         street: values.address.street,
         neighborhood: values.address.neighborhood,
@@ -437,15 +427,11 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
                       <Autocomplete
                         options={registers}
                         loading={registersLoading}
-                        getOptionLabel={(option) =>
-                          `${option.client.name} ${option.client.lastName}`
-                        }
+                        getOptionLabel={(option) => option.client.name}
                         filterOptions={(options, { inputValue }) => {
                           const term = inputValue.toLowerCase();
-                          return options.filter(
-                            (o) =>
-                              o.client.name.toLowerCase().includes(term) ||
-                              o.client.lastName.toLowerCase().includes(term)
+                          return options.filter((o) =>
+                            o.client.name.toLowerCase().includes(term)
                           );
                         }}
                         onChange={(_, selected) => {
@@ -454,7 +440,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
                             setValues({
                               ...values,
                               name: selected.client.name,
-                              lastName: selected.client.lastName,
                               phone: phoneMask(selected.client.phone),
                               address: {
                                 street: selected.address.street,
@@ -490,27 +475,17 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
               </Typography>
 
               <Grid container spacing={2} sx={{ mb: 1 }}>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FieldLabel label="Nome *" />
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FieldLabel label="Nome completo *" />
                   <TextField
-                    fullWidth size="small" placeholder="Nome do cliente"
+                    fullWidth size="small" placeholder="Nome completo do cliente"
                     name="name" value={values.name}
                     onChange={handleChange} onBlur={handleBlur}
                     error={Boolean(touched.name && errors.name)}
                     helperText={touched.name && errors.name}
                   />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FieldLabel label="Sobrenome *" />
-                  <TextField
-                    fullWidth size="small" placeholder="Sobrenome do cliente"
-                    name="lastName" value={values.lastName}
-                    onChange={handleChange} onBlur={handleBlur}
-                    error={Boolean(touched.lastName && errors.lastName)}
-                    helperText={touched.lastName && errors.lastName}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FieldLabel label="Telefone *" />
                   <TextField
                     fullWidth size="small" placeholder="(00) 00000-0000"
@@ -826,7 +801,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
           <Box sx={{ border: "1px solid #111", p: 1.5, mb: 1.5 }}>
             <Typography sx={{ fontSize: 11, color: "#555", mb: 0.6 }}>Cliente</Typography>
             <Typography sx={{ fontSize: 14, fontWeight: 700, mb: 0.3 }}>
-              {sheetData.name} {sheetData.lastName}
+              {sheetData.name}
             </Typography>
             <Typography sx={{ fontSize: 12 }}>Telefone: {sheetData.phone}</Typography>
           </Box>
