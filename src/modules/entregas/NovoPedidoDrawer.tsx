@@ -1,7 +1,6 @@
 import React from "react";
-import { Box, Drawer, IconButton, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import StoreRoundedIcon from "@mui/icons-material/StoreRounded";
+import { Box, Divider, Drawer, IconButton, Stack, Typography } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EntregaForm from "./EntregaForm";
 
 interface NovoPedidoDrawerProps {
@@ -27,9 +26,6 @@ const NovoPedidoDrawer: React.FC<NovoPedidoDrawerProps> = ({
   preloadedClientData,
   preloadedClientId,
 }) => {
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
-
   return (
     <Drawer
       anchor="right"
@@ -37,52 +33,35 @@ const NovoPedidoDrawer: React.FC<NovoPedidoDrawerProps> = ({
       onClose={onClose}
       sx={{
         "& .MuiDrawer-paper": {
-          width: fullScreen ? "100%" : 480,
-          maxWidth: "100%",
+          width: "100%",
         },
       }}
     >
       <Stack sx={{ height: "100%" }}>
-        <Box sx={{ p: 2.5, borderBottom: 1, borderColor: "divider" }}>
-          <Stack direction="row" alignItems="flex-start" justifyContent="space-between">
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: 800 }}>
+        <Box sx={{ p: 2.5, pb: 0 }}>
+          <Box sx={{ maxWidth: 1600, mx: "auto", width: "100%" }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2.5 }}>
+              <IconButton size="small" onClick={onClose} aria-label="Fechar">
+                <ArrowBackIcon fontSize="small" />
+              </IconButton>
+              <Typography variant="h6" fontWeight={700} sx={{ color: "text.primary" }}>
                 Criar Novo Pedido
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Preencha os dados para criar um novo pedido de entrega
-              </Typography>
+              <Box sx={{ width: 32 }} />
             </Box>
-            <IconButton onClick={onClose} aria-label="Fechar" size="small">
-              <CloseRoundedIcon fontSize="small" />
-            </IconButton>
-          </Stack>
-
-          <Stack
-            direction="row"
-            spacing={1.25}
-            alignItems="center"
-            sx={{ mt: 2, p: 1.25, borderRadius: 2.5, bgcolor: (t) => t.palette.action.hover }}
-          >
-            <StoreRoundedIcon fontSize="small" sx={{ color: "primary.main" }} />
-            <Box sx={{ minWidth: 0 }}>
-              <Typography variant="caption" color="text.secondary" sx={{ display: "block", lineHeight: 1.1 }}>
-                Ponto de coleta
-              </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 700 }} noWrap>
-                Matriz Central - SP
-              </Typography>
-            </Box>
-          </Stack>
+            <Divider sx={{ mb: 3 }} />
+          </Box>
         </Box>
 
         <Box sx={{ flex: 1, overflowY: "auto", p: 2.5 }}>
-          <EntregaForm
-            embedded
-            onClose={onClose}
-            preloadedClientData={preloadedClientData}
-            preloadedClientId={preloadedClientId}
-          />
+          <Box sx={{ maxWidth: 1600, mx: "auto", width: "100%" }}>
+            <EntregaForm
+              embedded
+              onClose={onClose}
+              preloadedClientData={preloadedClientData}
+              preloadedClientId={preloadedClientId}
+            />
+          </Box>
         </Box>
       </Stack>
     </Drawer>
