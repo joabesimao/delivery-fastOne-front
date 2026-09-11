@@ -4,7 +4,6 @@ import EntregaForm from "./EntregaForm";
 
 interface ClientData {
   name: string;
-  lastName: string;
   phone: string;
   address: {
     street: string;

@@ -27,13 +27,10 @@ import {
   useTheme,
 } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
-import ApartmentRoundedIcon from "@mui/icons-material/ApartmentRounded";
 import ChatOutlinedIcon from "@mui/icons-material/ChatOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
-import FilterListRoundedIcon from "@mui/icons-material/FilterListRounded";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
@@ -74,8 +71,6 @@ const navItems: NavItem[] = [
   { label: "Configurações", path: "/configuracoes/visuais", icon: <SettingsOutlinedIcon fontSize="small" /> },
 ];
 
-const units = ["Matriz Central - SP", "Filial Guarulhos - SP", "Filial ABC - SP"];
-
 const ADMIN_TECH_EMAIL = "admin@fastone.local";
 
 const normalizeUserLabel = (value: string): string => {
@@ -102,8 +97,6 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileAnchorEl, setProfileAnchorEl] = useState<HTMLElement | null>(null);
-  const [unitAnchorEl, setUnitAnchorEl] = useState<HTMLElement | null>(null);
-  const [activeUnit, setActiveUnit] = useState(units[0]);
 
   const currentEmailRaw = typeof window !== "undefined" ? localStorage.getItem("currentUserEmail") ?? "" : "";
   const currentUserName = normalizeUserLabel(currentEmailRaw) || "Operador Admin";
@@ -269,37 +262,6 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
             <MenuRoundedIcon />
           </IconButton>
 
-          <Button
-            onClick={(event) => setUnitAnchorEl(event.currentTarget)}
-            startIcon={<ApartmentRoundedIcon fontSize="small" />}
-            endIcon={<ExpandMoreRoundedIcon fontSize="small" />}
-            sx={{
-              flexShrink: 0,
-              borderRadius: 999,
-              border: 1,
-              borderColor: "divider",
-              color: "text.primary",
-              px: 1.5,
-              display: { xs: "none", sm: "inline-flex" },
-            }}
-          >
-            {activeUnit}
-          </Button>
-          <Menu anchorEl={unitAnchorEl} open={Boolean(unitAnchorEl)} onClose={() => setUnitAnchorEl(null)}>
-            {units.map((unit) => (
-              <MenuItem
-                key={unit}
-                selected={unit === activeUnit}
-                onClick={() => {
-                  setActiveUnit(unit);
-                  setUnitAnchorEl(null);
-                }}
-              >
-                {unit}
-              </MenuItem>
-            ))}
-          </Menu>
-
           <TextField
             size="small"
             placeholder="Buscar pedido, cliente, entregador..."
@@ -316,23 +278,6 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
           />
 
           <Box sx={{ flexGrow: { xs: 1, sm: 0 } }} />
-
-          <Button
-            variant="outlined"
-            startIcon={<FilterListRoundedIcon fontSize="small" />}
-            sx={{ display: { xs: "none", lg: "inline-flex" }, borderRadius: 999 }}
-          >
-            Filtros
-          </Button>
-
-          <Button
-            variant="contained"
-            startIcon={<AddRoundedIcon />}
-            onClick={() => navigate("/listagem-entregas", { state: { openCreate: true } })}
-            sx={{ borderRadius: 999, display: { xs: "none", sm: "inline-flex" } }}
-          >
-            Nova Entrega
-          </Button>
 
           <Stack direction="row" spacing={0.25} alignItems="center">
             <Tooltip title="Atualizar">

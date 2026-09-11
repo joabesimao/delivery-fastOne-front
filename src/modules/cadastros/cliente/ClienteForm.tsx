@@ -31,7 +31,6 @@ interface AddressValues {
 
 interface ClienteFormValues {
   name: string;
-  lastName: string;
   cpf: string;
   phone: string;
   address: AddressValues;
@@ -55,7 +54,6 @@ interface NeighborhoodOption {
 
 const initialValues: ClienteFormValues = {
   name: "",
-  lastName: "",
   cpf: "",
   phone: "",
   address: {
@@ -69,7 +67,6 @@ const initialValues: ClienteFormValues = {
 
 type FormErrors = {
   name?: string;
-  lastName?: string;
   cpf?: string;
   phone?: string;
   address?: Partial<AddressValues>;
@@ -79,8 +76,7 @@ const validate = (values: ClienteFormValues): FormErrors => {
   const errors: FormErrors = {};
   const addrErrors: Partial<AddressValues> = {};
 
-  if (!values.name.trim()) errors.name = "Informe o nome.";
-  if (!values.lastName.trim()) errors.lastName = "Informe o sobrenome.";
+  if (!values.name.trim()) errors.name = "Informe o nome completo.";
   if (!values.cpf.trim()) errors.cpf = "Informe o CPF.";
   else if (!isValidCPF(values.cpf)) errors.cpf = "CPF inválido. Use o formato XXX.XXX.XXX-XX ou apenas números.";
   if (!values.phone.trim()) errors.phone = "Informe o telefone.";
@@ -128,7 +124,6 @@ const ClienteForm: React.FC = () => {
       const response = await api.post("/register", {
         client: {
           name: values.name,
-          lastName: values.lastName,
           cpf: stripCPF(values.cpf),
           phone: stripPhone(values.phone),
         },
@@ -206,27 +201,17 @@ const ClienteForm: React.FC = () => {
               </Typography>
 
               <Grid container spacing={2} sx={{ mb: 1 }}>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FieldLabel label="Nome *" />
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FieldLabel label="Nome completo *" />
                   <TextField
-                    fullWidth size="small" placeholder="Nome do cliente"
+                    fullWidth size="small" placeholder="Nome completo do cliente"
                     name="name" value={values.name}
                     onChange={handleChange} onBlur={handleBlur}
                     error={Boolean(touched.name && errors.name)}
                     helperText={touched.name && errors.name}
                   />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <FieldLabel label="Sobrenome *" />
-                  <TextField
-                    fullWidth size="small" placeholder="Sobrenome do cliente"
-                    name="lastName" value={values.lastName}
-                    onChange={handleChange} onBlur={handleBlur}
-                    error={Boolean(touched.lastName && errors.lastName)}
-                    helperText={touched.lastName && errors.lastName}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FieldLabel label="CPF *" />
                   <TextField
                     fullWidth size="small" placeholder="000.000.000-00"
@@ -372,7 +357,7 @@ const ClienteForm: React.FC = () => {
         <DialogTitle sx={{ fontWeight: 700 }}>Realizar entrega?</DialogTitle>
         <DialogContent>
           <Typography sx={{ mt: 1 }}>
-            Deseja realizar uma entrega para o cliente <strong>{newClientData?.clientData.name} {newClientData?.clientData.lastName}</strong>?
+            Deseja realizar uma entrega para o cliente <strong>{newClientData?.clientData.name}</strong>?
           </Typography>
         </DialogContent>
         <DialogActions>

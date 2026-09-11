@@ -51,7 +51,6 @@ interface Address {
 interface ClientItem {
   id: number;
   name: string;
-  lastName: string;
   cpf?: string;
   phone: string;
   status?: boolean;
@@ -64,7 +63,6 @@ interface ClientItem {
 
 interface EditClientForm {
   name: string;
-  lastName: string;
   cpf?: string;
   phone: string;
   address: {
@@ -130,7 +128,6 @@ const ListaClientes: React.FC = () => {
     setEditClient(client);
     setEditValues({
       name: client.name,
-      lastName: client.lastName,
       cpf: client.cpf ? cpfMask(client.cpf) : "",
       phone: phoneMask(client.phone),
       address: {
@@ -167,10 +164,9 @@ const ListaClientes: React.FC = () => {
 
     if (
       !editValues.name.trim() ||
-      !editValues.lastName.trim() ||
       !editValues.phone.trim()
     ) {
-      showSnackbar("Nome, sobrenome e telefone são obrigatórios.", "error");
+      showSnackbar("Nome e telefone são obrigatórios.", "error");
       return;
     }
 
@@ -208,7 +204,6 @@ const ListaClientes: React.FC = () => {
       setActionLoadingId(editClient.id);
       await api.put(`/client/${editClient.id}`, {
         name: editValues.name,
-        lastName: editValues.lastName,
         cpf: editValues.cpf ? stripCPF(editValues.cpf) : undefined,
         phone: stripPhone(editValues.phone),
       });
@@ -250,7 +245,7 @@ const ListaClientes: React.FC = () => {
 
       const matchesName =
         !nameTerm ||
-        `${c.name} ${c.lastName}`.toLowerCase().includes(nameTerm) ||
+        c.name.toLowerCase().includes(nameTerm) ||
         addr?.neighborhood?.toLowerCase().includes(nameTerm) ||
         addr?.street?.toLowerCase().includes(nameTerm);
 
@@ -594,7 +589,7 @@ const ListaClientes: React.FC = () => {
                                   color: textPrimary,
                                 }}
                               >
-                                {c.name} {c.lastName}
+                                {c.name}
                               </Typography>
                               {addr?.street && (
                                 <Typography
@@ -803,7 +798,7 @@ const ListaClientes: React.FC = () => {
           {viewClient && (
             <Box display="grid" gap={1.25}>
               <Typography variant="body2">
-                <strong>Nome:</strong> {viewClient.name} {viewClient.lastName}
+                <strong>Nome:</strong> {viewClient.name}
               </Typography>
               <Typography variant="body2">
                 <strong>CPF:</strong> {viewClient.cpf ? cpfMask(viewClient.cpf) : "—"}
@@ -857,22 +852,12 @@ const ListaClientes: React.FC = () => {
           {editValues && (
             <Box display="grid" gap={1.5} pt={0.5}>
               <TextField
-                label="Nome"
+                label="Nome completo"
                 size="small"
                 value={editValues.name}
                 onChange={(e) =>
                   setEditValues((prev) =>
                     prev ? { ...prev, name: e.target.value } : prev,
-                  )
-                }
-              />
-              <TextField
-                label="Sobrenome"
-                size="small"
-                value={editValues.lastName}
-                onChange={(e) =>
-                  setEditValues((prev) =>
-                    prev ? { ...prev, lastName: e.target.value } : prev,
                   )
                 }
               />

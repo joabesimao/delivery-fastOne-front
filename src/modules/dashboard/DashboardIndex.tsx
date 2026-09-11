@@ -64,7 +64,7 @@ type OrderDeliveryApiModel = {
   amount: number;
   deliveryman: { name: string; lastName: string } | null;
   Register: {
-    client: { name: string; lastName: string; phone: string };
+    client: { name: string; phone: string };
     address: { street: string; numberHouse: number; neighborhood: string; city: string };
   };
 };
@@ -780,7 +780,7 @@ const DashboardIndex = () => {
                     ))
                   : pagedOrders.map((order) => {
                       const status = statusConfig[order.status];
-                      const clientName = `${order.Register.client.name} ${order.Register.client.lastName}`.trim();
+                      const clientName = order.Register.client.name;
                       const deliverymanName = order.deliveryman
                         ? `${order.deliveryman.name} ${order.deliveryman.lastName}`.trim()
                         : null;

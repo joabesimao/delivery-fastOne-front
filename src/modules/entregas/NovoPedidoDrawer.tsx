@@ -9,7 +9,6 @@ interface NovoPedidoDrawerProps {
   onClose: () => void;
   preloadedClientData?: {
     name: string;
-    lastName: string;
     phone: string;
     address: {
       street: string;
