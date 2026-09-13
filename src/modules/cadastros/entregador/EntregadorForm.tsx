@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -6,11 +7,13 @@ import {
   CircularProgress,
   Divider,
   Grid,
+  IconButton,
   Paper,
   Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Formik, Form } from "formik";
 import api from "../../../services/api";
 import { isValidPhone, phoneMask, stripPhone } from "../../../helpers/masks";
@@ -47,6 +50,7 @@ const validate = (values: EntregadorFormValues): FormErrors => {
 };
 
 const EntregadorForm: React.FC = () => {
+  const navigate = useNavigate();
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -66,10 +70,13 @@ const EntregadorForm: React.FC = () => {
       });
       setSnackbar({ open: true, message: "Entregador cadastrado com sucesso!", severity: "success" });
       resetForm();
-    } catch {
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || "Erro ao cadastrar entregador. Tente novamente.";
+      const isPhoneDuplicate = errorMessage.toLowerCase().includes("telefone") && errorMessage.toLowerCase().includes("cadastrado");
+
       setSnackbar({
         open: true,
-        message: "Erro ao cadastrar entregador. Tente novamente.",
+        message: isPhoneDuplicate ? "Este telefone já está cadastrado no sistema." : errorMessage,
         severity: "error",
       });
     }
@@ -82,8 +89,6 @@ const EntregadorForm: React.FC = () => {
         sx={{
           p: { xs: 2, sm: 3, md: 4 },
           width: "100%",
-          maxWidth: 720,
-          mx: "auto",
           bgcolor: "background.paper",
           border: "1px solid",
           borderColor: "divider",
@@ -91,9 +96,15 @@ const EntregadorForm: React.FC = () => {
           backdropFilter: "blur(2px)",
         }}
       >
-        <Typography variant="h6" fontWeight={700} sx={{ mb: 2.5, textAlign: "center", color: "text.primary" }}>
-          Cadastrar entregador
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2.5 }}>
+          <IconButton size="small" onClick={() => navigate("/dashboard")}>
+            <ArrowBackIcon fontSize="small" />
+          </IconButton>
+          <Typography variant="h6" fontWeight={700} sx={{ color: "text.primary" }}>
+            Cadastrar entregador
+          </Typography>
+          <Box sx={{ width: 32 }} />
+        </Box>
         <Divider sx={{ mb: 3 }} />
 
         <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit}>
@@ -162,11 +173,6 @@ const EntregadorForm: React.FC = () => {
                   gap: 1.25,
                 }}
               >
-                <Button type="reset" variant="outlined" color="inherit" disabled={isSubmitting}
-                  sx={{ textTransform: "none", borderColor: "divider", color: "text.secondary", width: { xs: "100%", sm: "auto" } }}
-                >
-                  Limpar
-                </Button>
                 <Button
                   type="submit" variant="contained" disabled={isSubmitting}
                   sx={{ textTransform: "none", bgcolor: "#4361EE", "&:hover": { bgcolor: "#3451D1" }, width: { xs: "100%", sm: "auto" } }}
