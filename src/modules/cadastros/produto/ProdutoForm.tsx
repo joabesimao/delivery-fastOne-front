@@ -6,14 +6,12 @@ import {
   CircularProgress,
   Divider,
   Grid,
-  IconButton,
   InputAdornment,
   Paper,
   Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Formik, Form } from "formik";
 import { useNavigate } from "react-router-dom";
 import api from "../../../services/api";
@@ -89,6 +87,8 @@ const ProdutoForm: React.FC = () => {
         sx={{
           p: { xs: 2, sm: 3, md: 4 },
           width: "100%",
+          maxWidth: 720,
+          mx: "auto",
           bgcolor: "background.paper",
           border: "1px solid",
           borderColor: "divider",
@@ -96,15 +96,9 @@ const ProdutoForm: React.FC = () => {
           backdropFilter: "blur(2px)",
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2.5 }}>
-          <IconButton size="small" onClick={() => navigate("/dashboard")}>
-            <ArrowBackIcon fontSize="small" />
-          </IconButton>
-          <Typography variant="h6" fontWeight={700} sx={{ color: "text.primary" }}>
-            Cadastrar produto
-          </Typography>
-          <Box sx={{ width: 32 }} />
-        </Box>
+        <Typography variant="h6" fontWeight={700} sx={{ mb: 2.5, textAlign: "center", color: "text.primary" }}>
+          Cadastrar produto
+        </Typography>
         <Divider sx={{ mb: 3 }} />
 
         <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit}>
@@ -176,18 +170,32 @@ const ProdutoForm: React.FC = () => {
               <Box
                 sx={{
                   display: "flex",
-                  justifyContent: { xs: "stretch", sm: "flex-end" },
+                  justifyContent: { xs: "stretch", sm: "space-between" },
                   flexDirection: { xs: "column", sm: "row" },
                   gap: 1.25,
                 }}
               >
                 <Button
-                  type="submit" variant="contained" disabled={isSubmitting}
-                  sx={{ textTransform: "none", bgcolor: "#4361EE", "&:hover": { bgcolor: "#3451D1" }, width: { xs: "100%", sm: "auto" } }}
-                  startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : undefined}
+                  variant="text" color="inherit"
+                  onClick={() => navigate("/dashboard/produtos")}
+                  sx={{ textTransform: "none", color: "text.secondary", width: { xs: "100%", sm: "auto" } }}
                 >
-                  {isSubmitting ? "Salvando..." : "Cadastrar"}
+                  Ver produtos cadastrados
                 </Button>
+                <Box sx={{ display: "flex", gap: 1.25, flexDirection: { xs: "column", sm: "row" } }}>
+                  <Button type="reset" variant="outlined" color="inherit" disabled={isSubmitting}
+                    sx={{ textTransform: "none", borderColor: "divider", color: "text.secondary", width: { xs: "100%", sm: "auto" } }}
+                  >
+                    Limpar
+                  </Button>
+                  <Button
+                    type="submit" variant="contained" disabled={isSubmitting}
+                    sx={{ textTransform: "none", bgcolor: "#4361EE", "&:hover": { bgcolor: "#3451D1" }, width: { xs: "100%", sm: "auto" } }}
+                    startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : undefined}
+                  >
+                    {isSubmitting ? "Salvando..." : "Cadastrar"}
+                  </Button>
+                </Box>
               </Box>
             </Form>
           )}

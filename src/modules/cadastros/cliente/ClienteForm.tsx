@@ -248,6 +248,7 @@ const ClienteForm: React.FC = () => {
 
               <Divider sx={{ my: 3 }} />
 
+              {/* ── Endereço ──────────────────────────────────────── */}
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
                 Endereço
               </Typography>
