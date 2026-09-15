@@ -35,7 +35,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "../../helpers/masks";
 
@@ -78,6 +78,7 @@ const ListaClientes: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [clientes, setClientes] = useState<ClientItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,7 +94,7 @@ const ListaClientes: React.FC = () => {
   }>({ open: false, message: "", severity: "success" });
 
   // Filtros
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => (location.state as { search?: string } | null)?.search ?? "");
   const [phoneSearch, setPhoneSearch] = useState("");
   const [cityFilter, setCityFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");

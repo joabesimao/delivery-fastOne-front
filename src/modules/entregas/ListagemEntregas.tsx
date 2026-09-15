@@ -111,7 +111,9 @@ const ListagemEntregas: React.FC = () => {
   const [deliverymanFilter, setDeliverymanFilter] = useState<string>("all");
   const [cityFilter, setCityFilter] = useState<string>("all");
   const [neighborhoodFilter, setNeighborhoodFilter] = useState<string>("all");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(
+    () => (location.state as { search?: string } | null)?.search ?? ""
+  );
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
