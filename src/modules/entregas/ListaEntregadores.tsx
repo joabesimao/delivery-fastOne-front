@@ -31,7 +31,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { isValidPhone, phoneMask, stripPhone } from "../../helpers/masks";
 
@@ -54,6 +54,7 @@ const ListaEntregadores: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [entregadores, setEntregadores] = useState<DeliverymanItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,7 +71,7 @@ const ListaEntregadores: React.FC = () => {
   }>({ open: false, message: "", severity: "success" });
 
   // Filtros
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => (location.state as { search?: string } | null)?.search ?? "");
   const [phoneSearch, setPhoneSearch] = useState("");
 
   // Paginação

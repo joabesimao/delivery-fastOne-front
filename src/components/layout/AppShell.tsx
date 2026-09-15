@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { alpha } from "@mui/material/styles";
 import {
@@ -7,6 +7,8 @@ import {
   Badge,
   Box,
   ButtonBase,
+  CircularProgress,
+  ClickAwayListener,
   Divider,
   Drawer,
   IconButton,
@@ -17,6 +19,8 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  Paper,
+  Popper,
   Stack,
   TextField,
   Toolbar,
@@ -46,6 +50,7 @@ import TwoWheelerOutlinedIcon from "@mui/icons-material/TwoWheelerOutlined";
 import useThemeMode from "../../hooks/useThemeMode";
 import { closeRealtimeSocket } from "../../services/realtime";
 import FloatingChatWidget from "../chat/FloatingChatWidget";
+import api from "../../services/api";
 
 type NavItem = {
   label: string;
@@ -68,6 +73,34 @@ const navItems: NavItem[] = [
   { label: "Filiais", path: "/filiais", icon: <StoreOutlinedIcon fontSize="small" /> },
   { label: "Configurações", path: "/configuracoes/visuais", icon: <SettingsOutlinedIcon fontSize="small" /> },
 ];
+
+interface SearchOrderResult {
+  id: number;
+  status: string;
+  amount: number;
+  clientName: string;
+  deliverymanName: string | null;
+}
+
+interface SearchClientResult {
+  id: number;
+  name: string;
+  cpf: string;
+  phone: string;
+}
+
+interface SearchDeliverymanResult {
+  id: number;
+  name: string;
+  lastName: string;
+  phone: string;
+}
+
+interface SearchResults {
+  orders: SearchOrderResult[];
+  clients: SearchClientResult[];
+  deliverymen: SearchDeliverymanResult[];
+}
 
 const ADMIN_TECH_EMAIL = "admin@fastone.local";
 
@@ -96,6 +129,12 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileAnchorEl, setProfileAnchorEl] = useState<HTMLElement | null>(null);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResults | null>(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchAnchorEl, setSearchAnchorEl] = useState<HTMLDivElement | null>(null);
+
   const currentEmailRaw = typeof window !== "undefined" ? localStorage.getItem("currentUserEmail") ?? "" : "";
   const currentUserName = normalizeUserLabel(currentEmailRaw) || "Operador Admin";
   const currentEmail = currentEmailRaw || "carlos@delivery.com";
@@ -104,6 +143,54 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
     navigate(path, state ? { state } : undefined);
     setMobileOpen(false);
   };
+
+  useEffect(() => {
+    const term = searchTerm.trim();
+    if (term.length < 2) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setSearchLoading(true);
+      api
+        .get<SearchResults>("/search", { params: { q: term } })
+        .then((res) => setSearchResults(res.data))
+        .catch(() => setSearchResults(null))
+        .finally(() => setSearchLoading(false));
+    }, 300);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [searchTerm]);
+
+  const closeSearch = () => setSearchOpen(false);
+
+  const handleSelectOrder = (order: SearchOrderResult) => {
+    setSearchTerm("");
+    setSearchResults(null);
+    closeSearch();
+    navigate("/listagem-entregas", { state: { search: String(order.id) } });
+  };
+
+  const handleSelectClient = (client: SearchClientResult) => {
+    setSearchTerm("");
+    setSearchResults(null);
+    closeSearch();
+    navigate("/dashboard/clientes", { state: { search: client.name } });
+  };
+
+  const handleSelectDeliveryman = (deliveryman: SearchDeliverymanResult) => {
+    setSearchTerm("");
+    setSearchResults(null);
+    closeSearch();
+    navigate("/listagem-entregadores", { state: { search: deliveryman.name } });
+  };
+
+  const hasSearchResults = Boolean(
+    searchResults &&
+      (searchResults.orders.length > 0 ||
+        searchResults.clients.length > 0 ||
+        searchResults.deliverymen.length > 0)
+  );
 
   const handleLogout = () => {
     closeRealtimeSocket();
@@ -250,20 +337,102 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
             <MenuRoundedIcon />
           </IconButton>
 
-          <TextField
-            size="small"
-            placeholder="Buscar pedido, cliente, entregador..."
-            sx={{ flex: 1, minWidth: 0, display: { xs: "none", sm: "block" } }}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchRoundedIcon fontSize="small" sx={{ color: "text.secondary" }} />
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
+          <ClickAwayListener onClickAway={closeSearch}>
+            <Box ref={setSearchAnchorEl} sx={{ flex: 1, minWidth: 0, display: { xs: "none", sm: "block" } }}>
+              <TextField
+                size="small"
+                fullWidth
+                placeholder="Buscar pedido, cliente, entregador..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setSearchOpen(true);
+                }}
+                onFocus={() => {
+                  if (searchTerm.trim().length >= 2) setSearchOpen(true);
+                }}
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchRoundedIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+
+              <Popper
+                open={searchOpen && searchTerm.trim().length >= 2}
+                anchorEl={searchAnchorEl}
+                placement="bottom-start"
+                sx={{ zIndex: (t) => t.zIndex.drawer + 2, width: searchAnchorEl?.clientWidth }}
+              >
+                <Paper elevation={6} sx={{ mt: 0.5, borderRadius: 2, overflow: "hidden", maxHeight: 420, overflowY: "auto" }}>
+                  {searchLoading ? (
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", py: 3 }}>
+                      <CircularProgress size={20} />
+                    </Box>
+                  ) : !hasSearchResults ? (
+                    <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+                      Nenhum resultado encontrado.
+                    </Typography>
+                  ) : (
+                    <List disablePadding dense>
+                      {searchResults!.orders.length > 0 && (
+                        <>
+                          <Typography variant="caption" sx={{ px: 2, pt: 1.5, display: "block", fontWeight: 700, color: "text.secondary" }}>
+                            Pedidos
+                          </Typography>
+                          {searchResults!.orders.map((order) => (
+                            <ListItemButton key={`order-${order.id}`} onClick={() => handleSelectOrder(order)}>
+                              <ListItemIcon sx={{ minWidth: 34 }}>
+                                <ListAltOutlinedIcon fontSize="small" />
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={`Pedido #${order.id} — ${order.clientName}`}
+                                secondary={order.deliverymanName ?? "Sem entregador"}
+                              />
+                            </ListItemButton>
+                          ))}
+                        </>
+                      )}
+                      {searchResults!.clients.length > 0 && (
+                        <>
+                          <Typography variant="caption" sx={{ px: 2, pt: 1.5, display: "block", fontWeight: 700, color: "text.secondary" }}>
+                            Clientes
+                          </Typography>
+                          {searchResults!.clients.map((client) => (
+                            <ListItemButton key={`client-${client.id}`} onClick={() => handleSelectClient(client)}>
+                              <ListItemIcon sx={{ minWidth: 34 }}>
+                                <GroupOutlinedIcon fontSize="small" />
+                              </ListItemIcon>
+                              <ListItemText primary={client.name} secondary={client.phone} />
+                            </ListItemButton>
+                          ))}
+                        </>
+                      )}
+                      {searchResults!.deliverymen.length > 0 && (
+                        <>
+                          <Typography variant="caption" sx={{ px: 2, pt: 1.5, display: "block", fontWeight: 700, color: "text.secondary" }}>
+                            Entregadores
+                          </Typography>
+                          {searchResults!.deliverymen.map((deliveryman) => (
+                            <ListItemButton key={`deliveryman-${deliveryman.id}`} onClick={() => handleSelectDeliveryman(deliveryman)}>
+                              <ListItemIcon sx={{ minWidth: 34 }}>
+                                <TwoWheelerOutlinedIcon fontSize="small" />
+                              </ListItemIcon>
+                              <ListItemText primary={`${deliveryman.name} ${deliveryman.lastName}`} secondary={deliveryman.phone} />
+                            </ListItemButton>
+                          ))}
+                        </>
+                      )}
+                    </List>
+                  )}
+                </Paper>
+              </Popper>
+            </Box>
+          </ClickAwayListener>
 
           <Box sx={{ flexGrow: { xs: 1, sm: 0 } }} />
 
