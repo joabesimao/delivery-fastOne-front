@@ -6,7 +6,6 @@ import {
   Avatar,
   Badge,
   Box,
-  Button,
   ButtonBase,
   Divider,
   Drawer,
@@ -26,7 +25,6 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import ChatOutlinedIcon from "@mui/icons-material/ChatOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
@@ -143,16 +141,6 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
             </Typography>
           </Box>
         </Stack>
-
-        <Button
-          fullWidth
-          variant="contained"
-          startIcon={<AddRoundedIcon />}
-          onClick={() => handleNavigate("/listagem-entregas", { openCreate: true })}
-          sx={{ borderRadius: 2.5, py: 1.1 }}
-        >
-          Novo Pedido
-        </Button>
       </Stack>
 
       <Box sx={{ px: 1.5, overflowY: "auto", flex: 1 }}>
