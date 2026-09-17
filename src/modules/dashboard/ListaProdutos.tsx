@@ -350,7 +350,7 @@ const ListaProdutos: React.FC = () => {
         <Box>
           <Stack direction="row" spacing={1.25} alignItems="center">
             <Typography variant="h4" sx={{ fontWeight: 800 }}>
-              Produtos e Cardápio
+              Produtos
             </Typography>
             <Chip
               label={loading ? "..." : `${total} Itens Ativos`}
