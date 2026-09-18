@@ -52,21 +52,10 @@ import TableRowsRoundedIcon from "@mui/icons-material/TableRowsRounded";
 import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 import api from "../../services/api";
 import { currencyInputMask, formatCurrencyFromNumber, parseCurrencyToNumber } from "../../helpers/masks";
+import ProdutoForm from "../cadastros/produto/ProdutoForm";
+import { toProductImageSrc, type Product } from "../../types/Product";
 
-interface ProductItem {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  category: string;
-}
-
-interface EditProductForm {
-  name: string;
-  price: string;
-  description: string;
-  category: string;
-}
+type ProductItem = Product;
 
 type ViewMode = "cards" | "tabela";
 type StockFilter = "all" | "in" | "low";
@@ -127,7 +116,6 @@ const ListaProdutos: React.FC = () => {
   const [catalogSample, setCatalogSample] = useState<ProductItem[]>([]);
 
   const [editProduct, setEditProduct] = useState<ProductItem | null>(null);
-  const [editValues, setEditValues] = useState<EditProductForm | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ProductItem | null>(null);
 
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
@@ -250,12 +238,15 @@ const ListaProdutos: React.FC = () => {
   };
 
   const handleExportCsv = () => {
-    const header = ["ID", "Nome", "Categoria", "Preço", "Descrição"];
+    const header = ["ID", "Nome", "Categoria", "Marca", "Código de barras", "Preço", "Status", "Descrição"];
     const rows = visibleProdutos.map((p) => [
       p.id,
       `"${p.name.replace(/"/g, '""')}"`,
       `"${p.category.replace(/"/g, '""')}"`,
+      `"${(p.brand ?? "").replace(/"/g, '""')}"`,
+      `"${(p.barcode ?? "").replace(/"/g, '""')}"`,
       formatCurrencyFromNumber(Number(p.price)),
+      p.status ? "Ativo" : "Inativo",
       `"${p.description.replace(/"/g, '""')}"`,
     ]);
     const csv = [header, ...rows].map((row) => row.join(";")).join("\n");
@@ -270,53 +261,16 @@ const ListaProdutos: React.FC = () => {
 
   const openEditDialog = (produto: ProductItem) => {
     setEditProduct(produto);
-    setEditValues({
-      name: produto.name,
-      price: formatCurrencyFromNumber(produto.price),
-      description: produto.description,
-      category: produto.category,
-    });
   };
 
   const closeEditDialog = () => {
     setEditProduct(null);
-    setEditValues(null);
   };
 
-  const handleSaveEdit = async () => {
-    if (!editProduct || !editValues) return;
-
-    if (!editValues.name.trim() || !editValues.description.trim() || !editValues.category.trim()) {
-      showSnackbar("Nome, descrição e categoria são obrigatórios.", "error");
-      return;
-    }
-
-    const price = parseCurrencyToNumber(editValues.price);
-    if (Number.isNaN(price) || price <= 0) {
-      showSnackbar("Informe um preço válido.", "error");
-      return;
-    }
-
-    try {
-      setActionLoadingId(editProduct.id);
-      await api.put(`/product/${editProduct.id}`, {
-        name: editValues.name.trim(),
-        price,
-        description: editValues.description.trim(),
-        category: editValues.category.trim(),
-      });
-      closeEditDialog();
-      await loadProdutos();
-      void loadAggregateSample();
-      showSnackbar("Produto atualizado com sucesso.", "success");
-    } catch (error: unknown) {
-      const errorMessage =
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        "Erro ao atualizar produto. Tente novamente.";
-      showSnackbar(errorMessage, "error");
-    } finally {
-      setActionLoadingId(null);
-    }
+  const handleProductSaved = () => {
+    closeEditDialog();
+    void loadProdutos();
+    void loadAggregateSample();
   };
 
   const handleDelete = async () => {
@@ -614,6 +568,7 @@ const ListaProdutos: React.FC = () => {
                 const style = getCategoryStyle(produto.category);
                 const Icon = style.icon;
                 const isBusy = actionLoadingId === produto.id;
+                const imageSrc = toProductImageSrc(produto.imageBase64, produto.imageMimeType);
 
                 return (
                   <Grid key={produto.id} size={{ xs: 12, sm: 6, lg: 4 }}>
@@ -624,12 +579,23 @@ const ListaProdutos: React.FC = () => {
                           position: "relative",
                           display: "grid",
                           placeItems: "center",
-                          background: `linear-gradient(135deg, ${alpha(style.color, 0.22)}, ${alpha(style.color, 0.06)})`,
+                          background: imageSrc
+                            ? undefined
+                            : `linear-gradient(135deg, ${alpha(style.color, 0.22)}, ${alpha(style.color, 0.06)})`,
                         }}
                       >
-                        <Avatar sx={{ width: 44, height: 44, bgcolor: alpha(style.color, 0.18), color: style.color }}>
-                          <Icon />
-                        </Avatar>
+                        {imageSrc ? (
+                          <Box
+                            component="img"
+                            src={imageSrc}
+                            alt={produto.name}
+                            sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          />
+                        ) : (
+                          <Avatar sx={{ width: 44, height: 44, bgcolor: alpha(style.color, 0.18), color: style.color }}>
+                            <Icon />
+                          </Avatar>
+                        )}
 
                         <Chip
                           icon={<Icon sx={{ fontSize: "14px !important" }} />}
@@ -674,10 +640,23 @@ const ListaProdutos: React.FC = () => {
                           </Typography>
                         </Box>
 
-                        <Stack direction="row" justifyContent="space-between" alignItems="center">
+                        <Stack direction="row" spacing={0.75} alignItems="center">
                           <Typography variant="h6" sx={{ fontWeight: 800 }}>
                             {currencyFormatter.format(Number(produto.price))}
                           </Typography>
+                          <Chip
+                            label={produto.status ? "Ativo" : "Inativo"}
+                            size="small"
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: 11,
+                              bgcolor: produto.status ? alpha("#10B981", 0.14) : alpha("#94A3B8", 0.18),
+                              color: produto.status ? "#10B981" : "#64748B",
+                            }}
+                          />
+                        </Stack>
+
+                        <Stack direction="row" justifyContent="flex-end">
                           <Stack direction="row" spacing={0.5}>
                             <Tooltip title="Editar">
                               <IconButton size="small" onClick={() => openEditDialog(produto)} disabled={isBusy}>
@@ -706,6 +685,7 @@ const ListaProdutos: React.FC = () => {
                     <TableCell sx={{ fontWeight: 800 }}>Categoria</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Preço</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Disponibilidade</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
                     <TableCell sx={{ fontWeight: 800 }} align="right">
                       Ações
                     </TableCell>
@@ -735,6 +715,17 @@ const ListaProdutos: React.FC = () => {
                             sx={{
                               bgcolor: stock.status === "low" ? alpha("#F59E0B", 0.14) : alpha("#10B981", 0.14),
                               color: stock.status === "low" ? "#F59E0B" : "#10B981",
+                              fontWeight: 700,
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={produto.status ? "Ativo" : "Inativo"}
+                            size="small"
+                            sx={{
+                              bgcolor: produto.status ? alpha("#10B981", 0.14) : alpha("#94A3B8", 0.18),
+                              color: produto.status ? "#10B981" : "#64748B",
                               fontWeight: 700,
                             }}
                           />
@@ -778,59 +769,18 @@ const ListaProdutos: React.FC = () => {
         </Stack>
       </Card>
 
-      <Dialog open={Boolean(editProduct && editValues)} onClose={closeEditDialog} fullWidth maxWidth="sm">
+      <Dialog open={Boolean(editProduct)} onClose={closeEditDialog} fullWidth maxWidth="md">
         <DialogTitle>Editar produto</DialogTitle>
         <DialogContent dividers>
-          {editValues && (
-            <Stack spacing={2} sx={{ pt: 0.5 }}>
-              <TextField
-                label="Nome"
-                size="small"
-                value={editValues.name}
-                onChange={(e) => setEditValues((prev) => (prev ? { ...prev, name: e.target.value } : prev))}
-              />
-              <TextField
-                label="Preço"
-                size="small"
-                value={editValues.price}
-                onChange={(e) => setEditValues((prev) => (prev ? { ...prev, price: currencyInputMask(e.target.value) } : prev))}
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Typography variant="body2" color="text.secondary">R$</Typography>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-              <TextField
-                label="Categoria"
-                size="small"
-                value={editValues.category}
-                onChange={(e) => setEditValues((prev) => (prev ? { ...prev, category: e.target.value } : prev))}
-              />
-              <TextField
-                label="Descrição"
-                size="small"
-                multiline
-                minRows={2}
-                value={editValues.description}
-                onChange={(e) => setEditValues((prev) => (prev ? { ...prev, description: e.target.value } : prev))}
-              />
-            </Stack>
-          )}
+          {editProduct ? (
+            <ProdutoForm
+              embedded
+              product={editProduct}
+              onCancel={closeEditDialog}
+              onSuccess={handleProductSaved}
+            />
+          ) : null}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={closeEditDialog}>Cancelar</Button>
-          <Button
-            variant="contained"
-            onClick={() => void handleSaveEdit()}
-            disabled={Boolean(editProduct && actionLoadingId === editProduct.id)}
-          >
-            Salvar
-          </Button>
-        </DialogActions>
       </Dialog>
 
       <Dialog open={Boolean(deleteTarget)} onClose={() => setDeleteTarget(null)}>
