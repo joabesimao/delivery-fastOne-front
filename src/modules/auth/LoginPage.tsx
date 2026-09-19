@@ -9,6 +9,7 @@ import {
   Paper,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
@@ -17,6 +18,8 @@ import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import { useNavigate } from "react-router-dom";
 import useThemeMode from "../../hooks/useThemeMode";
 import api from "../../services/api";
@@ -44,6 +47,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState(DEFAULT_PASSWORD);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const saveTokensAndEnter = (
     accessToken: string,
@@ -229,7 +233,7 @@ const LoginPage = () => {
 
                   <TextField
                     label="Senha"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     autoComplete="current-password"
@@ -238,6 +242,24 @@ const LoginPage = () => {
                         startAdornment: (
                           <InputAdornment position="start">
                             <LockOutlinedIcon fontSize="small" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <Tooltip title={showPassword ? "Ocultar senha" : "Mostrar senha"}>
+                              <IconButton
+                                onClick={() => setShowPassword((prev) => !prev)}
+                                edge="end"
+                                size="small"
+                                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                              >
+                                {showPassword ? (
+                                  <VisibilityOffOutlinedIcon fontSize="small" />
+                                ) : (
+                                  <VisibilityOutlinedIcon fontSize="small" />
+                                )}
+                              </IconButton>
+                            </Tooltip>
                           </InputAdornment>
                         ),
                       },
