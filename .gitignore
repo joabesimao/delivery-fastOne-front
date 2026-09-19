@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .env
+
+# Notas e docs pessoais, não versionadas
+/docs-local/
