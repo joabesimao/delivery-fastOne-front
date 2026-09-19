@@ -24,6 +24,7 @@ import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useNavigate } from "react-router-dom";
 import useThemeMode from "../../hooks/useThemeMode";
+import api from "../../services/api";
 
 const DEFAULT_LOGIN = import.meta.env.VITE_DEFAULT_LOGIN ?? "admin";
 const DEFAULT_PASSWORD = import.meta.env.VITE_DEFAULT_PASSWORD ?? "12345678";
@@ -78,38 +79,33 @@ const LoginPage = () => {
       return;
     }
 
+    // O backend exige um e-mail valido; o atalho "admin" mapeia para a
+    // conta tecnica do administrador.
+    const normalizedEmail =
+      normalizedLogin.toLowerCase() === "admin" ? ADMIN_TECH_EMAIL : normalizedLogin;
+
     setLoading(true);
 
     try {
-      // TEMPORÁRIO: remoção da dependência de autenticação real para manter o
-      // sistema operacional enquanto a implementação correta do login não é
-      // concluída. TODO: substituir pelo fluxo real do backend quando pronto.
-      const temporaryAccessToken = `temporary-access-token-${Date.now()}`;
-      saveTokensAndEnter(
-        temporaryAccessToken,
-        normalizedLogin,
-        `temporary-refresh-token-${Date.now()}`,
+      const response = await api.post<{ accessToken?: string; refreshToken?: string }>(
+        "/login",
+        {
+          email: normalizedEmail,
+          password,
+        },
       );
 
-      // TODO: reativar a autenticação real quando a API estiver correta.
-      // const response = await api.post<{ accessToken?: string; refreshToken?: string }>(
-      //   "/login",
-      //   {
-      //     email: normalizedEmail,
-      //     password,
-      //   },
-      // );
-      // if (response.data?.accessToken) {
-      //   saveTokensAndEnter(
-      //     response.data.accessToken,
-      //     normalizedLogin,
-      //     response.data.refreshToken,
-      //   );
-      //   return;
-      // }
-      // setError("Nao foi possivel autenticar com as credenciais informadas.");
+      if (response.data?.accessToken) {
+        saveTokensAndEnter(
+          response.data.accessToken,
+          normalizedLogin,
+          response.data.refreshToken,
+        );
+        return;
+      }
+
+      setError("Nao foi possivel autenticar com as credenciais informadas.");
     } catch (err: unknown) {
-      // TODO: remover esse bloco quando a autenticação real voltar.
       const msg =
         (err as { response?: { data?: { error?: string; message?: string } } })
           ?.response?.data?.error ??
