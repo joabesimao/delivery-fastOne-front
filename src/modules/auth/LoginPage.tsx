@@ -3,9 +3,6 @@ import type { FormEvent } from "react";
 import {
   Alert,
   Box,
-  Button,
-  Chip,
-  Divider,
   Grid,
   IconButton,
   InputAdornment,
@@ -16,8 +13,6 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
-import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
-import QueryStatsOutlinedIcon from "@mui/icons-material/QueryStatsOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
@@ -156,7 +151,7 @@ const LoginPage = () => {
               color: "primary.contrastText",
               display: "flex",
               flexDirection: "column",
-              justifyContent: "space-between",
+              justifyContent: "center",
               minHeight: { md: 680 },
               position: "relative",
               overflow: "hidden",
@@ -194,38 +189,7 @@ const LoginPage = () => {
                   </Typography>
                 </Box>
               </Stack>
-
-              <Box>
-                <Typography variant="h3" sx={{ mb: 2, maxWidth: 420 }}>
-                  Gestão de entregas com visual SaaS profissional.
-                </Typography>
-                <Typography variant="body1" sx={{ opacity: 0.88, maxWidth: 430 }}>
-                  Acesse relatórios, cadastros e fluxos operacionais em uma interface limpa,
-                  rápida e preparada para light e dark mode.
-                </Typography>
-              </Box>
-
-              <Stack direction="row" spacing={1.25} useFlexGap flexWrap="wrap">
-                <Chip label="Responsivo" color="default" sx={{ bgcolor: "rgba(255,255,255,0.16)", color: "inherit" }} />
-                <Chip label="MUI v7" color="default" sx={{ bgcolor: "rgba(255,255,255,0.16)", color: "inherit" }} />
-                <Chip label="Dark mode" color="default" sx={{ bgcolor: "rgba(255,255,255,0.16)", color: "inherit" }} />
-              </Stack>
-
-              <Stack spacing={2} sx={{ position: "relative", zIndex: 1 }}>
-                <Stack direction="row" spacing={1.5} alignItems="center">
-                  <ShieldOutlinedIcon fontSize="small" />
-                  <Typography variant="body2">Controle de acesso e sessão</Typography>
-                </Stack>
-                <Stack direction="row" spacing={1.5} alignItems="center">
-                  <QueryStatsOutlinedIcon fontSize="small" />
-                  <Typography variant="body2">Indicadores e relatórios centralizados</Typography>
-                </Stack>
-              </Stack>
             </Stack>
-
-            <Typography variant="caption" sx={{ mt: 4, position: "relative", zIndex: 1, opacity: 0.8 }}>
-              Ambiente de demonstração com credenciais padrão para acesso inicial.
-            </Typography>
           </Grid>
 
           <Grid size={{ xs: 12, md: 7 }} sx={{ p: { xs: 3, sm: 4, md: 5 } }}>
@@ -292,23 +256,6 @@ const LoginPage = () => {
                   </LoadingButton>
                 </Stack>
               </Box>
-
-              <Divider />
-
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} justifyContent="space-between">
-                <Box>
-                  <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                    Credenciais padrão
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {DEFAULT_LOGIN} / {DEFAULT_PASSWORD}
-                  </Typography>
-                </Box>
-
-                <Button variant="text" onClick={() => setPassword(DEFAULT_PASSWORD)}>
-                  Preencher senha padrão
-                </Button>
-              </Stack>
             </Stack>
           </Grid>
         </Grid>
