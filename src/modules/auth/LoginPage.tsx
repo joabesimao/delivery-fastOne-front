@@ -53,17 +53,20 @@ const LoginPage = () => {
     accessToken: string,
     userEmail: string,
     refreshToken?: string,
+    role?: string,
   ) => {
     const userLabel = normalizeUserLabel(userEmail);
 
-    // O login demo grava o token e o usuário no localStorage para que o
-    // restante da aplicação reconheça a sessão autenticada.
+    // O login grava o token, o usuário e o papel no localStorage para que o
+    // restante da aplicação reconheça a sessão autenticada e aplique o gate
+    // de permissões (menu e rotas restritas por role).
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("currentUserEmail", userLabel || userEmail);
     localStorage.setItem(
       "refreshToken",
       refreshToken || `static-refresh-${Date.now()}`,
     );
+    localStorage.setItem("currentUserRole", role || "user");
     navigate("/dashboard/relatorios", { replace: true });
   };
 
@@ -86,7 +89,12 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const response = await api.post<{ accessToken?: string; refreshToken?: string }>(
+      const response = await api.post<{
+        accessToken?: string;
+        refreshToken?: string;
+        name?: string;
+        role?: string;
+      }>(
         "/login",
         {
           email: normalizedEmail,
@@ -99,6 +107,7 @@ const LoginPage = () => {
           response.data.accessToken,
           normalizedLogin,
           response.data.refreshToken,
+          response.data.role,
         );
         return;
       }

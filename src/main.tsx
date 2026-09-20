@@ -23,30 +23,15 @@ import ConfiguracoesVisuais from "./modules/configuracoes/visuais/ConfiguracoesV
 import App from "./App.tsx";
 import LoginPage from "./modules/auth/LoginPage.tsx";
 import ChatRealtime from "./modules/chat/ChatRealtime.tsx";
+import ListaUsuarios from "./modules/dashboard/ListaUsuarios.tsx";
 
-// Fluxo de autenticação temporário para manter o sistema funcionando em demo.
-// O token é persistido em localStorage para que as rotas protegidas e as
-// requisições do cliente saibam que o usuário já entrou no sistema.
-const TEMP_BYPASS_AUTH = true;
-const TEMP_FAKE_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImFkbWluQGZhc3RvbmUubG9jYWwiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MjU3NzAwMDAsImV4cCI6OTk5OTk5OTk5OX0.test";
 const HOME_ROUTE = "/dashboard";
 const LOGIN_ROUTE = "/login";
-
-const ensureDemoSession = () => {
-  if (typeof window === "undefined") return;
-
-  if (TEMP_BYPASS_AUTH && !localStorage.getItem("accessToken")) {
-    localStorage.setItem("accessToken", TEMP_FAKE_TOKEN);
-    localStorage.setItem("currentUserEmail", "admin@fastone.local");
-  }
-};
 
 const hasAccessToken = () => {
   if (typeof window === "undefined") return false;
   return Boolean(localStorage.getItem("accessToken"));
 };
-
-ensureDemoSession();
 
 const PublicEntry = () => {
   if (hasAccessToken()) {
@@ -56,9 +41,24 @@ const PublicEntry = () => {
   return <LoginPage />;
 };
 
-const RequireAuth = ({ children }: { children: React.ReactNode }) => {
+const RequireAuth = ({
+  children,
+  roles,
+}: {
+  children: React.ReactNode;
+  roles?: string[];
+}) => {
   if (!hasAccessToken()) {
     return <Navigate to={LOGIN_ROUTE} replace />;
+  }
+
+  if (roles && roles.length > 0) {
+    const currentRole =
+      typeof window !== "undefined" ? localStorage.getItem("currentUserRole") : null;
+
+    if (!currentRole || !roles.includes(currentRole)) {
+      return <Navigate to={HOME_ROUTE} replace />;
+    }
   }
 
   return <App>{children}</App>;
@@ -88,6 +88,14 @@ const router = createBrowserRouter([
   {
     path: "/dashboard/produtos",
     element: <RequireAuth><ListaProdutos /></RequireAuth>,
+  },
+  {
+    path: "/dashboard/usuarios",
+    element: (
+      <RequireAuth roles={["admin"]}>
+        <ListaUsuarios />
+      </RequireAuth>
+    ),
   },
   {
     path: "/realizar-entrega",
