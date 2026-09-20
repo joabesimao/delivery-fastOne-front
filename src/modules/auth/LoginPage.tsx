@@ -54,6 +54,7 @@ const LoginPage = () => {
     userEmail: string,
     refreshToken?: string,
     role?: string,
+    name?: string,
   ) => {
     const userLabel = normalizeUserLabel(userEmail);
 
@@ -62,6 +63,7 @@ const LoginPage = () => {
     // de permissões (menu e rotas restritas por role).
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("currentUserEmail", userLabel || userEmail);
+    localStorage.setItem("currentUserName", name || userLabel || userEmail);
     localStorage.setItem(
       "refreshToken",
       refreshToken || `static-refresh-${Date.now()}`,
@@ -108,6 +110,7 @@ const LoginPage = () => {
           normalizedLogin,
           response.data.refreshToken,
           response.data.role,
+          response.data.name,
         );
         return;
       }

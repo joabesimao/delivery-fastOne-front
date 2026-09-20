@@ -148,7 +148,8 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
   const [searchAnchorEl, setSearchAnchorEl] = useState<HTMLDivElement | null>(null);
 
   const currentEmailRaw = typeof window !== "undefined" ? localStorage.getItem("currentUserEmail") ?? "" : "";
-  const currentUserName = normalizeUserLabel(currentEmailRaw) || "Operador Admin";
+  const currentUserNameRaw = typeof window !== "undefined" ? localStorage.getItem("currentUserName") ?? "" : "";
+  const currentUserName = currentUserNameRaw || normalizeUserLabel(currentEmailRaw) || "Operador Admin";
   const currentEmail = currentEmailRaw || "carlos@delivery.com";
   const currentUserRole = typeof window !== "undefined" ? localStorage.getItem("currentUserRole") : null;
   const navItems = useMemo(() => buildNavItems(currentUserRole), [currentUserRole]);
@@ -211,6 +212,7 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("currentUserEmail");
+    localStorage.removeItem("currentUserName");
     localStorage.removeItem("currentUserRole");
     setProfileAnchorEl(null);
     navigate("/login", { replace: true });
@@ -437,7 +439,16 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
             </Tooltip>
             <Tooltip title={currentUserName}>
               <IconButton onClick={(event) => setProfileAnchorEl(event.currentTarget)} sx={{ ml: 0.25 }}>
-                <Avatar sx={{ width: 32, height: 32, bgcolor: "secondary.main", fontSize: 12.5, fontWeight: 700 }}>
+                <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    bgcolor: "secondary.main",
+                    color: "secondary.contrastText",
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                  }}
+                >
                   {getAvatarLabel(currentUserName)}
                 </Avatar>
               </IconButton>

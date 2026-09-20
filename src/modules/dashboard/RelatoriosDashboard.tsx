@@ -9,6 +9,7 @@ import {
   Skeleton,
   Stack,
   Typography,
+  useTheme,
 } from "@mui/material";
 import {
   PieChart,
@@ -66,42 +67,36 @@ const COLORS = [
 
 const RADIAN = Math.PI / 180;
 
-const renderCustomLabel = ({
-  cx,
-  cy,
-  midAngle,
-  innerRadius,
-  outerRadius,
-  percent,
-}: PieLabelRenderProps) => {
-  if (
-    percent == null ||
-    percent === 0 ||
-    midAngle == null ||
-    cx == null ||
-    cy == null ||
-    innerRadius == null ||
-    outerRadius == null
-  ) {
-    return null;
-  }
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
-  return (
-    <text
-      x={x}
-      y={y}
-      fill="white"
-      textAnchor="middle"
-      dominantBaseline="central"
-      fontSize={13}
-      fontWeight={600}
-    >
-      {`${(percent * 100).toFixed(1)}%`}
-    </text>
-  );
-};
+const makeCustomLabel =
+  (fill: string) =>
+  ({ cx, cy, midAngle, outerRadius, percent }: PieLabelRenderProps) => {
+    if (
+      percent == null ||
+      percent === 0 ||
+      midAngle == null ||
+      cx == null ||
+      cy == null ||
+      outerRadius == null
+    ) {
+      return null;
+    }
+    const radius = Number(outerRadius) + 18;
+    const x = Number(cx) + radius * Math.cos(-midAngle * RADIAN);
+    const y = Number(cy) + radius * Math.sin(-midAngle * RADIAN);
+    return (
+      <text
+        x={x}
+        y={y}
+        fill={fill}
+        textAnchor={x > Number(cx) ? "start" : "end"}
+        dominantBaseline="central"
+        fontSize={13}
+        fontWeight={600}
+      >
+        {`${(percent * 100).toFixed(1)}%`}
+      </text>
+    );
+  };
 
 interface DonutChartProps {
   data: DataItem[];
@@ -109,6 +104,7 @@ interface DonutChartProps {
 }
 
 const DonutChart: React.FC<DonutChartProps> = ({ data, height = 300 }) => {
+  const theme = useTheme();
   const total = data.reduce((s, d) => s + d.value, 0);
 
   if (!data.length) {
@@ -132,7 +128,7 @@ const DonutChart: React.FC<DonutChartProps> = ({ data, height = 300 }) => {
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <PieChart>
+      <PieChart margin={{ top: 24, right: 32, bottom: 24, left: 32 }}>
         <Pie
           data={data}
           dataKey="value"
@@ -141,8 +137,8 @@ const DonutChart: React.FC<DonutChartProps> = ({ data, height = 300 }) => {
           cy="50%"
           innerRadius="55%"
           outerRadius="75%"
-          label={renderCustomLabel}
-          labelLine={false}
+          label={makeCustomLabel(theme.palette.text.primary)}
+          labelLine={{ stroke: theme.palette.divider }}
         >
           {data.map((_, index) => (
             <Cell key={index} fill={COLORS[index % COLORS.length]} />
