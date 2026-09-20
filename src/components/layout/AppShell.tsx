@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { alpha } from "@mui/material/styles";
 import {
@@ -29,6 +29,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import ChatOutlinedIcon from "@mui/icons-material/ChatOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
@@ -61,18 +62,30 @@ type NavItem = {
 
 const drawerWidth = 272;
 
-const navItems: NavItem[] = [
-  { label: "Dashboard", path: "/dashboard", icon: <DashboardOutlinedIcon fontSize="small" /> },
-  { label: "Pedidos de Entrega", path: "/listagem-entregas", icon: <ListAltOutlinedIcon fontSize="small" /> },
-  { label: "Finalizar Entregas", path: "/finalizar-entrega", icon: <CheckCircleOutlineIcon fontSize="small" /> },
-  { label: "Clientes", path: "/dashboard/clientes", icon: <GroupOutlinedIcon fontSize="small" /> },
-  { label: "Entregadores", path: "/listagem-entregadores", icon: <TwoWheelerOutlinedIcon fontSize="small" /> },
-  { label: "Produtos", path: "/dashboard/produtos", icon: <Inventory2OutlinedIcon fontSize="small" /> },
-  { label: "Localidades", path: "/cadastros/cidades", icon: <PlaceOutlinedIcon fontSize="small" /> },
-  { label: "Chat", path: "/chat", icon: <ChatOutlinedIcon fontSize="small" />, badge: 2 },
-  { label: "Filiais", path: "/filiais", icon: <StoreOutlinedIcon fontSize="small" /> },
-  { label: "Configurações", path: "/configuracoes/visuais", icon: <SettingsOutlinedIcon fontSize="small" /> },
-];
+const buildNavItems = (role: string | null): NavItem[] => {
+  const items: NavItem[] = [
+    { label: "Dashboard", path: "/dashboard", icon: <DashboardOutlinedIcon fontSize="small" /> },
+    { label: "Pedidos de Entrega", path: "/listagem-entregas", icon: <ListAltOutlinedIcon fontSize="small" /> },
+    { label: "Finalizar Entregas", path: "/finalizar-entrega", icon: <CheckCircleOutlineIcon fontSize="small" /> },
+    { label: "Clientes", path: "/dashboard/clientes", icon: <GroupOutlinedIcon fontSize="small" /> },
+    { label: "Entregadores", path: "/listagem-entregadores", icon: <TwoWheelerOutlinedIcon fontSize="small" /> },
+    { label: "Produtos", path: "/dashboard/produtos", icon: <Inventory2OutlinedIcon fontSize="small" /> },
+    { label: "Localidades", path: "/cadastros/cidades", icon: <PlaceOutlinedIcon fontSize="small" /> },
+    { label: "Chat", path: "/chat", icon: <ChatOutlinedIcon fontSize="small" />, badge: 2 },
+    { label: "Filiais", path: "/filiais", icon: <StoreOutlinedIcon fontSize="small" /> },
+    { label: "Configurações", path: "/configuracoes/visuais", icon: <SettingsOutlinedIcon fontSize="small" /> },
+  ];
+
+  if (role === "admin") {
+    items.push({
+      label: "Usuários",
+      path: "/dashboard/usuarios",
+      icon: <AdminPanelSettingsOutlinedIcon fontSize="small" />,
+    });
+  }
+
+  return items;
+};
 
 interface SearchOrderResult {
   id: number;
@@ -138,6 +151,8 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
   const currentEmailRaw = typeof window !== "undefined" ? localStorage.getItem("currentUserEmail") ?? "" : "";
   const currentUserName = normalizeUserLabel(currentEmailRaw) || "Operador Admin";
   const currentEmail = currentEmailRaw || "carlos@delivery.com";
+  const currentUserRole = typeof window !== "undefined" ? localStorage.getItem("currentUserRole") : null;
+  const navItems = useMemo(() => buildNavItems(currentUserRole), [currentUserRole]);
 
   const handleNavigate = (path: string, state?: unknown) => {
     navigate(path, state ? { state } : undefined);
@@ -197,6 +212,7 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("currentUserEmail");
+    localStorage.removeItem("currentUserRole");
     setProfileAnchorEl(null);
     navigate("/login", { replace: true });
   };

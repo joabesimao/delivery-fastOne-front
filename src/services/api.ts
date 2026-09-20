@@ -24,6 +24,7 @@ const clearSessionAndRedirect = () => {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
   localStorage.removeItem('currentUserEmail');
+  localStorage.removeItem('currentUserRole');
 
   if (window.location.pathname !== '/' && window.location.pathname !== '/login') {
     window.location.href = '/';
