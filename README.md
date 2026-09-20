@@ -6,9 +6,9 @@
 ![react](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white&style=flat-square)
 ![typescript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript&logoColor=white&style=flat-square)
 ![vite](https://img.shields.io/badge/Vite-8.x-646cff?logo=vite&logoColor=white&style=flat-square)
-![mui](https://img.shields.io/badge/Material--UI-6.x-007FFF?logo=mui&logoColor=white&style=flat-square)
+![mui](https://img.shields.io/badge/Material--UI-7.x-007FFF?logo=mui&logoColor=white&style=flat-square)
 
-Aplicação web moderna e responsiva para gerenciamento de entregas, com cadastro de clientes, criação de pedidos, impressão de folhas de entrega em PDF e dashboard com métricas em tempo real.
+Aplicação web moderna e responsiva para gerenciamento de entregas, com cadastro de clientes, criação de pedidos, impressão de folhas de entrega em PDF, gestão de usuários com controle de acesso por papel e dashboard com métricas em tempo real.
 
 [Features](#-features) • [Requisitos](#-requisitos) • [Instalação](#-instalação) • [Rotas](#-rotas) • [Estrutura](#-estrutura-do-projeto) • [Docker](#-docker)
 
@@ -22,12 +22,12 @@ Aplicação web moderna e responsiva para gerenciamento de entregas, com cadastr
 - ✅ **Cadastro de Clientes** - Formulário completo com endereço
 - ✅ **Criação de Pedidos** - Interface intuitiva com pré-preenchimento
 - ✅ **Geração de PDF** - Folha de entrega em múltiplos formatos (A4, 80mm, 58mm)
-- ✅ **Autenticação JWT** - Login seguro com tokens
+- ✅ **Autenticação JWT** - Login seguro com tokens e sessão baseada em papel (role)
+- ✅ **Gestão de Usuários (RBAC)** - Tela exclusiva para admins criar, editar, ativar/desativar e remover contas
 - ✅ **Chat em Tempo Real** - WebSocket para comunicação entre filiais
-- ✅ **Relatórios** - Análise de entregas e ranking de entregadores
-- ✅ **Modo Dark/Light** - Tema adaptável
+- ✅ **Relatórios** - Análise de entregas por bairro/cidade e ranking de entregadores
+- ✅ **Modo Dark/Light** - Tema adaptável, com menu de perfil no cabeçalho
 - ✅ **Responsivo** - Funciona em desktop, tablet e mobile
-- ✅ **Offline Ready** - Algumas funcionalidades funcionam offline
 - ✅ **Acessibilidade** - Conforme padrões WCAG
 
 ---
@@ -37,6 +37,7 @@ Aplicação web moderna e responsiva para gerenciamento de entregas, com cadastr
 - **Node.js** 20+
 - **npm** 10+
 - **Navegador moderno** (Chrome, Firefox, Safari, Edge)
+- API do [`nodejs-backend-delivery-manager`](../nodejs-backend-delivery-manager) rodando (local ou via Docker)
 
 ---
 
@@ -64,23 +65,23 @@ cp .env.example .env
 Edite o `.env` com suas configurações:
 
 ```env
-# API Configuration
+# API
 VITE_API_BASE_URL=http://localhost:3000/api
 
-# Database (referência, não usado pelo frontend)
+# Database (somente referência do ambiente, não usado diretamente pelo front)
 VITE_DB_NAME=CadClient
 VITE_DB_HOST=localhost
 VITE_DB_PORT=3306
 
-# Auth - Default credentials for demo
+# Auth
 VITE_DEFAULT_LOGIN=admin
 VITE_DEFAULT_PASSWORD=12345678
 
-# Company Information
+# Empresa
 VITE_DELIVERY_COMPANY_NAME=FastOne Delivery
 VITE_DELIVERY_COMPANY_DOCUMENT=00.000.000/0001-00
 
-# Print Settings (a4, thermal80, thermal58)
+# Configurações de impressão (a4, thermal80, thermal58)
 VITE_DELIVERY_SHEET_FORMAT=a4
 ```
 
@@ -107,25 +108,47 @@ npm run preview
 
 ### Dashboard
 - `/dashboard` - Visão geral com métricas
-- `/dashboard/relatorios` - Relatórios de entregas
+- `/dashboard/relatorios` - Relatórios de entregas (por bairro, cidade e situação geral)
 - `/dashboard/clientes` - Listagem de clientes
-- `/relatorios-entregas` - Análise geral de entregas
-- `/relatorios-entregas/entregadores` - Ranking de entregadores
+- `/dashboard/produtos` - Listagem de produtos
+- `/dashboard/usuarios` - Gestão de usuários **(exclusivo para o papel `admin`)**
 
 ### Entregas
 - `/realizar-entrega` - Criar novo pedido de entrega
 - `/finalizar-entrega` - Marcar entrega como completa
 - `/listagem-entregas` - Listar todas as entregas
+- `/listagem-entregadores` - Listar entregadores
 
 ### Cadastros
-- `/cadastros/cliente` - Cadastrar novo cliente
-- `/cadastros/entregador` - Cadastrar novo entregador
-- `/cadastros/cidades` - Gerenciar cidades
-- `/cadastros/bairros` - Gerenciar bairros
+- `/cadastros/cidades` - Gerenciar cidades e bairros
 
 ### Outros
 - `/configuracoes/visuais` - Personalizar tema e aparência
 - `/chat` - Chat em tempo real entre filiais
+- `/filiais` - Gestão de filiais
+
+> Rotas marcadas por papel usam o componente `RequireAuth` com a prop `roles`, que redireciona para `/dashboard` quem não tiver a permissão necessária.
+
+---
+
+## 👥 Gestão de Usuários e Papéis (RBAC)
+
+A conta autenticada carrega um `role` (papel), devolvido pelo backend no login e persistido em `localStorage` (`currentUserRole`):
+
+| Papel | Descrição |
+|---|---|
+| `admin` | Acesso total, incluindo a tela de Usuários |
+| `gerente_estoque` | Gestão operacional (pedidos, estoque) |
+| `entregador` | Perfil operacional de entrega |
+| `user` | Acesso padrão |
+
+Somente contas `admin` veem o item **Usuários** no menu lateral e conseguem acessar `/dashboard/usuarios`, onde é possível:
+
+- Listar usuários com busca e filtro por papel
+- Criar novos usuários (`POST /account/staff`)
+- Editar nome, e-mail, papel e senha (`PUT /account/:id`)
+- Ativar/desativar uma conta sem excluí-la (contas inativas não conseguem fazer login)
+- Remover uma conta (`DELETE /account/:id`) — o backend impede que um admin exclua a própria conta ou o último admin ativo
 
 ---
 
@@ -134,18 +157,19 @@ npm run preview
 ```
 src/
 ├── components/              # Componentes reutilizáveis
-│   ├── layout/             # Layout principal (AppShell)
+│   ├── layout/             # Layout principal (AppShell: menu lateral + header)
 │   ├── forms/              # Componentes de formulário
 │   └── chat/               # Componentes de chat
 ├── modules/                # Páginas e módulos
-│   ├── dashboard/          # Dashboard e relatórios
+│   ├── dashboard/          # Dashboard, relatórios e listagem de usuários
 │   ├── entregas/           # Gestão de entregas
-│   ├── cadastros/          # Cadastros (clientes, etc)
+│   ├── cadastros/          # Cadastros (clientes, usuários, etc)
 │   ├── auth/               # Autenticação
 │   ├── chat/               # Chat
 │   └── configuracoes/      # Configurações
 ├── services/               # Serviços (API, WebSocket)
 │   └── api.ts             # Cliente Axios
+├── types/                  # Tipos compartilhados (ex.: Usuario.ts)
 ├── helpers/                # Funções utilitárias
 │   ├── masks.ts           # Máscaras de input
 │   └── exportHtmlToPdf.ts # Geração de PDF
@@ -153,7 +177,7 @@ src/
 ├── context/                # Context API
 ├── theme/                  # Configuração de tema
 ├── App.tsx                 # Componente principal
-└── main.tsx                # Entrada da aplicação
+└── main.tsx                # Entrada da aplicação (rotas)
 ```
 
 ---
@@ -163,7 +187,7 @@ src/
 Para fins de teste e demonstração, as credenciais abaixo estão configuradas no `.env`:
 
 ```
-Email: admin
+Login: admin
 Senha: 12345678
 ```
 
@@ -175,12 +199,12 @@ Senha: 12345678
 
 ### Alternar Tema
 
-O aplicativo suporta tema claro e escuro. Clique no ícone de sol/lua no cabeçalho para alternar.
+O aplicativo suporta tema claro e escuro. Clique no ícone de sol/lua no cabeçalho para alternar — o avatar do usuário fica ao lado desse ícone e abre o menu de perfil (nome, e-mail e "Sair").
 
 ### Cores Principais
 
-- **Primária**: `#4361EE` (Roxo)
-- **Secundária**: `#0ea5e9` (Azul ciano)
+- **Primária**: `#0ea5e9` (Azul ciano)
+- **Secundária**: `#0f172a` (Navy escuro)
 - **Sucesso**: `#10b981` (Verde)
 - **Aviso**: `#f59e0b` (Amarelo)
 - **Erro**: `#ef4444` (Vermelho)
@@ -218,10 +242,11 @@ Ao criar um pedido:
 ### Fluxo de Login
 
 1. Usuário acessa `/login`
-2. Entra com email e senha
-3. Backend retorna `accessToken` e `refreshToken`
-4. Tokens são armazenados no `localStorage`
+2. Entra com login/e-mail e senha
+3. Backend valida a conta (rejeitando contas inativas) e retorna `accessToken`, `refreshToken`, `name` e `role`
+4. Esses dados são armazenados no `localStorage` (`accessToken`, `refreshToken`, `currentUserEmail`, `currentUserName`, `currentUserRole`)
 5. Requisições incluem `Authorization: Bearer <token>`
+6. O menu lateral e as rotas restritas usam `currentUserRole` para decidir o que exibir/liberar
 
 ### Renovação de Token
 
@@ -231,28 +256,13 @@ Quando o `accessToken` expira:
 3. Recebe novo `accessToken`
 4. Continua operação
 
+Ao fazer logout (ou quando a sessão expira), todos os dados de sessão são removidos do `localStorage`.
+
 ---
 
 ## 🌐 Comunicação em Tempo Real
 
-O chat utiliza WebSocket para comunicação entre filiais:
-
-```typescript
-// Conexão automática
-const socket = new WebSocket('ws://localhost:3000/chat');
-
-// Evento ao conectar
-socket.onopen = () => {
-  console.log('Conectado ao chat');
-};
-
-// Enviar mensagem
-socket.send(JSON.stringify({
-  type: 'message',
-  text: 'Olá pessoal!',
-  timestamp: Date.now()
-}));
-```
+O chat utiliza WebSocket para comunicação entre filiais, conectado automaticamente pelo serviço em `src/services/realtime.ts` enquanto o usuário está autenticado.
 
 ---
 
@@ -273,31 +283,22 @@ A aplicação é totalmente responsiva com breakpoints:
 ### Build da imagem
 
 ```bash
-docker build -f Dockerfile.public -t fastone-frontend:latest .
+docker build -f Dockerfile.public -t fastone-front:public .
 ```
 
-### Executar com Docker Compose
+### Executar
 
 ```bash
+docker run --rm -p 5173:80 fastone-front:public
+```
+
+### Publicação full stack (frontend + API + MySQL)
+
+Para subir tudo com um comando, use o compose público do backend:
+
+```bash
+cd ../nodejs-backend-delivery-manager
 docker-compose -f docker-compose.public.yml up -d
-```
-
-O frontend estará em `http://localhost:5173`
-
----
-
-## 🧪 Testes
-
-### Executar testes (quando implementados)
-
-```bash
-npm run test
-```
-
-### Cobertura
-
-```bash
-npm run test:coverage
 ```
 
 ---
@@ -305,34 +306,25 @@ npm run test:coverage
 ## 📦 Scripts Disponíveis
 
 ```bash
-# Desenvolvimento
-npm run dev                 # Inicia servidor de desenvolvimento com HMR
-
-# Build
-npm run build              # Compila para produção em dist/
-npm run preview            # Visualiza a build de produção localmente
-
-# Linting
-npm run lint               # Verifica código com ESLint
-
-# Análise
-npm run type-check         # Verifica tipos TypeScript
+npm run dev       # Inicia servidor de desenvolvimento com HMR
+npm run build     # Type-check (tsc -b) + build de produção em dist/
+npm run preview   # Visualiza a build de produção localmente
+npm run lint      # Verifica código com ESLint
 ```
 
 ---
 
 ## 🔗 Integração com Backend
 
-A aplicação se conecta à API em:
+A aplicação se conecta à API em `VITE_API_BASE_URL`. Principais endpoints utilizados:
 
 ```
-VITE_API_BASE_URL/api
-```
-
-Exemplos de endpoints utilizados:
-
-```
-POST   /api/login              # Login
+POST   /api/login              # Login (retorna accessToken, refreshToken, name, role)
+POST   /api/refresh-token      # Renovação de token
+GET    /api/account            # Listar usuários (admin)
+POST   /api/account/staff      # Criar usuário (admin)
+PUT    /api/account/:id        # Atualizar usuário (admin)
+DELETE /api/account/:id        # Remover usuário (admin)
 GET    /api/client             # Listar clientes
 POST   /api/register           # Registrar cliente
 GET    /api/orderDelivery      # Listar pedidos
@@ -347,12 +339,10 @@ GET    /api/dashboard/overview # Métricas do dashboard
 
 ## 🔐 Segurança
 
-- ✅ Autenticação JWT
-- ✅ Tokens armazenados seguramente
+- ✅ Autenticação JWT com controle de acesso por papel (RBAC)
+- ✅ Tokens armazenados no `localStorage` e limpos no logout/expiração
 - ✅ Validação de entrada em formulários
-- ✅ Sanitização de dados
-- ✅ CORS configurado
-- ✅ Headers de segurança
+- ✅ CORS configurado no backend
 
 ---
 
@@ -362,7 +352,6 @@ GET    /api/dashboard/overview # Métricas do dashboard
 - ⚡ Code splitting automático
 - ⚡ Lazy loading de rotas
 - ⚡ Compressão de assets
-- ⚡ Caching de requisições
 
 ---
 
@@ -378,16 +367,7 @@ GET    /api/dashboard/overview # Métricas do dashboard
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
-
----
-
-## 📞 Suporte
-
-Para dúvidas ou problemas:
-1. Abra uma issue no repositório
-2. Verifique se há issues similares já abertas
-3. Descreva o problema em detalhes
+Uso interno/projeto privado. Adapte conforme a política do seu repositório público.
 
 ---
 
@@ -398,50 +378,3 @@ Para dúvidas ou problemas:
 [⬆ Voltar ao topo](#-fastone-delivery---frontend)
 
 </div>
-```
-
-Aplicacao em: http://localhost:5173
-
-## Variaveis de ambiente
-
-Arquivo de exemplo: .env.public.example
-
-- VITE_API_BASE_URL: URL base da API.
-- VITE_DEFAULT_LOGIN: login inicial sugerido na tela.
-- VITE_DEFAULT_PASSWORD: senha inicial sugerida na tela.
-- VITE_DELIVERY_COMPANY_NAME: nome da empresa na folha de entrega.
-- VITE_DELIVERY_COMPANY_DOCUMENT: documento exibido na folha (ex.: CNPJ).
-- VITE_DELIVERY_SHEET_FORMAT: formato padrao da folha (a4, thermal80, thermal58).
-
-## Docker publico (frontend)
-
-Este projeto inclui Dockerfile publico para publicacao.
-
-Build da imagem:
-
-```bash
-docker build -f Dockerfile.public -t fastone-front:public .
-```
-
-Run:
-
-```bash
-docker run --rm -p 5173:80 fastone-front:public
-```
-
-## Scripts
-
-- npm run dev: servidor de desenvolvimento.
-- npm run build: build de producao.
-- npm run preview: preview do build.
-- npm run lint: verificacao de lint.
-
-## Publicaçao Full Stack
-
-Para subir frontend + API + MySQL com um comando, use o compose publico do backend em:
-
-- ../nodejs-backend-delivery-manager/docker-compose.public.yml
-
-## Licença
-
-Uso interno/projeto privado. Adapte conforme politica do seu repositorio publico.

@@ -163,6 +163,8 @@ const getRangeForPeriod = (
 
 const currentUserGreeting = (): string => {
   if (typeof window === "undefined") return "Operador";
+  const name = localStorage.getItem("currentUserName") ?? "";
+  if (name) return name;
   const email = localStorage.getItem("currentUserEmail") ?? "";
   if (!email) return "Operador";
   if (email.toLowerCase() === "admin@fastone.local") return "Operador Admin";
