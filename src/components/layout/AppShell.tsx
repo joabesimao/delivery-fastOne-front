@@ -6,7 +6,6 @@ import {
   Avatar,
   Badge,
   Box,
-  ButtonBase,
   CircularProgress,
   ClickAwayListener,
   Divider,
@@ -294,45 +293,6 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
           })}
         </List>
       </Box>
-
-      <Divider />
-
-      <Box sx={{ p: 1.75 }}>
-        <ButtonBase
-          onClick={(event) => setProfileAnchorEl(event.currentTarget)}
-          sx={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            gap: 1.25,
-            p: 1,
-            borderRadius: 2.5,
-            "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.06) },
-          }}
-        >
-          <Avatar sx={{ width: 36, height: 36, bgcolor: "secondary.main", fontSize: 13, fontWeight: 700 }}>
-            {getAvatarLabel(currentUserName)}
-          </Avatar>
-          <Box sx={{ minWidth: 0, textAlign: "left" }}>
-            <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.15 }} noWrap>
-              {currentUserName}
-            </Typography>
-            <Typography variant="caption" color="text.secondary" noWrap>
-              {currentEmail}
-            </Typography>
-          </Box>
-        </ButtonBase>
-
-        <ListItemButton
-          onClick={handleLogout}
-          sx={{ borderRadius: 2.5, mt: 0.5, color: "text.secondary", "&:hover": { color: "error.main" } }}
-        >
-          <ListItemIcon sx={{ minWidth: 34, color: "inherit" }}>
-            <LogoutOutlinedIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Sair" primaryTypographyProps={{ fontWeight: 650, fontSize: 13.5 }} />
-        </ListItemButton>
-      </Box>
     </Box>
   );
 
@@ -475,6 +435,13 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
                 {mode === "dark" ? <LightModeOutlinedIcon /> : <DarkModeOutlinedIcon />}
               </IconButton>
             </Tooltip>
+            <Tooltip title={currentUserName}>
+              <IconButton onClick={(event) => setProfileAnchorEl(event.currentTarget)} sx={{ ml: 0.25 }}>
+                <Avatar sx={{ width: 32, height: 32, bgcolor: "secondary.main", fontSize: 12.5, fontWeight: 700 }}>
+                  {getAvatarLabel(currentUserName)}
+                </Avatar>
+              </IconButton>
+            </Tooltip>
           </Stack>
 
           <Menu
@@ -484,6 +451,15 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             transformOrigin={{ vertical: "top", horizontal: "right" }}
           >
+            <Box sx={{ px: 2, py: 1, minWidth: 200 }}>
+              <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.15 }} noWrap>
+                {currentUserName}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" noWrap>
+                {currentEmail}
+              </Typography>
+            </Box>
+            <Divider />
             <MenuItem onClick={handleLogout}>
               <ListItemIcon>
                 <LogoutOutlinedIcon fontSize="small" />
