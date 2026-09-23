@@ -33,13 +33,15 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../services/api";
-import { isValidPhone, phoneMask, stripPhone } from "../../helpers/masks";
+import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "../../helpers/masks";
+import { extractApiErrorMessage } from "../../helpers/extractApiErrorMessage";
 
 interface DeliverymanItem {
   id: number;
   name: string;
   lastName: string;
   phone: string;
+  cpf?: string;
   numberQualification: string;
 }
 
@@ -47,6 +49,7 @@ interface EditDeliverymanForm {
   name: string;
   lastName: string;
   phone: string;
+  cpf?: string;
   numberQualification: string;
 }
 
@@ -105,6 +108,7 @@ const ListaEntregadores: React.FC = () => {
       name: deliveryman.name,
       lastName: deliveryman.lastName,
       phone: phoneMask(deliveryman.phone),
+      cpf: deliveryman.cpf ? cpfMask(deliveryman.cpf) : "",
       numberQualification: deliveryman.numberQualification,
     });
   };
@@ -127,12 +131,18 @@ const ListaEntregadores: React.FC = () => {
       return;
     }
 
+    if (editValues.cpf && !isValidCPF(editValues.cpf)) {
+      showSnackbar("CPF inválido. Use o formato XXX.XXX.XXX-XX ou apenas números.", "error");
+      return;
+    }
+
     try {
       setActionLoadingId(editDeliveryman.id);
       await api.put(`/deliveryman/${editDeliveryman.id}`, {
         name: editValues.name,
         lastName: editValues.lastName,
         phone: stripPhone(editValues.phone),
+        cpf: editValues.cpf ? stripCPF(editValues.cpf) : undefined,
         numberQualification: editValues.numberQualification,
       });
 
@@ -140,8 +150,8 @@ const ListaEntregadores: React.FC = () => {
       setEditValues(null);
       await loadDeliverymen();
       showSnackbar("Entregador atualizado com sucesso.", "success");
-    } catch {
-      showSnackbar("Erro ao atualizar entregador. Tente novamente.", "error");
+    } catch (error) {
+      showSnackbar(extractApiErrorMessage(error, "Erro ao atualizar entregador. Tente novamente."), "error");
     } finally {
       setActionLoadingId(null);
     }
@@ -649,6 +659,17 @@ const ListaEntregadores: React.FC = () => {
                   )
                 }
                 inputProps={{ maxLength: 15, inputMode: "numeric" }}
+              />
+              <TextField
+                label="CPF"
+                size="small"
+                value={editValues.cpf ?? ""}
+                onChange={(e) =>
+                  setEditValues((prev) =>
+                    prev ? { ...prev, cpf: cpfMask(e.target.value) } : prev,
+                  )
+                }
+                inputProps={{ maxLength: 14, inputMode: "numeric" }}
               />
               <TextField
                 label="Habilitação"

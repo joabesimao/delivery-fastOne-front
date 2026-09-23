@@ -38,6 +38,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "../../helpers/masks";
+import { extractApiErrorMessage } from "../../helpers/extractApiErrorMessage";
 
 interface Address {
   id?: number;
@@ -221,8 +222,8 @@ const ListaClientes: React.FC = () => {
       setEditValues(null);
       await loadClients();
       showSnackbar("Cliente atualizado com sucesso.", "success");
-    } catch {
-      showSnackbar("Erro ao atualizar cliente. Tente novamente.", "error");
+    } catch (error) {
+      showSnackbar(extractApiErrorMessage(error, "Erro ao atualizar cliente. Tente novamente."), "error");
     } finally {
       setActionLoadingId(null);
     }

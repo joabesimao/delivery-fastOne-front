@@ -22,6 +22,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Formik, Form } from "formik";
 import api from "../../../services/api";
 import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "../../../helpers/masks";
+import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
 
 interface AddressValues {
   street: string;
@@ -145,12 +146,9 @@ const ClienteForm: React.FC = () => {
       setModalOpen(true);
       resetForm();
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || "Erro ao cadastrar cliente. Tente novamente.";
-      const isCpfDuplicate = errorMessage.toLowerCase().includes("cpf") && errorMessage.toLowerCase().includes("cadastrado");
-      
       setSnackbar({
         open: true,
-        message: isCpfDuplicate ? "Este CPF já está cadastrado no sistema." : errorMessage,
+        message: extractApiErrorMessage(error, "Erro ao cadastrar cliente. Tente novamente."),
         severity: "error",
       });
     }
