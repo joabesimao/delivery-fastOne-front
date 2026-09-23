@@ -38,6 +38,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "../../helpers/masks";
+import { extractApiErrorMessage } from "../../helpers/extractApiErrorMessage";
 
 interface Address {
   id?: number;
@@ -221,8 +222,8 @@ const ListaClientes: React.FC = () => {
       setEditValues(null);
       await loadClients();
       showSnackbar("Cliente atualizado com sucesso.", "success");
-    } catch {
-      showSnackbar("Erro ao atualizar cliente. Tente novamente.", "error");
+    } catch (error) {
+      showSnackbar(extractApiErrorMessage(error, "Erro ao atualizar cliente. Tente novamente."), "error");
     } finally {
       setActionLoadingId(null);
     }
@@ -872,6 +873,12 @@ const ListaClientes: React.FC = () => {
                   )
                 }
                 inputProps={{ maxLength: 14, inputMode: "numeric" }}
+                error={Boolean(editValues.cpf && stripCPF(editValues.cpf).length === 11 && !isValidCPF(editValues.cpf))}
+                helperText={
+                  editValues.cpf && stripCPF(editValues.cpf).length === 11 && !isValidCPF(editValues.cpf)
+                    ? "CPF inválido. Use o formato XXX.XXX.XXX-XX ou apenas números."
+                    : undefined
+                }
               />
               <TextField
                 label="Telefone"

@@ -22,6 +22,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Formik, Form } from "formik";
 import api from "../../../services/api";
 import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "../../../helpers/masks";
+import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
 
 interface AddressValues {
   street: string;
@@ -145,12 +146,9 @@ const ClienteForm: React.FC = () => {
       setModalOpen(true);
       resetForm();
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || "Erro ao cadastrar cliente. Tente novamente.";
-      const isCpfDuplicate = errorMessage.toLowerCase().includes("cpf") && errorMessage.toLowerCase().includes("cadastrado");
-      
       setSnackbar({
         open: true,
-        message: isCpfDuplicate ? "Este CPF já está cadastrado no sistema." : errorMessage,
+        message: extractApiErrorMessage(error, "Erro ao cadastrar cliente. Tente novamente."),
         severity: "error",
       });
     }
@@ -194,7 +192,7 @@ const ClienteForm: React.FC = () => {
         <Divider sx={{ mb: 3 }} />
 
         <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit}>
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue }) => {
+          {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue, setFieldTouched }) => {
             const selectedCity = cities.find((c) => c.name === values.address.city);
             const neighborhoodSuggestions = selectedCity
               ? neighborhoods.filter((n) => n.cityId === selectedCity.id)
@@ -222,7 +220,13 @@ const ClienteForm: React.FC = () => {
                   <TextField
                     fullWidth size="small" placeholder="000.000.000-00"
                     name="cpf" value={values.cpf}
-                    onChange={(e) => setFieldValue("cpf", cpfMask(e.target.value))}
+                    onChange={(e) => {
+                      const masked = cpfMask(e.target.value);
+                      setFieldValue("cpf", masked);
+                      if (stripCPF(masked).length === 11) {
+                        setFieldTouched("cpf", true, false);
+                      }
+                    }}
                     onBlur={handleBlur}
                     inputProps={{ maxLength: 14, inputMode: "numeric" }}
                     error={Boolean(touched.cpf && errors.cpf)}

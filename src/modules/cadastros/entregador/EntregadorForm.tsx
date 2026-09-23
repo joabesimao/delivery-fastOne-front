@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Alert,
@@ -16,12 +16,14 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Formik, Form } from "formik";
 import api from "../../../services/api";
-import { isValidPhone, phoneMask, stripPhone } from "../../../helpers/masks";
+import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "../../../helpers/masks";
+import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
 
 interface EntregadorFormValues {
   name: string;
   lastName: string;
   phone: string;
+  cpf: string;
   numberQualification: string;
 }
 
@@ -29,6 +31,7 @@ const initialValues: EntregadorFormValues = {
   name: "",
   lastName: "",
   phone: "",
+  cpf: "",
   numberQualification: "",
 };
 
@@ -36,16 +39,22 @@ type FormErrors = {
   name?: string;
   lastName?: string;
   phone?: string;
+  cpf?: string;
   numberQualification?: string;
 };
 
-const validate = (values: EntregadorFormValues): FormErrors => {
+const makeValidate = (existingCpfs: Set<string>, existingQualifications: Set<string>) => (values: EntregadorFormValues): FormErrors => {
   const errors: FormErrors = {};
   if (!values.name.trim()) errors.name = "Informe o nome.";
   if (!values.lastName.trim()) errors.lastName = "Informe o sobrenome.";
   if (!values.phone.trim()) errors.phone = "Informe o telefone.";
   else if (!isValidPhone(values.phone)) errors.phone = "Telefone inválido. Use DDD + número.";
+  if (!values.cpf.trim()) errors.cpf = "Informe o CPF.";
+  else if (!isValidCPF(values.cpf)) errors.cpf = "CPF inválido. Use o formato XXX.XXX.XXX-XX ou apenas números.";
+  else if (existingCpfs.has(stripCPF(values.cpf))) errors.cpf = "Este CPF já está cadastrado no sistema.";
   if (!values.numberQualification.trim()) errors.numberQualification = "Informe o número da habilitação.";
+  else if (existingQualifications.has(values.numberQualification))
+    errors.numberQualification = "Esta habilitação já está cadastrada no sistema.";
   return errors;
 };
 
@@ -56,6 +65,26 @@ const EntregadorForm: React.FC = () => {
     message: string;
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
+  const [existingCpfs, setExistingCpfs] = useState<Set<string>>(new Set());
+  const [existingQualifications, setExistingQualifications] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    api
+      .get<{ cpf?: string; numberQualification?: string }[]>("/deliveryman")
+      .then((res) => {
+        const list = Array.isArray(res.data) ? res.data : [];
+        setExistingCpfs(
+          new Set(list.map((d) => stripCPF(d.cpf ?? "")).filter((cpf) => cpf.length === 11)),
+        );
+        setExistingQualifications(
+          new Set(list.map((d) => d.numberQualification).filter((q): q is string => Boolean(q))),
+        );
+      })
+      .catch(() => {
+        setExistingCpfs(new Set());
+        setExistingQualifications(new Set());
+      });
+  }, []);
 
   const handleSubmit = async (
     values: EntregadorFormValues,
@@ -66,17 +95,17 @@ const EntregadorForm: React.FC = () => {
         name: values.name,
         lastName: values.lastName,
         phone: stripPhone(values.phone),
+        cpf: stripCPF(values.cpf),
         numberQualification: values.numberQualification,
       });
+      setExistingCpfs((prev) => new Set(prev).add(stripCPF(values.cpf)));
+      setExistingQualifications((prev) => new Set(prev).add(values.numberQualification));
       setSnackbar({ open: true, message: "Entregador cadastrado com sucesso!", severity: "success" });
       resetForm();
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || "Erro ao cadastrar entregador. Tente novamente.";
-      const isPhoneDuplicate = errorMessage.toLowerCase().includes("telefone") && errorMessage.toLowerCase().includes("cadastrado");
-
       setSnackbar({
         open: true,
-        message: isPhoneDuplicate ? "Este telefone já está cadastrado no sistema." : errorMessage,
+        message: extractApiErrorMessage(error, "Erro ao cadastrar entregador. Tente novamente."),
         severity: "error",
       });
     }
@@ -107,8 +136,8 @@ const EntregadorForm: React.FC = () => {
         </Box>
         <Divider sx={{ mb: 3 }} />
 
-        <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit}>
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue }) => (
+        <Formik initialValues={initialValues} validate={makeValidate(existingCpfs, existingQualifications)} onSubmit={handleSubmit}>
+          {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue, setFieldTouched }) => (
             <Form noValidate>
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
                 Dados do entregador
@@ -151,11 +180,32 @@ const EntregadorForm: React.FC = () => {
 
               <Grid container spacing={2} sx={{ mb: 1 }}>
                 <Grid size={{ xs: 12, sm: 6 }}>
+                  <FieldLabel label="CPF *" />
+                  <TextField
+                    fullWidth size="small" placeholder="000.000.000-00"
+                    name="cpf" value={values.cpf}
+                    onChange={(e) => {
+                      const masked = cpfMask(e.target.value);
+                      setFieldValue("cpf", masked);
+                      if (stripCPF(masked).length === 11) {
+                        setFieldTouched("cpf", true, false);
+                      }
+                    }}
+                    onBlur={handleBlur}
+                    inputProps={{ maxLength: 14, inputMode: "numeric" }}
+                    error={Boolean(touched.cpf && errors.cpf)}
+                    helperText={touched.cpf && errors.cpf}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FieldLabel label="Número da Habilitação *" />
                   <TextField
                     fullWidth size="small" placeholder="Número da CNH"
                     name="numberQualification" value={values.numberQualification}
-                    onChange={(e) => setFieldValue("numberQualification", e.target.value.replace(/\D/g, ""))}
+                    onChange={(e) => {
+                      setFieldValue("numberQualification", e.target.value.replace(/\D/g, ""));
+                      setFieldTouched("numberQualification", true, false);
+                    }}
                     onBlur={handleBlur}
                     inputProps={{ maxLength: 12, inputMode: "numeric" }}
                     error={Boolean(touched.numberQualification && errors.numberQualification)}
