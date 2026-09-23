@@ -113,6 +113,22 @@ const ListaEntregadores: React.FC = () => {
     });
   };
 
+  const isEditCpfDuplicate = (cpf: string | undefined) => {
+    const digits = stripCPF(cpf ?? "");
+    if (digits.length !== 11) return false;
+    return entregadores.some(
+      (d) => d.id !== editDeliveryman?.id && stripCPF(d.cpf ?? "") === digits,
+    );
+  };
+
+  const isEditQualificationDuplicate = (numberQualification: string | undefined) => {
+    const value = (numberQualification ?? "").trim();
+    if (!value) return false;
+    return entregadores.some(
+      (d) => d.id !== editDeliveryman?.id && d.numberQualification === value,
+    );
+  };
+
   const handleSaveEdit = async () => {
     if (!editDeliveryman || !editValues) return;
 
@@ -133,6 +149,16 @@ const ListaEntregadores: React.FC = () => {
 
     if (editValues.cpf && !isValidCPF(editValues.cpf)) {
       showSnackbar("CPF inválido. Use o formato XXX.XXX.XXX-XX ou apenas números.", "error");
+      return;
+    }
+
+    if (editValues.cpf && isEditCpfDuplicate(editValues.cpf)) {
+      showSnackbar("Este CPF já está cadastrado no sistema.", "error");
+      return;
+    }
+
+    if (isEditQualificationDuplicate(editValues.numberQualification)) {
+      showSnackbar("Esta habilitação já está cadastrada no sistema.", "error");
       return;
     }
 
@@ -387,6 +413,7 @@ const ListaEntregadores: React.FC = () => {
                       "Nome do entregador",
                       "ID",
                       "Telefone",
+                      "CPF",
                       "Habilitação",
                       "Ações",
                     ].map((col) => (
@@ -411,7 +438,7 @@ const ListaEntregadores: React.FC = () => {
                   {paginated.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={5}
+                        colSpan={6}
                         align="center"
                         sx={{
                           py: 6,
@@ -456,6 +483,11 @@ const ListaEntregadores: React.FC = () => {
                             sx={{ color: isDark ? "#d1d5db" : "#374151" }}
                           >
                             {phoneMask(d.phone)}
+                          </TableCell>
+                          <TableCell
+                            sx={{ color: isDark ? "#d1d5db" : "#374151" }}
+                          >
+                            {d.cpf ? cpfMask(d.cpf) : "—"}
                           </TableCell>
                           <TableCell
                             sx={{ color: isDark ? "#d1d5db" : "#374151" }}
@@ -605,6 +637,9 @@ const ListaEntregadores: React.FC = () => {
                 <strong>Telefone:</strong> {phoneMask(viewDeliveryman.phone)}
               </Typography>
               <Typography variant="body2">
+                <strong>CPF:</strong> {viewDeliveryman.cpf ? cpfMask(viewDeliveryman.cpf) : "—"}
+              </Typography>
+              <Typography variant="body2">
                 <strong>Habilitação:</strong> {viewDeliveryman.numberQualification}
               </Typography>
             </Box>
@@ -670,6 +705,20 @@ const ListaEntregadores: React.FC = () => {
                   )
                 }
                 inputProps={{ maxLength: 14, inputMode: "numeric" }}
+                error={Boolean(
+                  editValues.cpf &&
+                    stripCPF(editValues.cpf).length === 11 &&
+                    (!isValidCPF(editValues.cpf) || isEditCpfDuplicate(editValues.cpf)),
+                )}
+                helperText={
+                  editValues.cpf && stripCPF(editValues.cpf).length === 11
+                    ? !isValidCPF(editValues.cpf)
+                      ? "CPF inválido. Use o formato XXX.XXX.XXX-XX ou apenas números."
+                      : isEditCpfDuplicate(editValues.cpf)
+                        ? "Este CPF já está cadastrado no sistema."
+                        : undefined
+                    : undefined
+                }
               />
               <TextField
                 label="Habilitação"
@@ -683,6 +732,12 @@ const ListaEntregadores: React.FC = () => {
                   )
                 }
                 inputProps={{ maxLength: 12, inputMode: "numeric" }}
+                error={isEditQualificationDuplicate(editValues.numberQualification)}
+                helperText={
+                  isEditQualificationDuplicate(editValues.numberQualification)
+                    ? "Esta habilitação já está cadastrada no sistema."
+                    : undefined
+                }
               />
             </Box>
           )}

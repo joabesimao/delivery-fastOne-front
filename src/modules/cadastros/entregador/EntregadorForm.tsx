@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Alert,
@@ -43,7 +43,7 @@ type FormErrors = {
   numberQualification?: string;
 };
 
-const validate = (values: EntregadorFormValues): FormErrors => {
+const makeValidate = (existingCpfs: Set<string>, existingQualifications: Set<string>) => (values: EntregadorFormValues): FormErrors => {
   const errors: FormErrors = {};
   if (!values.name.trim()) errors.name = "Informe o nome.";
   if (!values.lastName.trim()) errors.lastName = "Informe o sobrenome.";
@@ -51,7 +51,10 @@ const validate = (values: EntregadorFormValues): FormErrors => {
   else if (!isValidPhone(values.phone)) errors.phone = "Telefone inválido. Use DDD + número.";
   if (!values.cpf.trim()) errors.cpf = "Informe o CPF.";
   else if (!isValidCPF(values.cpf)) errors.cpf = "CPF inválido. Use o formato XXX.XXX.XXX-XX ou apenas números.";
+  else if (existingCpfs.has(stripCPF(values.cpf))) errors.cpf = "Este CPF já está cadastrado no sistema.";
   if (!values.numberQualification.trim()) errors.numberQualification = "Informe o número da habilitação.";
+  else if (existingQualifications.has(values.numberQualification))
+    errors.numberQualification = "Esta habilitação já está cadastrada no sistema.";
   return errors;
 };
 
@@ -62,6 +65,26 @@ const EntregadorForm: React.FC = () => {
     message: string;
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
+  const [existingCpfs, setExistingCpfs] = useState<Set<string>>(new Set());
+  const [existingQualifications, setExistingQualifications] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    api
+      .get<{ cpf?: string; numberQualification?: string }[]>("/deliveryman")
+      .then((res) => {
+        const list = Array.isArray(res.data) ? res.data : [];
+        setExistingCpfs(
+          new Set(list.map((d) => stripCPF(d.cpf ?? "")).filter((cpf) => cpf.length === 11)),
+        );
+        setExistingQualifications(
+          new Set(list.map((d) => d.numberQualification).filter((q): q is string => Boolean(q))),
+        );
+      })
+      .catch(() => {
+        setExistingCpfs(new Set());
+        setExistingQualifications(new Set());
+      });
+  }, []);
 
   const handleSubmit = async (
     values: EntregadorFormValues,
@@ -75,6 +98,8 @@ const EntregadorForm: React.FC = () => {
         cpf: stripCPF(values.cpf),
         numberQualification: values.numberQualification,
       });
+      setExistingCpfs((prev) => new Set(prev).add(stripCPF(values.cpf)));
+      setExistingQualifications((prev) => new Set(prev).add(values.numberQualification));
       setSnackbar({ open: true, message: "Entregador cadastrado com sucesso!", severity: "success" });
       resetForm();
     } catch (error: any) {
@@ -111,8 +136,8 @@ const EntregadorForm: React.FC = () => {
         </Box>
         <Divider sx={{ mb: 3 }} />
 
-        <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit}>
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue }) => (
+        <Formik initialValues={initialValues} validate={makeValidate(existingCpfs, existingQualifications)} onSubmit={handleSubmit}>
+          {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue, setFieldTouched }) => (
             <Form noValidate>
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
                 Dados do entregador
@@ -159,7 +184,13 @@ const EntregadorForm: React.FC = () => {
                   <TextField
                     fullWidth size="small" placeholder="000.000.000-00"
                     name="cpf" value={values.cpf}
-                    onChange={(e) => setFieldValue("cpf", cpfMask(e.target.value))}
+                    onChange={(e) => {
+                      const masked = cpfMask(e.target.value);
+                      setFieldValue("cpf", masked);
+                      if (stripCPF(masked).length === 11) {
+                        setFieldTouched("cpf", true, false);
+                      }
+                    }}
                     onBlur={handleBlur}
                     inputProps={{ maxLength: 14, inputMode: "numeric" }}
                     error={Boolean(touched.cpf && errors.cpf)}
@@ -171,7 +202,10 @@ const EntregadorForm: React.FC = () => {
                   <TextField
                     fullWidth size="small" placeholder="Número da CNH"
                     name="numberQualification" value={values.numberQualification}
-                    onChange={(e) => setFieldValue("numberQualification", e.target.value.replace(/\D/g, ""))}
+                    onChange={(e) => {
+                      setFieldValue("numberQualification", e.target.value.replace(/\D/g, ""));
+                      setFieldTouched("numberQualification", true, false);
+                    }}
                     onBlur={handleBlur}
                     inputProps={{ maxLength: 12, inputMode: "numeric" }}
                     error={Boolean(touched.numberQualification && errors.numberQualification)}

@@ -873,6 +873,12 @@ const ListaClientes: React.FC = () => {
                   )
                 }
                 inputProps={{ maxLength: 14, inputMode: "numeric" }}
+                error={Boolean(editValues.cpf && stripCPF(editValues.cpf).length === 11 && !isValidCPF(editValues.cpf))}
+                helperText={
+                  editValues.cpf && stripCPF(editValues.cpf).length === 11 && !isValidCPF(editValues.cpf)
+                    ? "CPF inválido. Use o formato XXX.XXX.XXX-XX ou apenas números."
+                    : undefined
+                }
               />
               <TextField
                 label="Telefone"
