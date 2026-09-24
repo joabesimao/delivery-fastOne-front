@@ -28,6 +28,10 @@ import {
   Palette as PaletteIcon,
   FormatListBulleted as FormatListBulletedIcon,
   Inventory2 as Inventory2Icon,
+  DirectionsCar as DirectionsCarIcon,
+  Build as BuildIcon,
+  LocalGasStation as LocalGasStationIcon,
+  Speed as SpeedIcon,
 } from "@mui/icons-material";
 import { FaRoute, FaClipboardCheck } from "react-icons/fa";
 import { IoDocumentText } from "react-icons/io5";
@@ -192,6 +196,27 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth, onClose 
             path: "/cadastros/produto",
             title: "Cadastrar Produto",
           },
+          {
+            text: "Cadastrar veículo",
+            icon: <DirectionsCarIcon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <DirectionsCarIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/cadastros/veiculo",
+            title: "Cadastrar Veículo",
+          },
+          {
+            text: "Troca de óleo",
+            icon: <BuildIcon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <BuildIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/cadastros/troca-oleo",
+            title: "Troca de Óleo",
+          },
+          {
+            text: "Abastecimento",
+            icon: <LocalGasStationIcon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <LocalGasStationIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/cadastros/abastecimento",
+            title: "Abastecimento",
+          },
         ],
       },
       {
@@ -207,6 +232,13 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth, onClose 
             activeIcon: <PaletteIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
             path: "/configuracoes/visuais",
             title: "Configurações Visuais",
+          },
+          {
+            text: "Configurações de frota",
+            icon: <SpeedIcon sx={{ color: ICON_COLOR, fontSize: 18 }} />,
+            activeIcon: <SpeedIcon sx={{ color: ACTIVE_ICON, fontSize: 18 }} />,
+            path: "/configuracoes/frota",
+            title: "Configurações de Frota",
           },
         ],
       },
