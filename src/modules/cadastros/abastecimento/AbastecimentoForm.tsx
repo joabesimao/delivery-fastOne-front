@@ -19,6 +19,7 @@ import { Formik, Form } from "formik";
 import { useNavigate } from "react-router-dom";
 import api from "../../../services/api";
 import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
+import { computeTotalValue } from "./computeTotalValue";
 
 interface VehicleOption {
   id: number;
@@ -37,6 +38,7 @@ interface AbastecimentoFormValues {
   deliverymanId: string;
   km: string;
   liters: string;
+  pricePerLiter: string;
   totalValue: string;
   refillDate: string;
 }
@@ -48,6 +50,7 @@ const initialValues: AbastecimentoFormValues = {
   deliverymanId: "",
   km: "",
   liters: "",
+  pricePerLiter: "",
   totalValue: "",
   refillDate: todayIso(),
 };
@@ -57,6 +60,7 @@ type FormErrors = {
   deliverymanId?: string;
   km?: string;
   liters?: string;
+  pricePerLiter?: string;
   totalValue?: string;
   refillDate?: string;
 };
@@ -67,6 +71,7 @@ const validate = (values: AbastecimentoFormValues): FormErrors => {
   if (!values.deliverymanId) errors.deliverymanId = "Selecione o entregador.";
   if (!values.km || Number(values.km) <= 0) errors.km = "Informe o km do abastecimento.";
   if (!values.liters || Number(values.liters) <= 0) errors.liters = "Informe os litros abastecidos.";
+  if (!values.pricePerLiter || Number(values.pricePerLiter) <= 0) errors.pricePerLiter = "Informe o preço do litro.";
   if (!values.totalValue || Number(values.totalValue) <= 0) errors.totalValue = "Informe o valor pago.";
   if (!values.refillDate) errors.refillDate = "Informe a data do abastecimento.";
   return errors;
@@ -103,6 +108,7 @@ const AbastecimentoForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) 
         deliverymanId: Number(values.deliverymanId),
         km: Number(values.km),
         liters: Number(values.liters),
+        pricePerLiter: Number(values.pricePerLiter),
         totalValue: Number(values.totalValue),
         refillDate: new Date(values.refillDate).toISOString(),
       });
@@ -144,7 +150,7 @@ const AbastecimentoForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) 
         <Divider sx={{ mb: 3 }} />
 
         <Formik initialValues={initialValues} validate={validate} onSubmit={handleSubmit} enableReinitialize>
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+          {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue }) => (
             <Form noValidate>
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
                 Dados do abastecimento
@@ -210,18 +216,58 @@ const AbastecimentoForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) 
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
+                  <FieldLabel label="Data do abastecimento *" />
+                  <TextField
+                    fullWidth size="small"
+                    type="date"
+                    name="refillDate" value={values.refillDate}
+                    onChange={handleChange} onBlur={handleBlur}
+                    error={Boolean(touched.refillDate && errors.refillDate)}
+                    helperText={touched.refillDate && errors.refillDate}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <FieldLabel label="Litros abastecidos *" />
                   <TextField
                     fullWidth size="small" placeholder="Ex: 8.5"
                     type="number"
                     slotProps={{ htmlInput: { min: 0, step: "0.01" } }}
                     name="liters" value={values.liters}
-                    onChange={handleChange} onBlur={handleBlur}
+                    onChange={(e) => {
+                      handleChange(e);
+                      void setFieldValue("totalValue", computeTotalValue(e.target.value, values.pricePerLiter));
+                    }}
+                    onBlur={handleBlur}
                     error={Boolean(touched.liters && errors.liters)}
                     helperText={touched.liters && errors.liters}
                   />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
+                <Grid size={{ xs: 12, sm: 4 }}>
+                  <FieldLabel label="Preço do litro *" />
+                  <TextField
+                    fullWidth size="small" placeholder="Ex: 6.299"
+                    type="number"
+                    slotProps={{
+                      htmlInput: { min: 0, step: "0.001" },
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Typography variant="body2" color="text.secondary">R$</Typography>
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                    name="pricePerLiter" value={values.pricePerLiter}
+                    onChange={(e) => {
+                      handleChange(e);
+                      void setFieldValue("totalValue", computeTotalValue(values.liters, e.target.value));
+                    }}
+                    onBlur={handleBlur}
+                    error={Boolean(touched.pricePerLiter && errors.pricePerLiter)}
+                    helperText={touched.pricePerLiter && errors.pricePerLiter}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <FieldLabel label="Valor pago *" />
                   <TextField
                     fullWidth size="small" placeholder="0,00"
@@ -239,18 +285,7 @@ const AbastecimentoForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) 
                     name="totalValue" value={values.totalValue}
                     onChange={handleChange} onBlur={handleBlur}
                     error={Boolean(touched.totalValue && errors.totalValue)}
-                    helperText={touched.totalValue && errors.totalValue}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FieldLabel label="Data do abastecimento *" />
-                  <TextField
-                    fullWidth size="small"
-                    type="date"
-                    name="refillDate" value={values.refillDate}
-                    onChange={handleChange} onBlur={handleBlur}
-                    error={Boolean(touched.refillDate && errors.refillDate)}
-                    helperText={touched.refillDate && errors.refillDate}
+                    helperText={(touched.totalValue && errors.totalValue) || "Calculado por litros × preço; pode ajustar."}
                   />
                 </Grid>
               </Grid>

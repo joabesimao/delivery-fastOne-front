@@ -282,7 +282,6 @@ const ListaVeiculos: React.FC<ListaVeiculosProps> = ({ refreshKey }) => {
         </TableContainer>
       )}
 
-      {/* Dialog Editar */}
       <Dialog
         open={Boolean(editVeiculo)}
         onClose={() => setEditVeiculo(null)}
@@ -347,7 +346,6 @@ const ListaVeiculos: React.FC<ListaVeiculosProps> = ({ refreshKey }) => {
         </DialogActions>
       </Dialog>
 
-      {/* Dialog Confirmar Deleção */}
       <Dialog open={Boolean(deleteConfirmId)} onClose={() => setDeleteConfirmId(null)} maxWidth="xs">
         <DialogTitle>Confirmar exclusão</DialogTitle>
         <DialogContent>
