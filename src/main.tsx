@@ -19,7 +19,11 @@ import CadastrarProduto from "./modules/cadastros/produto/CadastrarProduto.tsx";
 import CadastrarEntregador from "./modules/cadastros/entregador/CadastrarEntregador.tsx";
 import CadastrarBairros from "./modules/cadastros/bairros/CadastrarBairros.tsx";
 import CadastrarCidades from "./modules/cadastros/cidades/CadastrarCidades.tsx";
+import CadastrarVeiculo from "./modules/cadastros/veiculo/CadastrarVeiculo.tsx";
+import CadastrarTrocaOleo from "./modules/cadastros/trocaOleo/CadastrarTrocaOleo.tsx";
+import CadastrarAbastecimento from "./modules/cadastros/abastecimento/CadastrarAbastecimento.tsx";
 import ConfiguracoesVisuais from "./modules/configuracoes/visuais/ConfiguracoesVisuais.tsx";
+import ConfiguracoesFrota from "./modules/configuracoes/frota/ConfiguracoesFrota.tsx";
 import App from "./App.tsx";
 import LoginPage from "./modules/auth/LoginPage.tsx";
 import ChatRealtime from "./modules/chat/ChatRealtime.tsx";
@@ -142,8 +146,24 @@ const router = createBrowserRouter([
     element: <RequireAuth><CadastrarCidades /></RequireAuth>,
   },
   {
+    path: "/cadastros/veiculo",
+    element: <RequireAuth><CadastrarVeiculo /></RequireAuth>,
+  },
+  {
+    path: "/cadastros/troca-oleo",
+    element: <RequireAuth><CadastrarTrocaOleo /></RequireAuth>,
+  },
+  {
+    path: "/cadastros/abastecimento",
+    element: <RequireAuth><CadastrarAbastecimento /></RequireAuth>,
+  },
+  {
     path: "/configuracoes/visuais",
     element: <RequireAuth><ConfiguracoesVisuais /></RequireAuth>,
+  },
+  {
+    path: "/configuracoes/frota",
+    element: <RequireAuth><ConfiguracoesFrota /></RequireAuth>,
   },
   {
     path: "/chat",

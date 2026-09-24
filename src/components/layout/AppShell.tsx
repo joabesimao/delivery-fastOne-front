@@ -32,6 +32,10 @@ import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettin
 import ChatOutlinedIcon from "@mui/icons-material/ChatOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import DirectionsCarOutlinedIcon from "@mui/icons-material/DirectionsCarOutlined";
+import BuildOutlinedIcon from "@mui/icons-material/BuildOutlined";
+import LocalGasStationOutlinedIcon from "@mui/icons-material/LocalGasStationOutlined";
+import SpeedOutlinedIcon from "@mui/icons-material/SpeedOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -68,12 +72,23 @@ const buildNavItems = (role: string | null): NavItem[] => {
     { label: "Finalizar Entregas", path: "/finalizar-entrega", icon: <CheckCircleOutlineIcon fontSize="small" /> },
     { label: "Clientes", path: "/dashboard/clientes", icon: <GroupOutlinedIcon fontSize="small" /> },
     { label: "Entregadores", path: "/listagem-entregadores", icon: <TwoWheelerOutlinedIcon fontSize="small" /> },
+    { label: "Veículos", path: "/cadastros/veiculo", icon: <DirectionsCarOutlinedIcon fontSize="small" /> },
+    { label: "Troca de Óleo", path: "/cadastros/troca-oleo", icon: <BuildOutlinedIcon fontSize="small" /> },
+    { label: "Abastecimento", path: "/cadastros/abastecimento", icon: <LocalGasStationOutlinedIcon fontSize="small" /> },
     { label: "Produtos", path: "/dashboard/produtos", icon: <Inventory2OutlinedIcon fontSize="small" /> },
     { label: "Localidades", path: "/cadastros/cidades", icon: <PlaceOutlinedIcon fontSize="small" /> },
     { label: "Chat", path: "/chat", icon: <ChatOutlinedIcon fontSize="small" />, badge: 2 },
     { label: "Filiais", path: "/filiais", icon: <StoreOutlinedIcon fontSize="small" /> },
     { label: "Configurações", path: "/configuracoes/visuais", icon: <SettingsOutlinedIcon fontSize="small" /> },
   ];
+
+  if (role === "admin" || role === "gerente_estoque") {
+    items.push({
+      label: "Configurações de Frota",
+      path: "/configuracoes/frota",
+      icon: <SpeedOutlinedIcon fontSize="small" />,
+    });
+  }
 
   if (role === "admin") {
     items.push({
