@@ -33,31 +33,24 @@ export interface StackColumnsEChartsProps {
   isError?: boolean;
   errorMessage?: string;
   heightCard?: string | number;
-  // Bar config
   barWidth?: string | number;
   barBorderRadius?: number | number[];
   barGap?: string | number;
   barCategoryGap?: string | number;
-  // Stack config
   stack?: string;
-  // Axis config
   xAxisLabelRotate?: number;
   xAxisLabelFontSize?: number;
   yAxisLabelFontSize?: number;
   xAxisLabelColor?: string;
   yAxisLabelColor?: string;
-  // Grid config
   gridTop?: string | number;
   gridBottom?: string | number;
   gridLeft?: string | number;
   gridRight?: string | number;
-  // Tooltip config
   showTooltip?: boolean;
   tooltipTrigger?: "item" | "axis" | "none";
-  // Animation
   enableAnimation?: boolean;
   animationDuration?: number;
-  // Export options
   exportEnabled?: boolean;
   exportFilename?: string;
   exportModes?: ExportMode[];
@@ -69,22 +62,17 @@ export interface StackColumnsEChartsProps {
   exportPdfMaxWidthMm?: number;
   exportRasterScale?: number;
   exportPdfOrientation?: "portrait" | "landscape";
-  // Legend styling
   legendTop?: string | number;
   legendLeft?: string | number;
   legendItemGap?: number;
   legendTextColor?: string;
   legendFontSize?: number;
-  // Orientation / stack
   horizontal?: boolean;
   stacked?: boolean;
-  // Data labels (inside bars)
   showDataLabels?: boolean;
   dataLabelColor?: string;
   dataLabelFontSize?: number;
-  // Grid containLabel
   containLabel?: boolean;
-  // Custom formatters
   tooltipFormatter?: (params: any) => string;
   yAxisLabelFormatter?: (value: number) => string;
 }
@@ -403,8 +391,6 @@ const StackColumnsECharts: React.FC<StackColumnsEChartsProps> = ({
       );
     }
 
-    // When horizontal, the container stretches via flex:1 and we measure its
-    // real pixel height before rendering ECharts, so it never gets height:0.
     const chartStyle = horizontal
       ? {
           height: measuredHeight > 0 ? `${measuredHeight}px` : "100%",

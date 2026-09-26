@@ -46,7 +46,6 @@ interface LineChartsComponentProps {
   isPercent?: boolean;
   percentDecimals?: number;
   heightCard?: number | string;
-  // Export props
   exportEnabled?: boolean;
   exportFilename?: string;
   exportModes?: ExportMode[];
@@ -141,9 +140,6 @@ const LineChartsComponent: React.FC<LineChartsComponentProps> = ({
     [singleLineGradient, series.length],
   );
 
-  // Key that forces ReactApexChart to fully remount when series/categories shape changes.
-  // Prevents the ApexCharts internal promise race that causes:
-  // "t3.hasOwnProperty is not a function" / "dom.Paper is undefined"
   const apexChartKey = useMemo(() => {
     const seriesKey =
       series
@@ -165,7 +161,6 @@ const LineChartsComponent: React.FC<LineChartsComponentProps> = ({
     };
   }, [apexChartKey]);
 
-  // Reflow chart on print to avoid clipping when viewport and print widths differ
   useEffect(() => {
     const before = () => {
       try {
@@ -175,7 +170,6 @@ const LineChartsComponent: React.FC<LineChartsComponentProps> = ({
           typeof height === "number"
             ? height
             : Number.parseInt(String(height ?? 350), 10) || 350;
-        // Disable animations and set explicit dimensions to current container
         ApexCharts.exec(
           chartIdRef.current,
           "updateOptions",
@@ -189,7 +183,6 @@ const LineChartsComponent: React.FC<LineChartsComponentProps> = ({
           false,
           true,
         );
-        // Nudge Apex to recompute layout
         window.dispatchEvent(new Event("resize"));
       } catch {}
     };
@@ -562,7 +555,6 @@ const LineChartsComponent: React.FC<LineChartsComponentProps> = ({
   );
 };
 
-// Memoize component to prevent unnecessary re-renders
 export default React.memo(LineChartsComponent, (prevProps, nextProps) => {
   return (
     prevProps.series === nextProps.series &&

@@ -58,7 +58,7 @@ const tryRefreshToken = async (): Promise<string | null> => {
         return newAccessToken;
       }
     } catch {
-      // Tenta o proximo endpoint candidato.
+      continue;
     }
   }
 

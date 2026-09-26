@@ -166,7 +166,6 @@ interface EntregaFormProps {
     };
   } | null;
   preloadedClientId?: number | null;
-  /** Quando true, remove o Paper/cabeçalho próprio para uso dentro de um Drawer que já fornece esse chrome. */
   embedded?: boolean;
 }
 
@@ -302,8 +301,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
         quantity: String(values.quantity),
         amount: Number.isNaN(normalizedAmount) ? 0 : normalizedAmount,
       };
-      // flushSync força o React a renderizar a folha antes de converter em PDF,
-      // garantindo que printRef já contém os dados do pedido atual.
       flushSync(() => setSheetData(createdSheetData));
 
       if (printRef.current) {
@@ -372,7 +369,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
           </Box>
         ) : (
           <>
-            {/* Título */}
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
               <Button
                 variant="contained"
@@ -414,7 +410,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
             return (
             <Form noValidate>
 
-              {/* ── Buscar cliente existente ──────────────────────── */}
               {!preloadedClientData && (
                 <>
                   <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2,mr:4 }}>
@@ -469,7 +464,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
                 </>
               )}
 
-              {/* ── Dados do Cliente ──────────────────────────────── */}
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
                 Dados do cliente
               </Typography>
@@ -501,7 +495,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
 
               <Divider sx={{ my: 3 }} />
 
-              {/* ── Endereço de Entrega ───────────────────────────── */}
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary" }}>
                 Endereço de entrega
               </Typography>
@@ -577,7 +570,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
 
               <Divider sx={{ my: 3 }} />
 
-              {/* ── Detalhes do Pedido ────────────────────────────── */}
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
                 Detalhes do pedido
               </Typography>
@@ -644,7 +636,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
                 </Grid>
               </Grid>
 
-              {/* ── Ações ─────────────────────────────────────────── */}
               <Divider sx={{ mt: 3, mb: 3 }} />
               <Grid container spacing={2} sx={{ mb: 1.5 }}>
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -856,7 +847,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
   );
 };
 
-/** Label estático acima do campo */
 const FieldLabel: React.FC<{ label: string }> = ({ label }) => (
   <Typography variant="body2" fontWeight={500} sx={{ mb: 0.5, color: "text.secondary" }}>
     {label}

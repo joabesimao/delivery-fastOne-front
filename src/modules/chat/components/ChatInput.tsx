@@ -58,12 +58,10 @@ export const ChatInput = ({
       }
 
       if (file.size > 10 * 1024 * 1024) {
-        // 10MB
         alert("A imagem não pode ter mais de 10MB.");
         return;
       }
 
-      // Criar preview
       const reader = new FileReader();
       reader.onload = () => {
         if (typeof reader.result === "string") {
@@ -104,7 +102,6 @@ export const ChatInput = ({
 
   return (
     <Box>
-      {/* Image Preview */}
       {imagePreview && (
         <Box sx={{ mb: 2 }}>
           <Paper
@@ -155,9 +152,7 @@ export const ChatInput = ({
 
       <Divider sx={{ mb: 2 }} />
 
-      {/* Input Area */}
       <Stack spacing={1.5}>
-        {/* Text Input */}
         <Box>
           <TextField
             fullWidth
@@ -199,7 +194,6 @@ export const ChatInput = ({
           </Box>
         </Box>
 
-        {/* Buttons */}
         <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
           <Button
             variant="outlined"
@@ -242,7 +236,6 @@ export const ChatInput = ({
         )}
       </Stack>
 
-      {/* Hidden File Input */}
       <input
         ref={fileInputRef}
         type="file"

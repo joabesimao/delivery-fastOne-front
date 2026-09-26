@@ -102,9 +102,6 @@ const StackColumns: React.FC<StackColumnsProps> = ({
     `stack_${uid.replace(/:/g, "")}_${Math.random().toString(36).slice(2, 9)}`,
   );
 
-  // Key that forces ReactApexChart to fully remount when data shape changes.
-  // This prevents the ApexCharts internal promise race that causes:
-  // "t3.hasOwnProperty is not a function" / "dom.Paper is undefined"
   const apexChartKey = useMemo(() => {
     const seriesKey =
       series?.map((s) => `${s.name}:${s.data?.length ?? 0}`).join("|") ?? "";
@@ -112,10 +109,6 @@ const StackColumns: React.FC<StackColumnsProps> = ({
     return `${chartIdRef.current}||${seriesKey}||${catKey}`;
   }, [series, categories]);
 
-  // Visibility gate: when apexChartKey changes, briefly unmount the chart so the
-  // old ApexCharts instance fully destroys itself (dom.Paper cleaned up) before
-  // the new instance initialises. Without this, componentDidUpdate on the old
-  // instance fires in the same React batch as the new mount → crash.
   const [chartVisible, setChartVisible] = useState(false);
   useEffect(() => {
     setChartVisible(false);

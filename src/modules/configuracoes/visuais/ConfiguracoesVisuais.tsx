@@ -19,7 +19,6 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import useThemeMode from "../../../hooks/useThemeMode";
 
-// Switch estilo iOS / mobile
 const MobileSwitch = styled(Switch)(({ theme }) => ({
   width: 58,
   height: 32,
@@ -82,7 +81,6 @@ const ConfiguracoesVisuais: React.FC = () => {
         <Divider sx={{ mb: 4 }} />
 
         <Stack spacing={3}>
-          {/* Card tema */}
           <Box
             sx={{
               display: "flex",
@@ -127,7 +125,6 @@ const ConfiguracoesVisuais: React.FC = () => {
         </Stack>
       </Paper>
 
-      {/* Modal */}
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
@@ -159,7 +156,6 @@ const ConfiguracoesVisuais: React.FC = () => {
 
         <DialogContent sx={{ pt: 3, pb: 3 }}>
           <Stack spacing={3} alignItems="center">
-            {/* Preview visual */}
             <Box
               sx={{
                 width: 200,
@@ -190,7 +186,6 @@ const ConfiguracoesVisuais: React.FC = () => {
               </Typography>
             </Box>
 
-            {/* Toggle switch */}
             <Box
               sx={{
                 display: "flex",

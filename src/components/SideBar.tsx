@@ -107,7 +107,6 @@ const Sidebar = ({
         </div>
 
         <List>
-          {/* Dashboard com submenu */}
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => setDashboardOpen((prev) => !prev)}
@@ -152,7 +151,6 @@ const Sidebar = ({
             </List>
           </Collapse>
 
-          {/* Entregas com submenu */}
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => setEntregasOpen((prev) => !prev)}

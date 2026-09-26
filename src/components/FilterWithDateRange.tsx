@@ -48,7 +48,6 @@ const FilterWithDateRange: React.FC<FilterWithDateRangeProps> = ({
     valueEnd ?? null,
   );
 
-  // Atualiza datas se props mudarem
   React.useEffect(() => {
     if (valueStart !== undefined) {
       setStartDate(valueStart);

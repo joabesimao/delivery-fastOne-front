@@ -35,33 +35,27 @@ export interface LineChartEChartsProps {
   errorMessage?: string;
   heightCard?: string | number;
 
-  // Legend configuration
   showLegend?: boolean;
   legendPosition?: "top" | "right" | "bottom" | "left";
   legendOrient?: "horizontal" | "vertical";
 
-  // Grid configuration
   gridLeft?: string;
   gridRight?: string;
   gridTop?: string;
   gridBottom?: string;
   gridContainLabel?: boolean;
 
-  // Line configuration
   smooth?: boolean;
   showSymbol?: boolean;
   symbolSize?: number;
   lineWidth?: number;
 
-  // Area fill
   showArea?: boolean;
   areaOpacity?: number;
 
-  // Stack configuration
   stack?: boolean;
   stackName?: string;
 
-  // Axis configuration
   xAxisLabel?: string;
   yAxisLabel?: string;
   yMin?: number;
@@ -69,21 +63,16 @@ export interface LineChartEChartsProps {
   xAxisLabelRotate?: number;
   boundaryGap?: boolean;
 
-  // Tooltip configuration
   showTooltip?: boolean;
   tooltipTrigger?: "axis" | "item" | "none";
 
-  // Toolbox (export)
   showToolbox?: boolean;
 
-  // Animation
   enableAnimation?: boolean;
   animationDuration?: number;
 
-  // Card styling
   cardPadding?: number | string;
 
-  // Export options
   exportEnabled?: boolean;
   exportFilename?: string;
   exportModes?: ExportMode[];
@@ -96,11 +85,9 @@ export interface LineChartEChartsProps {
   exportRasterScale?: number;
   exportPdfOrientation?: "portrait" | "landscape";
 
-  // Y-axis formatter
   yAxisFormatter?: (value: number) => string;
   tooltipValueFormatter?: (value: number) => string;
 
-  // Message when no data
   messageDefault?: string;
 }
 

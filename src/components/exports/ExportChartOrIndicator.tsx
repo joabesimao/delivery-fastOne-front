@@ -356,7 +356,7 @@ function downloadPDF(
       const maxHeightMm = Math.max(0, pageHeight - cursorY - margin);
       const scaleByWidth = maxWidthMm / intrinsicWmm;
       const scaleByHeight = maxHeightMm / intrinsicHmm;
-      const scale = Math.min(scaleByWidth, scaleByHeight, 1); // never upscale beyond 1
+      const scale = Math.min(scaleByWidth, scaleByHeight, 1);
       const drawW = intrinsicWmm * scale;
       const drawH = intrinsicHmm * scale;
       const x = (pageWidth - drawW) / 2;

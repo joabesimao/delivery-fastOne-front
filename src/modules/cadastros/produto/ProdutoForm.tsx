@@ -91,9 +91,7 @@ const validate = (values: ProdutoFormValues): FormErrors => {
 };
 
 interface ProdutoFormProps {
-  /** Quando true, remove o Paper/cabeçalho próprio para uso dentro de um Dialog que já fornece esse chrome. */
   embedded?: boolean;
-  /** Presente = modo edição (PUT); ausente = modo criação (POST). */
   product?: Product | null;
   onSuccess?: (product: Product) => void;
   onCancel?: () => void;

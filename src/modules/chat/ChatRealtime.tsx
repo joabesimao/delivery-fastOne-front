@@ -48,7 +48,6 @@ const ChatRealtime = () => {
   const typingStopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isTypingRef = useRef(false);
 
-  // Inicializar socket
   useEffect(() => {
     const currentSocket = getRealtimeSocket();
 
@@ -246,7 +245,6 @@ const ChatRealtime = () => {
 
   const currentUserId = session?.account.id;
 
-  // Busca no histórico completo via GET /chat/search (debounced), não só nas mensagens já carregadas
   useEffect(() => {
     const trimmed = searchQuery.trim();
 
@@ -296,7 +294,6 @@ const ChatRealtime = () => {
       }}
     >
       <Container maxWidth="lg">
-        {/* Error Alert */}
         {error && (
           <Alert
             severity="error"
@@ -310,7 +307,6 @@ const ChatRealtime = () => {
           </Alert>
         )}
 
-        {/* Header */}
         <ChatHeader
           session={session}
           selectedUnitId={selectedUnitId}
@@ -321,7 +317,6 @@ const ChatRealtime = () => {
           onRefresh={handleRefresh}
         />
 
-        {/* Main Chat Area */}
         <Card
           sx={{
             borderRadius: 3,
@@ -339,7 +334,6 @@ const ChatRealtime = () => {
               "&:last-child": { pb: 2.5 },
             }}
           >
-            {/* Search and Tabs */}
             <Box sx={{ mb: 2 }}>
               <ChatSearch onSearch={setSearchQuery} />
 
@@ -352,7 +346,6 @@ const ChatRealtime = () => {
               )}
             </Box>
 
-            {/* Messages Area */}
             <Box
               sx={{
                 flex: 1,
@@ -389,7 +382,6 @@ const ChatRealtime = () => {
               </Box>
             ) : null}
 
-            {/* Input Area */}
             <ChatInput
               disabled={!session || !isConnected}
               sending={sending}

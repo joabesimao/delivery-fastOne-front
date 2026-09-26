@@ -256,7 +256,6 @@ const InfiniteScrollSelect = <T = any,>({
 
   return (
     <div style={{ width: fullWidth ? "100%" : "auto" }}>
-      {/* Label row */}
       <Box
         sx={{
           display: "flex",

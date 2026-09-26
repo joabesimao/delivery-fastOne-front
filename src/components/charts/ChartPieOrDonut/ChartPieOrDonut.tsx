@@ -194,9 +194,6 @@ const ChartPieOrDonut: React.FC<ChartPieOrDonutProps> = ({
     `pie_${Math.random().toString(36).slice(2, 9)}`,
   );
 
-  // Key that forces ReactApexChart to fully remount when series shape changes.
-  // Prevents the ApexCharts internal promise race that causes:
-  // "t3.hasOwnProperty is not a function" / "dom.Paper is undefined"
   const apexChartKey = useMemo(() => {
     const dataKey = normalizedData.map((d) => `${d.name}:${d.value}`).join("|");
     return `${chartIdRef.current}||${type}||${dataKey}`;
@@ -830,7 +827,6 @@ const ChartPieOrDonut: React.FC<ChartPieOrDonutProps> = ({
   );
 };
 
-// Memoize component to prevent unnecessary re-renders
 export default React.memo(ChartPieOrDonut, (prevProps, nextProps) => {
   return (
     prevProps.data === nextProps.data &&

@@ -41,7 +41,6 @@ const VirtualizedChart: React.FC<VirtualizedChartProps> = ({
     }
   }, [forceRender, inView, isVisible, unmountWhenOutOfView]);
 
-  // Se forceRender for true, sempre renderiza (modo impressão)
   const shouldRender = forceRender || isVisible;
 
   return (
