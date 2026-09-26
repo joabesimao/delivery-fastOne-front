@@ -53,7 +53,6 @@ export const ChatHeader = ({
       }}
     >
       <CardContent sx={{ "&:last-child": { pb: 2 } }}>
-        {/* Header Title */}
         <Stack
           direction="row"
           spacing={1}
@@ -128,16 +127,13 @@ export const ChatHeader = ({
           </Stack>
         </Stack>
 
-        {/* Expandable Content */}
         <Collapse in={expanded}>
           <Stack spacing={2}>
-            {/* Selectors Row */}
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={2}
               alignItems={{ xs: "stretch", sm: "center" }}
             >
-              {/* Loja Selector */}
               <TextField
                 select
                 label="Loja de Envio"
@@ -175,7 +171,6 @@ export const ChatHeader = ({
 
               <Box sx={{ flex: 1 }} />
 
-              {/* Connection Status */}
               {session && (
                 <Chip
                   icon={
@@ -197,7 +192,6 @@ export const ChatHeader = ({
               )}
             </Stack>
 
-            {/* Stats Row */}
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={1}
@@ -230,7 +224,6 @@ export const ChatHeader = ({
               )}
             </Stack>
 
-            {/* Info Message */}
             {!session?.units.length && (
               <Alert severity="info">
                 Você não tem acesso a nenhuma unidade. Contate o administrador.

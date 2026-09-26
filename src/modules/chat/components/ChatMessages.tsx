@@ -65,7 +65,6 @@ export const ChatMessages = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Filtrar mensagens da loja selecionada
   const filteredMessages = useMemo(() => {
     if (!selectedStoreId) {
       return messages;
@@ -159,7 +158,6 @@ export const ChatMessages = ({
       <Stack spacing={0} sx={{ pb: 2 }}>
         {groupedMessages.map((group) => (
           <Box key={group.date}>
-            {/* Date Divider */}
             <Box
               sx={{
                 display: "flex",
@@ -198,7 +196,6 @@ export const ChatMessages = ({
               />
             </Box>
 
-            {/* Messages */}
             {group.messages.map((message) => (
               <ChatMessageItem
                 key={message.id}

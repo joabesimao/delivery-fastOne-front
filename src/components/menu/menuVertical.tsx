@@ -37,9 +37,6 @@ import { FaRoute, FaClipboardCheck } from "react-icons/fa";
 import { IoDocumentText } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
 
-// ── Palette (computada dinamicamente no componente via useTheme) ─────────────
-// As constantes abaixo são substituídas por valores do tema no corpo do componente.
-
 interface MenuVerticalProps {
   open: boolean;
   drawerWidth: number;
@@ -67,7 +64,6 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth, onClose 
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
-  // ── Palette dinâmica ────────────────────────────────────────────────────
   const SIDEBAR_BG      = isDark ? "#0F0F17" : "#FBFCFF";
   const SIDEBAR_BORDER  = isDark ? "rgba(255,255,255,0.07)" : "#DCE3F0";
   const TEXT_PRIMARY    = isDark ? "#E2E4EC" : "#1A1D23";
@@ -248,7 +244,6 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth, onClose 
 
   const drawerInnerContent = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      {/* Topo: logo + botão fechar */}
       <Box
         sx={{
           height: "64px",
@@ -297,7 +292,6 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth, onClose 
 
       <Divider sx={{ borderColor: SIDEBAR_BORDER, flexShrink: 0 }} />
 
-      {/* Lista de itens */}
       <List
         sx={{
           pl: "10px",
@@ -444,7 +438,6 @@ const MenuVertical: React.FC<MenuVerticalProps> = ({ open, drawerWidth, onClose 
         })}
       </List>
 
-      {/* Rodapé */}
       <Divider sx={{ borderColor: SIDEBAR_BORDER, flexShrink: 0 }} />
       <Box
         sx={{

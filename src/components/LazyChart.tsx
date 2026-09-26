@@ -25,7 +25,6 @@ export const LazyChart: React.FC<LazyChartProps> = ({
     freezeOnceVisible: true,
   });
 
-  // Se forceRender for true, sempre renderiza (modo impressão)
   const shouldRender = forceRender || isVisible;
 
   return (

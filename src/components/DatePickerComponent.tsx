@@ -378,14 +378,12 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({
 
       if (!d) return false;
 
-      // Desabilitar datas anteriores ao startDate se fornecido
       if (startDateProp) {
         const startDate =
           startDateProp instanceof Date
             ? startDateProp
             : new Date(startDateProp);
 
-        // Normalizar ambas as datas para meia-noite para comparação apenas de dia
         const pickerDayNormalized = new Date(
           d.getFullYear(),
           d.getMonth(),
@@ -402,7 +400,6 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({
         }
       }
 
-      // Aplicar validação customizada se fornecida
       if (shouldDisableDate) {
         return shouldDisableDate(d);
       }

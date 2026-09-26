@@ -176,7 +176,6 @@ const DateRangePickerComponent: React.FC<DateRangePickerComponentProps> = ({
     onBlur?.();
   }, [isFormik, formik, startName, endName, onBlur]);
 
-  // helper: strip time (00:00 local)
   const dateOnly = (d: Date) =>
     new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
@@ -186,13 +185,13 @@ const DateRangePickerComponent: React.FC<DateRangePickerComponentProps> = ({
     if (!maxSchoolDays || !isSchoolDay || !startValue) return undefined;
 
     let count = 0;
-    let cursor = new Date(startValue); // start date-only already
+    let cursor = new Date(startValue);
 
     for (let i = 0; i < MAX_SCAN_DAYS && count < maxSchoolDays; i++) {
       if (isSchoolDay(cursor)) {
         count++;
         if (count === maxSchoolDays) {
-          return dateOnly(cursor); // ensure date-only
+          return dateOnly(cursor);
         }
       }
       cursor.setDate(cursor.getDate() + 1);

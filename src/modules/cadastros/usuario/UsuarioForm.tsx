@@ -23,12 +23,9 @@ import api from "../../../services/api";
 import { ROLE_OPTIONS, type UsuarioItem, type UsuarioRole } from "../../../types/Usuario";
 
 interface UsuarioFormProps {
-  /** Controla a visibilidade do Dialog do formulário. */
   open: boolean;
   onClose: () => void;
-  /** Chamado após criar/atualizar com sucesso, para o pai recarregar a lista. */
   onSaved: () => void;
-  /** Presente = modo edição (PUT); ausente/null = modo criação (POST). */
   usuario?: UsuarioItem | null;
 }
 

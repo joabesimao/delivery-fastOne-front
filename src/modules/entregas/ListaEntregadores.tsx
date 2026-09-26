@@ -73,11 +73,9 @@ const ListaEntregadores: React.FC = () => {
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
 
-  // Filtros
   const [search, setSearch] = useState(() => (location.state as { search?: string } | null)?.search ?? "");
   const [phoneSearch, setPhoneSearch] = useState("");
 
-  // Paginação
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -218,12 +216,10 @@ const ListaEntregadores: React.FC = () => {
     return filtered.slice(start, start + rowsPerPage);
   }, [filtered, page, rowsPerPage]);
 
-  // Resetar página ao mudar filtros
   useEffect(() => {
     setPage(0);
   }, [search, phoneSearch]);
 
-  // Tokens de cor
   const cardBg = isDark ? "#111827" : "#ffffff";
   const borderColor = isDark ? "rgba(255,255,255,0.08)" : "#e5e7eb";
   const labelColor = isDark ? "#9ca3af" : "#6b7280";
@@ -234,7 +230,6 @@ const ListaEntregadores: React.FC = () => {
 
   return (
     <Box>
-      {/* Cabeçalho da página */}
       <Box
         display="flex"
         alignItems="center"
@@ -263,7 +258,6 @@ const ListaEntregadores: React.FC = () => {
         </Button>
       </Box>
 
-      {/* Card principal */}
       <Paper
         elevation={0}
         sx={{
@@ -273,7 +267,6 @@ const ListaEntregadores: React.FC = () => {
           overflow: "hidden",
         }}
       >
-        {/* Título do card */}
         <Box
           display="flex"
           px={5}
@@ -285,7 +278,6 @@ const ListaEntregadores: React.FC = () => {
           </Typography>
         </Box>
 
-        {/* Linha de filtros */}
         <Box
           display="flex"
           flexWrap="wrap"
@@ -294,7 +286,6 @@ const ListaEntregadores: React.FC = () => {
           py={2.5}
           sx={{ borderBottom: `1px solid ${borderColor}` }}
         >
-          {/* Busca por nome */}
           <Box flex="1" minWidth={200}>
             <Typography
               variant="caption"
@@ -339,7 +330,6 @@ const ListaEntregadores: React.FC = () => {
             />
           </Box>
 
-          {/* Busca por telefone */}
           <Box flex="1" minWidth={180}>
             <Typography
               variant="caption"
@@ -388,21 +378,18 @@ const ListaEntregadores: React.FC = () => {
           </Box>
         </Box>
 
-        {/* Loading */}
         {loading && (
           <Box display="flex" justifyContent="center" py={6}>
             <CircularProgress sx={{ color: "#0ea5e9" }} />
           </Box>
         )}
 
-        {/* Erro */}
         {error && (
           <Box px={3} py={2}>
             <Alert severity="error">{error}</Alert>
           </Box>
         )}
 
-        {/* Tabela */}
         {!loading && !error && (
           <>
             <TableContainer>
@@ -464,7 +451,6 @@ const ListaEntregadores: React.FC = () => {
                             "& td": { borderColor, fontSize: 13, py: 1.2 },
                           }}
                         >
-                          {/* Nome + Sobrenome */}
                           <TableCell>
                             <Typography
                               sx={{
@@ -578,7 +564,6 @@ const ListaEntregadores: React.FC = () => {
               </Table>
             </TableContainer>
 
-            {/* Rodapé com total + paginação */}
             <Box
               display="flex"
               alignItems="center"
@@ -619,7 +604,6 @@ const ListaEntregadores: React.FC = () => {
         )}
       </Paper>
 
-      {/* Dialog Visualizar */}
       <Dialog
         open={Boolean(viewDeliveryman)}
         onClose={() => setViewDeliveryman(null)}
@@ -650,7 +634,6 @@ const ListaEntregadores: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Dialog Editar */}
       <Dialog
         open={Boolean(editDeliveryman && editValues)}
         onClose={() => {
@@ -767,7 +750,6 @@ const ListaEntregadores: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Dialog Confirmar Deleção */}
       <Dialog
         open={Boolean(deleteConfirmId)}
         onClose={() => setDeleteConfirmId(null)}
@@ -800,7 +782,6 @@ const ListaEntregadores: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}

@@ -155,7 +155,6 @@ const ListagemEntregas: React.FC = () => {
       });
       setCreateOpen(true);
     }
-    // Executa apenas na entrada da rota; o state de navegação não deve reabrir o drawer em re-renders.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

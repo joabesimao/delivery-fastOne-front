@@ -230,7 +230,6 @@ const FinalizarEntrega: React.FC = () => {
     }
   };
 
-  // ── Painel de finalização ──────────────────────────────────────────────
   if (selectedOrder) {
     const o = selectedOrder;
     const sc = statusColor[o.status];
@@ -477,7 +476,6 @@ const FinalizarEntrega: React.FC = () => {
     );
   }
 
-  // ── Listagem ───────────────────────────────────────────────────────────
   return (
     <Box>
       <Box display="flex" alignItems="center" justifyContent="space-between" mb={3} flexWrap="wrap" gap={2}>
@@ -490,7 +488,6 @@ const FinalizarEntrega: React.FC = () => {
         elevation={0}
         sx={{ borderRadius: 3,ml:"none", border: `1px solid ${borderColor}`, bgcolor: cardBg, overflow: "hidden" }}
       >
-        {/* Título do card */}
         <Box px={3} py={2.5}sx={{ borderBottom: `1px solid ${borderColor}` }}>
           <Typography variant="h6" fontWeight={700} sx={{ color: textPrimary }}>
             Pedidos de entrega
@@ -500,7 +497,6 @@ const FinalizarEntrega: React.FC = () => {
           </Typography>
         </Box>
 
-        {/* Filtros */}
         <Box
           display="flex" flexWrap="wrap" gap={2} px={3} py={2.5}
           sx={{ borderBottom: `1px solid ${borderColor}` }}

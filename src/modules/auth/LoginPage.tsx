@@ -32,7 +32,6 @@ const normalizeUserLabel = (value: string): string => {
   const normalized = value.trim().toLowerCase();
   if (!normalized) return "";
 
-  // Normaliza o e-mail técnico do admin para um rótulo amigável.
   if (normalized === "admin" || normalized === ADMIN_TECH_EMAIL) {
     return "admin";
   }
@@ -58,9 +57,6 @@ const LoginPage = () => {
   ) => {
     const userLabel = normalizeUserLabel(userEmail);
 
-    // O login grava o token, o usuário e o papel no localStorage para que o
-    // restante da aplicação reconheça a sessão autenticada e aplique o gate
-    // de permissões (menu e rotas restritas por role).
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("currentUserEmail", userLabel || userEmail);
     localStorage.setItem("currentUserName", name || userLabel || userEmail);
@@ -83,8 +79,6 @@ const LoginPage = () => {
       return;
     }
 
-    // O backend exige um e-mail valido; o atalho "admin" mapeia para a
-    // conta tecnica do administrador.
     const normalizedEmail =
       normalizedLogin.toLowerCase() === "admin" ? ADMIN_TECH_EMAIL : normalizedLogin;
 

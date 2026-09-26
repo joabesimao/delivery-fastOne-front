@@ -265,7 +265,6 @@ const ListaBairros: React.FC<ListaBairrosProps> = ({ refreshKey }) => {
         </TableContainer>
       )}
 
-      {/* Dialog Editar */}
       <Dialog
         open={Boolean(editBairro && editValues)}
         onClose={() => {
@@ -332,7 +331,6 @@ const ListaBairros: React.FC<ListaBairrosProps> = ({ refreshKey }) => {
         </DialogActions>
       </Dialog>
 
-      {/* Dialog Confirmar Deleção */}
       <Dialog open={Boolean(deleteConfirmId)} onClose={() => setDeleteConfirmId(null)} maxWidth="xs">
         <DialogTitle>Confirmar exclusão</DialogTitle>
         <DialogContent>

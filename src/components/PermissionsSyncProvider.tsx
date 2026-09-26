@@ -17,9 +17,6 @@ export const PermissionsSyncProvider = ({
   const hasToken =
     typeof window !== "undefined" && localStorage.getItem("accessToken");
 
-  // Sincroniza as permissões vindas da API com o estado global local.
-  // Quando o usuário não possui perfil ou o token está ausente, limpamos
-  // as permissões para evitar que a UI fique em um estado inconsistente.
   const { data: apiPermissions = [], refetch } = useGetPermissions({
     roleId: profileUser?.roleId && hasToken ? profileUser.roleId : undefined,
   });
@@ -40,8 +37,6 @@ export const PermissionsSyncProvider = ({
 
   useEffect(() => {
     if (apiPermissions && apiPermissions.length > 0) {
-      // Mapeia a estrutura recebida pela API para o formato utilizado na UI,
-      // preservando módulos, ações e permissões aninhadas.
       const mapPermission = (perm: any): any => ({
         ...perm,
         module: perm.module as ModuleEnumType,

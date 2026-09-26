@@ -48,7 +48,6 @@ interface InfiniteScrollAutocompleteProps<T extends InfiniteScrollOption> {
   sxInputLabel?: object;
   disableClearable?: boolean;
 
-  // Props para controle de dados infinitos
   data?: any;
   fetchNextPage?: () => void;
   hasNextPage?: boolean;
@@ -58,7 +57,6 @@ interface InfiniteScrollAutocompleteProps<T extends InfiniteScrollOption> {
   onOpen?: () => void;
   onClose?: () => void;
 
-  // Props para personalização
   getOptionLabel: (option: T) => string;
   getOptionKey?: (option: T) => string | number;
   renderOptionContent?: (option: T) => React.ReactNode;
@@ -91,7 +89,6 @@ function InfiniteScrollAutocomplete<T extends InfiniteScrollOption>({
   sxInputLabel = {},
   disableClearable = false,
 
-  // Props de dados
   data,
   fetchNextPage,
   hasNextPage,
@@ -101,7 +98,6 @@ function InfiniteScrollAutocomplete<T extends InfiniteScrollOption>({
   onOpen,
   onClose,
 
-  // Props de personalização
   getOptionLabel,
   getOptionKey,
   renderOptionContent,
@@ -112,7 +108,6 @@ function InfiniteScrollAutocomplete<T extends InfiniteScrollOption>({
   const [isOpen, setIsOpen] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  // Transformar os dados usando a função fornecida ou retornar array vazio
   const options: T[] = useMemo(() => {
     if (!data) return [];
 
@@ -120,7 +115,6 @@ function InfiniteScrollAutocomplete<T extends InfiniteScrollOption>({
       return transformData(data);
     }
 
-    // Se não houver transformData, assume que data.pages existe (padrão React Query infinite)
     if (data.pages) {
       return data.pages.flatMap((page: any) => page.data || []);
     }

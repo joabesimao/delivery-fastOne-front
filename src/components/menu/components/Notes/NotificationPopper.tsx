@@ -46,7 +46,6 @@ const NotificationPopper = ({
     {
       limit: 5,
       user_id: user?.id,
-      // is_read: false, // added when filter corrected
     },
     {
       enabled: !!user?.id && open,

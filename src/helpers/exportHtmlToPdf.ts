@@ -11,10 +11,6 @@ interface ExportHtmlToPdfOptions {
   paperWidthMm?: number;
 }
 
-/**
- * Exporta um elemento HTML para PDF usando html2canvas e jsPDF
- * @param options Opções de exportação
- */
 export async function exportHtmlToPdf({
   element,
   fileName,

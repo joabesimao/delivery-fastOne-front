@@ -30,7 +30,6 @@ export interface PieChartEChartsProps {
   colors?: string[];
   type?: "pie" | "donut";
 
-  // Center configuration
   showCenter?: boolean;
   centerText?: string;
   centerSubText?: string;
@@ -41,7 +40,6 @@ export interface PieChartEChartsProps {
   centerTextFontWeight?: number | string;
   centerSubTextFontWeight?: number | string;
 
-  // Legend configuration
   showLegend?: boolean;
   legendPosition?: "top" | "right" | "bottom" | "left";
   legendOrient?: "horizontal" | "vertical";
@@ -53,28 +51,23 @@ export interface PieChartEChartsProps {
   legendRight?: string | number;
   legendBottom?: string | number;
 
-  // Donut configuration
   radius?: [string, string];
   innerRadius?: string;
   outerRadius?: string;
 
-  // Label configuration
   showLabels?: boolean;
   labelPosition?: "outside" | "inside" | "center";
   labelFormatter?: string | ((params: any) => string);
 
-  // Loading and error states
   isLoading?: boolean;
   isError?: boolean;
   errorMessage?: string;
   messageDefault?: string;
 
-  // Card configuration
   heightCard?: string | number;
   cardPadding?: number | string;
   sizeCircularSkeleton?: number | string;
 
-  // Export configuration
   exportEnabled?: boolean;
   exportFilename?: string;
   exportModes?: ExportMode[];
@@ -87,11 +80,9 @@ export interface PieChartEChartsProps {
   exportRasterScale?: number;
   exportPdfOrientation?: "portrait" | "landscape";
 
-  // Tooltip configuration
   showTooltip?: boolean;
   tooltipFormatter?: string | ((params: any) => string);
 
-  // Additional options
   showPercent?: boolean;
   itemShowCenter?: string;
 }

@@ -19,7 +19,6 @@ export const useChat = (options?: UseChatOptions) => {
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Inicializar socket
   useEffect(() => {
     const currentSocket = getRealtimeSocket();
 
@@ -141,7 +140,6 @@ export const useChat = (options?: UseChatOptions) => {
           return;
         }
 
-        // Implementar quando backend suportar
         socket.emit("chat:delete-message", { messageId }, (response: { ok: boolean; error?: string }) => {
           resolve(response);
         });
@@ -151,7 +149,6 @@ export const useChat = (options?: UseChatOptions) => {
   );
 
   return {
-    // State
     socket,
     session,
     messages,
@@ -159,7 +156,6 @@ export const useChat = (options?: UseChatOptions) => {
     isConnected,
     error,
 
-    // Actions
     sendMessage,
     refreshHistory,
     clearError,

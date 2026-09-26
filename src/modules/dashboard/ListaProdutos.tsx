@@ -79,7 +79,6 @@ const getCategoryStyle = (category: string) => {
   return categoryPalette[hash % categoryPalette.length];
 };
 
-/** Estoque é decorativo: o backend não modela inventário, então derivamos um valor estável a partir do id. */
 const getStockInfo = (id: number): { status: StockFilter; label: string } => {
   if (id % 5 === 0) {
     const remaining = (id % 3) + 1;
@@ -174,7 +173,6 @@ const ListaProdutos: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name, categoryFilter, priceMin, priceMax, page, rowsPerPage]);
 
-  // Amostra usada só para os cards de resumo e os chips de categoria (o backend não expõe agregados).
   const loadAggregateSample = async () => {
     try {
       const res = await api.get("/product", { params: { limit: AGGREGATE_SAMPLE_LIMIT, offset: 0 } });

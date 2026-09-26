@@ -16,7 +16,6 @@ export const useMessageFilter = (
   const filtered = useMemo(() => {
     let result = messages;
 
-    // Filter by search query
     if (options?.searchQuery?.trim()) {
       const query = options.searchQuery.toLowerCase();
       result = result.filter((msg) => {
@@ -31,7 +30,6 @@ export const useMessageFilter = (
       });
     }
 
-    // Filter by store
     if (options?.unitStoreId) {
       const storeId =
         typeof options.unitStoreId === "string"
@@ -40,12 +38,10 @@ export const useMessageFilter = (
       result = result.filter((msg) => msg.unitStoreId === storeId);
     }
 
-    // Filter by sender
     if (options?.senderId) {
       result = result.filter((msg) => msg.sender?.id === options.senderId);
     }
 
-    // Filter by date range
     if (options?.dateFrom || options?.dateTo) {
       result = result.filter((msg) => {
         const msgDate = new Date(msg.createdAt);
@@ -58,7 +54,6 @@ export const useMessageFilter = (
     return result;
   }, [messages, options]);
 
-  // Group by date
   const groupedByDate = useMemo(() => {
     const grouped: Record<string, RealtimeChatMessage[]> = {};
 
@@ -78,7 +73,6 @@ export const useMessageFilter = (
     }));
   }, [filtered]);
 
-  // Statistics
   const stats = useMemo(() => {
     const stats = {
       total: filtered.length,

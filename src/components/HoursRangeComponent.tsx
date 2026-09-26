@@ -71,7 +71,6 @@ const HoursRangeComponent: React.FC<HoursRangeComponentProps> = ({
   maxHour,
   sx = {},
 }) => {
-  // Formik (opcional)
   const formik = (() => {
     try {
       return useFormikContext<any>();
@@ -83,7 +82,6 @@ const HoursRangeComponent: React.FC<HoursRangeComponentProps> = ({
   const [startField, startMeta] = isFormik ? useField(startName) : [null, null];
   const [endField, endMeta] = isFormik ? useField(endName) : [null, null];
 
-  // Valores atuais
   const startVal = useMemo(
     () =>
       toDate(
@@ -96,17 +94,13 @@ const HoursRangeComponent: React.FC<HoursRangeComponentProps> = ({
     [valueEnd, (endField as any)?.value],
   );
 
-  // Estados de abertura
   const [openStart, setOpenStart] = useState(false);
   const [openEnd, setOpenEnd] = useState(false);
-  // Controle para abrir sempre o segundo após aceitar o primeiro
   const [openEndPending, setOpenEndPending] = useState(false);
 
-  // Drafts (rascunho até confirmar)
   const [draftStart, setDraftStart] = useState<Date | null>(null);
   const [draftEnd, setDraftEnd] = useState<Date | null>(null);
 
-  // Efeito: abre segundo quando pending
   useEffect(() => {
     if (!openStart && openEndPending) {
       setDraftEnd(endVal);
@@ -115,7 +109,6 @@ const HoursRangeComponent: React.FC<HoursRangeComponentProps> = ({
     }
   }, [openStart, openEndPending, endVal]);
 
-  // Erros / helpers
   const dErrStart = isFormik
     ? !!(startMeta as any)?.touched && !!(startMeta as any)?.error
     : !!errorStart;
@@ -166,7 +159,6 @@ const HoursRangeComponent: React.FC<HoursRangeComponentProps> = ({
     }
     setFieldVal(startName, finalStart);
     setOpenStart(false);
-    // sempre agenda abertura do segundo se houver horário inicial
     if (finalStart) setOpenEndPending(true);
     commitNotify(finalStart, finalEnd);
   };
@@ -208,7 +200,6 @@ const HoursRangeComponent: React.FC<HoursRangeComponentProps> = ({
   const minTime = useMemo(() => toDate(minHour || ""), [minHour]);
   const maxTime = useMemo(() => toDate(maxHour || ""), [maxHour]);
 
-  // Toolbar simples reutilizável
   const RangeToolbar = ({
     title,
     onClose,
@@ -297,7 +288,6 @@ const HoursRangeComponent: React.FC<HoursRangeComponentProps> = ({
         }
       />
 
-      {/* Picker Início */}
       <MobileTimePicker
         open={openStart}
         value={draftStart}
@@ -352,7 +342,6 @@ const HoursRangeComponent: React.FC<HoursRangeComponentProps> = ({
         }}
       />
 
-      {/* Picker Fim */}
       <MobileTimePicker
         open={openEnd}
         value={draftEnd}

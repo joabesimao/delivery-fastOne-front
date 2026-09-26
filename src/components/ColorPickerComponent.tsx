@@ -29,7 +29,6 @@ const generateRandomColor = () => {
   return color;
 };
 
-// Nova função de validação de cor hex
 const isValidHexColor = (val?: string | null) =>
   typeof val === "string" &&
   /^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/.test(val.trim());
@@ -108,7 +107,7 @@ const ColorPickerComponent: React.FC<ColorPickerComponentProps> = ({
 
   const emitChange = useCallback(
     (newColor: string) => {
-      if (!isValidHexColor(newColor)) return; // não aceita valor inválido
+      if (!isValidHexColor(newColor)) return;
       setInternalColor(newColor);
       onChange?.(newColor);
     },
@@ -168,7 +167,6 @@ const ColorPickerComponent: React.FC<ColorPickerComponentProps> = ({
           value={internalColor}
           onChange={(e) => {
             const val = e.target.value;
-            // Garante somente cores válidas antes de propagar
             if (debounceDelay > 0) {
               if (isValidHexColor(val)) debouncedEmit(val);
             } else {

@@ -82,7 +82,6 @@ export const ChatMessageItem = ({
           alignItems: "flex-end",
         }}
       >
-        {/* Avatar */}
         <Tooltip title={message.sender.name}>
           <Avatar
             sx={{
@@ -97,9 +96,7 @@ export const ChatMessageItem = ({
           </Avatar>
         </Tooltip>
 
-        {/* Message Content */}
         <Box sx={{ flex: 1 }}>
-          {/* Sender Info */}
           <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
             <Box sx={{ flex: 1 }}>
               <Typography
@@ -140,7 +137,6 @@ export const ChatMessageItem = ({
               </Stack>
             </Box>
 
-            {/* Menu */}
             {isOwn && onDelete && (
               <>
                 <IconButton
@@ -172,7 +168,6 @@ export const ChatMessageItem = ({
             )}
           </Stack>
 
-          {/* Message Bubble */}
           <Paper
             elevation={0}
             sx={{
