@@ -28,38 +28,15 @@ import {
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import api from "../../services/api";
 import useRealtimeSocket from "../../hooks/useRealtimeSocket";
 import NovoPedidoDrawer from "./NovoPedidoDrawer";
+import DetalhesEntregaDialog, { type OrderDetail } from "./DetalhesEntregaDialog";
 
-type OrderStatus = "actived" | "delivered" | "finished";
+type OrderStatus = OrderDetail["status"];
 type StatusFilter = "all" | "active" | "finished";
-
-interface OrderData {
-  id: number;
-  quantity: string;
-  amount: number;
-  data: string;
-  receivedAt?: string;
-  finishedAt?: string;
-  status: OrderStatus;
-  deliveryman?: {
-    id: number;
-    name: string;
-    lastName: string;
-  };
-  Register: {
-    client: {
-      name: string;
-    };
-    address: {
-      street: string;
-      numberHouse: number;
-      neighborhood: string;
-      city: string;
-    };
-  };
-}
+type OrderData = OrderDetail;
 
 interface PreloadedClientData {
   name: string;
@@ -120,6 +97,7 @@ const ListagemEntregas: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [detailOrderId, setDetailOrderId] = useState<number | null>(null);
   const [preloadedClient, setPreloadedClient] = useState<{
     clientId?: number;
     clientData?: PreloadedClientData;
@@ -272,6 +250,16 @@ const ListagemEntregas: React.FC = () => {
     { value: "active", label: "Ativos", count: activeCount },
     { value: "finished", label: "Finalizados", count: orders.length - activeCount },
   ];
+
+  // Buscado na lista atual para refletir mudanças em tempo real com o modal aberto.
+  const detailOrder = useMemo(
+    () => orders.find((order) => order.id === detailOrderId) ?? null,
+    [orders, detailOrderId],
+  );
+
+  const goToFinish = (order: OrderData) => {
+    navigate("/finalizar-entrega", { state: { orderId: order.id } });
+  };
 
   const handleCloseDrawer = () => {
     setCreateOpen(false);
@@ -467,7 +455,12 @@ const ListagemEntregas: React.FC = () => {
                         const status = statusConfig[order.status];
 
                         return (
-                          <TableRow key={order.id} hover>
+                          <TableRow
+                            key={order.id}
+                            hover
+                            onClick={() => setDetailOrderId(order.id)}
+                            sx={{ cursor: "pointer" }}
+                          >
                             <TableCell sx={{ fontWeight: 700 }}>#{order.id}</TableCell>
                             <TableCell>
                               <Typography variant="body2" sx={{ fontWeight: 650 }} noWrap>
@@ -507,15 +500,27 @@ const ListagemEntregas: React.FC = () => {
                                 sx={{ bgcolor: alpha(status.color, 0.14), color: status.color, fontWeight: 700 }}
                               />
                             </TableCell>
-                            <TableCell align="right">
+                            <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
+                              <Tooltip title="Ver detalhes">
+                                <IconButton
+                                  size="small"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    setDetailOrderId(order.id);
+                                  }}
+                                >
+                                  <VisibilityOutlinedIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
                               {order.status !== "finished" ? (
                                 <Tooltip title="Finalizar entrega">
                                   <IconButton
                                     size="small"
                                     color="success"
-                                    onClick={() =>
-                                      navigate("/finalizar-entrega", { state: { orderId: order.id } })
-                                    }
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      goToFinish(order);
+                                    }}
                                   >
                                     <CheckCircleOutlineIcon fontSize="small" />
                                   </IconButton>
@@ -548,6 +553,13 @@ const ListagemEntregas: React.FC = () => {
           )}
         </Stack>
       </Card>
+
+      <DetalhesEntregaDialog
+        order={detailOrder}
+        statusConfig={statusConfig}
+        onClose={() => setDetailOrderId(null)}
+        onFinish={goToFinish}
+      />
 
       <NovoPedidoDrawer
         open={createOpen}

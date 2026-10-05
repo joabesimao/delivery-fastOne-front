@@ -26,10 +26,8 @@ import api from "../../services/api";
 import { exportHtmlToPdf } from "../../helpers/exportHtmlToPdf";
 import {
   currencyInputMask,
-  isValidPhone,
   parseCurrencyToNumber,
   phoneMask,
-  stripPhone,
 } from "../../helpers/masks";
 
 interface RegisterResult {
@@ -56,23 +54,13 @@ interface AddressValues {
 }
 
 interface DeliveryFormValues {
+  registerId: number | null;
   name: string;
   phone: string;
   deliverymanId: string;
   address: AddressValues;
   quantity: string;
   amount: string;
-}
-
-interface CityOption {
-  id: number;
-  name: string;
-}
-
-interface NeighborhoodOption {
-  id: number;
-  name: string;
-  cityId: number;
 }
 
 interface DeliverymanOption {
@@ -109,6 +97,7 @@ const CURRENCY_FORMATTER = new Intl.NumberFormat("pt-BR", {
 });
 
 const initialValues: DeliveryFormValues = {
+  registerId: null,
   name: "",
   phone: "",
   deliverymanId: "",
@@ -124,25 +113,15 @@ const initialValues: DeliveryFormValues = {
 };
 
 type FormErrors = {
-  name?: string;
-  phone?: string;
-  address?: Partial<AddressValues>;
+  registerId?: string;
   quantity?: string;
   amount?: string;
 };
 
 const validate = (values: DeliveryFormValues): FormErrors => {
   const errors: FormErrors = {};
-  const addrErrors: Partial<AddressValues> = {};
 
-  if (!values.name.trim()) errors.name = "Informe o nome completo.";
-  if (!values.phone.trim()) errors.phone = "Informe o telefone.";
-  else if (!isValidPhone(values.phone)) errors.phone = "Telefone inválido. Use DDD + número.";
-  if (!values.address.street.trim()) addrErrors.street = "Informe a rua.";
-  if (!values.address.neighborhood.trim()) addrErrors.neighborhood = "Informe o bairro.";
-  if (!values.address.numberHouse.trim()) addrErrors.numberHouse = "Informe o número.";
-  if (!values.address.city.trim()) addrErrors.city = "Informe a cidade.";
-  if (Object.keys(addrErrors).length) errors.address = addrErrors;
+  if (!values.registerId) errors.registerId = "Selecione um cliente.";
   if (!values.quantity || Number(values.quantity) <= 0)
     errors.quantity = "Informe a quantidade.";
   const parsedAmount = parseCurrencyToNumber(values.amount);
@@ -179,11 +158,8 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
   }>({ open: false, message: "", severity: "success" });
 
   const [registers, setRegisters] = useState<RegisterResult[]>([]);
-  const [registersLoading, setRegistersLoading] = useState(false);
-  const [selectedRegisterId, setSelectedRegisterId] = useState<number | null>(null);
+  const [registersLoading, setRegistersLoading] = useState(true);
   const [deliverymen, setDeliverymen] = useState<DeliverymanOption[]>([]);
-  const [cities, setCities] = useState<CityOption[]>([]);
-  const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
   const [skipPrintPreview, setSkipPrintPreview] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem(DELIVERY_PRINT_PREF_KEY) === "1";
@@ -209,21 +185,12 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
       .get<DeliverymanOption[]>("/deliveryman")
       .then((res) => setDeliverymen(Array.isArray(res.data) ? res.data : []))
       .catch(() => setDeliverymen([]));
-    api
-      .get<CityOption[]>("/city")
-      .then((res) => setCities(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setCities([]));
-    api
-      .get<NeighborhoodOption[]>("/neighborhood")
-      .then((res) =>
-        setNeighborhoods(Array.isArray(res.data) ? res.data : [])
-      )
-      .catch(() => setNeighborhoods([]));
   }, []);
 
   useEffect(() => {
     if (preloadedClientData) {
       setFormInitialValues({
+        registerId: preloadedClientId ?? null,
         name: preloadedClientData.name,
         phone: phoneMask(preloadedClientData.phone),
         deliverymanId: "",
@@ -237,10 +204,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
         quantity: "",
         amount: "",
       });
-
-      if (preloadedClientId) {
-        setSelectedRegisterId(preloadedClientId);
-      }
     }
   }, [preloadedClientData, preloadedClientId]);
 
@@ -248,28 +211,10 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
     values: DeliveryFormValues,
     { resetForm }: { resetForm: () => void }
   ) => {
+    if (!values.registerId) return;
+    const registerId = values.registerId;
+
     try {
-      let registerId: number;
-
-      if (selectedRegisterId) {
-        registerId = selectedRegisterId;
-      } else {
-        const registerRes = await api.post("/register", {
-          client: {
-            name: values.name,
-            phone: stripPhone(values.phone),
-          },
-          address: {
-            street: values.address.street,
-            neighborhood: values.address.neighborhood,
-            numberHouse: Number(values.address.numberHouse),
-            reference: values.address.reference,
-            city: values.address.city,
-          },
-        });
-        registerId = registerRes.data.id;
-      }
-
       const normalizedAmount = parseCurrencyToNumber(values.amount);
       const orderPayload: {
         registerId: number;
@@ -317,7 +262,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
       }
 
       setSnackbar({ open: true, message: "Pedido criado com sucesso!", severity: "success" });
-      setSelectedRegisterId(null);
       resetForm();
     } catch (err: unknown) {
       const msg =
@@ -402,10 +346,7 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
 
         <Formik initialValues={formInitialValues} validate={validate} onSubmit={handleSubmit} enableReinitialize={true}>
           {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setValues, setFieldValue }) => {
-            const selectedCity = cities.find((c) => c.name === values.address.city);
-            const neighborhoodSuggestions = selectedCity
-              ? neighborhoods.filter((n) => n.cityId === selectedCity.id)
-              : neighborhoods;
+            const selectedRegister = registers.find((r) => r.id === values.registerId) ?? null;
 
             return (
             <Form noValidate>
@@ -418,10 +359,12 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
 
                   <Grid container spacing={2} sx={{ mb: 1 }}>
                     <Grid size={{ xs: 12 }}>
-                      <FieldLabel label="Pesquisar por nome" />
+                      <FieldLabel label="Pesquisar por nome *" />
                       <Autocomplete
                         options={registers}
                         loading={registersLoading}
+                        value={selectedRegister}
+                        isOptionEqualToValue={(option, value) => option.id === value.id}
                         getOptionLabel={(option) => option.client.name}
                         filterOptions={(options, { inputValue }) => {
                           const term = inputValue.toLowerCase();
@@ -430,145 +373,82 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
                           );
                         }}
                         onChange={(_, selected) => {
-                          if (selected) {
-                            setSelectedRegisterId(selected.id);
-                            setValues({
-                              ...values,
-                              name: selected.client.name,
-                              phone: phoneMask(selected.client.phone),
-                              address: {
-                                street: selected.address.street,
-                                neighborhood: selected.address.neighborhood,
-                                numberHouse: String(selected.address.numberHouse),
-                                reference: selected.address.reference ?? "",
-                                city: selected.address.city,
-                              },
-                            });
-                          } else {
-                            setSelectedRegisterId(null);
-                      }
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        size="small"
-                        fullWidth
-                        placeholder="Digite o nome do cliente..."
+                          setValues({
+                            ...values,
+                            registerId: selected?.id ?? null,
+                            name: selected?.client.name ?? "",
+                            phone: selected ? phoneMask(selected.client.phone) : "",
+                            address: selected
+                              ? {
+                                  street: selected.address.street,
+                                  neighborhood: selected.address.neighborhood,
+                                  numberHouse: String(selected.address.numberHouse),
+                                  reference: selected.address.reference ?? "",
+                                  city: selected.address.city,
+                                }
+                              : initialValues.address,
+                          });
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            size="small"
+                            fullWidth
+                            placeholder="Digite o nome do cliente..."
+                            error={Boolean(touched.registerId && errors.registerId)}
+                            helperText={touched.registerId && errors.registerId}
+                          />
+                        )}
                       />
-                    )}
-                  />
-                </Grid>
-              </Grid>
+                    </Grid>
+                  </Grid>
 
                   <Divider sx={{ my: 3 }} />
                 </>
               )}
 
-              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
-                Dados do cliente
-              </Typography>
+              {values.registerId && (
+                <>
+                  <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
+                    Cliente selecionado
+                  </Typography>
 
-              <Grid container spacing={2} sx={{ mb: 1 }}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FieldLabel label="Nome completo *" />
-                  <TextField
-                    fullWidth size="small" placeholder="Nome completo do cliente"
-                    name="name" value={values.name}
-                    onChange={handleChange} onBlur={handleBlur}
-                    error={Boolean(touched.name && errors.name)}
-                    helperText={touched.name && errors.name}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FieldLabel label="Telefone *" />
-                  <TextField
-                    fullWidth size="small" placeholder="(00) 00000-0000"
-                    name="phone" value={values.phone}
-                    onChange={(e) => setFieldValue("phone", phoneMask(e.target.value))}
-                    onBlur={handleBlur}
-                    inputProps={{ maxLength: 15, inputMode: "numeric" }}
-                    error={Boolean(touched.phone && errors.phone)}
-                    helperText={touched.phone && errors.phone}
-                  />
-                </Grid>
-              </Grid>
-
-              <Divider sx={{ my: 3 }} />
-
-              <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary" }}>
-                Endereço de entrega
-              </Typography>
-
-              <Grid container spacing={2} sx={{ mb: 1 }}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FieldLabel label="Rua *" />
-                  <TextField
-                    fullWidth size="small" placeholder="Nome da rua"
-                    name="address.street" value={values.address.street}
-                    onChange={handleChange} onBlur={handleBlur}
-                    error={Boolean(touched.address?.street && errors.address?.street)}
-                    helperText={touched.address?.street && errors.address?.street}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FieldLabel label="Cidade *" />
-                  <TextField
-                    fullWidth size="small"
-                    placeholder="Digite a cidade"
-                    name="address.city" value={values.address.city}
-                    onChange={(e) => {
-                      handleChange(e);
-                      setFieldValue("address.neighborhood", "");
+                  <Box
+                    sx={{
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      p: 2,
                     }}
-                    onBlur={handleBlur}
-                    inputProps={{ list: "delivery-city-options" }}
-                    error={Boolean(touched.address?.city && errors.address?.city)}
-                    helperText={touched.address?.city && errors.address?.city}
-                  />
-                  <datalist id="delivery-city-options">
-                    {cities.map((c) => (
-                      <option key={c.id} value={c.name} />
-                    ))}
-                  </datalist>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FieldLabel label="Bairro *" />
-                  <TextField
-                    fullWidth size="small"
-                    placeholder="Digite o bairro"
-                    name="address.neighborhood" value={values.address.neighborhood}
-                    onChange={handleChange} onBlur={handleBlur}
-                    inputProps={{ list: "delivery-neighborhood-options" }}
-                    error={Boolean(touched.address?.neighborhood && errors.address?.neighborhood)}
-                    helperText={touched.address?.neighborhood && errors.address?.neighborhood}
-                  />
-                  <datalist id="delivery-neighborhood-options">
-                    {neighborhoodSuggestions.map((b) => (
-                      <option key={b.id} value={b.name} />
-                    ))}
-                  </datalist>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 3 }}>
-                  <FieldLabel label="Número *" />
-                  <TextField
-                    fullWidth size="small" placeholder="Nº"
-                    name="address.numberHouse" value={values.address.numberHouse}
-                    onChange={handleChange} onBlur={handleBlur}
-                    error={Boolean(touched.address?.numberHouse && errors.address?.numberHouse)}
-                    helperText={touched.address?.numberHouse && errors.address?.numberHouse}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 9 }}>
-                  <FieldLabel label="Referência" />
-                  <TextField
-                    fullWidth size="small" placeholder="Ponto de referência"
-                    name="address.reference" value={values.address.reference}
-                    onChange={handleChange} onBlur={handleBlur}
-                  />
-                </Grid>
-              </Grid>
+                  >
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <ClientInfo label="Nome" value={values.name} />
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <ClientInfo label="Telefone" value={values.phone} />
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <ClientInfo
+                          label="Endereço"
+                          value={`${values.address.street}, ${values.address.numberHouse}`}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <ClientInfo
+                          label="Bairro / Cidade"
+                          value={`${values.address.neighborhood} - ${values.address.city}`}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12 }}>
+                        <ClientInfo label="Referência" value={values.address.reference || "Sem referência"} />
+                      </Grid>
+                    </Grid>
+                  </Box>
 
-              <Divider sx={{ my: 3 }} />
+                  <Divider sx={{ my: 3 }} />
+                </>
+              )}
 
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: "text.primary", mb: 2 }}>
                 Detalhes do pedido
@@ -674,7 +554,6 @@ const EntregaForm: React.FC<EntregaFormProps> = ({ onClose, preloadedClientData,
               <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
                 <Button type="reset" variant="outlined" color="inherit" disabled={isSubmitting}
                   sx={{ textTransform: "none", borderColor: "divider", color: "text.secondary" }}
-                  onClick={() => setSelectedRegisterId(null)}
                 >
                   Limpar
                 </Button>
@@ -851,6 +730,17 @@ const FieldLabel: React.FC<{ label: string }> = ({ label }) => (
   <Typography variant="body2" fontWeight={500} sx={{ mb: 0.5, color: "text.secondary" }}>
     {label}
   </Typography>
+);
+
+const ClientInfo: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <Box>
+    <Typography variant="caption" sx={{ color: "text.secondary" }}>
+      {label}
+    </Typography>
+    <Typography variant="body2" fontWeight={600} sx={{ color: "text.primary" }}>
+      {value}
+    </Typography>
+  </Box>
 );
 
 export default EntregaForm;
