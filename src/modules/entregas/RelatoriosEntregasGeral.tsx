@@ -29,7 +29,7 @@ import {
   YAxis,
 } from "recharts";
 import api from "../../services/api";
-import { getRealtimeSocket } from "../../services/realtime";
+import useRealtimeSocket from "../../hooks/useRealtimeSocket";
 
 type DeliveryStatus = "actived" | "delivered" | "finished";
 
@@ -84,6 +84,7 @@ const currencyFormatter = new Intl.NumberFormat("pt-BR", {
 });
 
 const RelatoriosEntregasGeral = () => {
+  const socket = useRealtimeSocket();
   const [orders, setOrders] = useState<OrderData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -108,8 +109,6 @@ const RelatoriosEntregasGeral = () => {
   }, []);
 
   useEffect(() => {
-    const socket = getRealtimeSocket();
-
     if (!socket) {
       return;
     }
@@ -123,7 +122,7 @@ const RelatoriosEntregasGeral = () => {
     return () => {
       socket.off("delivery:changed", onDeliveryChanged);
     };
-  }, []);
+  }, [socket]);
 
   const summary = useMemo(() => {
     const totalOrders = orders.length;

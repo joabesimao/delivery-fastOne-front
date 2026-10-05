@@ -38,7 +38,7 @@ import {
   parseCurrencyToNumber,
   phoneMask,
 } from "../../helpers/masks";
-import { getRealtimeSocket } from "../../services/realtime";
+import useRealtimeSocket from "../../hooks/useRealtimeSocket";
 
 type OrderStatus = "actived" | "delivered" | "finished";
 
@@ -91,6 +91,7 @@ interface DeliverymanFilterOption {
 }
 
 const FinalizarEntrega: React.FC = () => {
+  const socket = useRealtimeSocket();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const location = useLocation();
@@ -147,8 +148,6 @@ const FinalizarEntrega: React.FC = () => {
   }, [orders, orderIdFromState, autoSelectHandled]);
 
   useEffect(() => {
-    const socket = getRealtimeSocket();
-
     if (!socket) {
       return;
     }
@@ -162,7 +161,7 @@ const FinalizarEntrega: React.FC = () => {
     return () => {
       socket.off("delivery:changed", onDeliveryChanged);
     };
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     api

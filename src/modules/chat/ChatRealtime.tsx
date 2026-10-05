@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Alert, Box, Card, CardContent, Container } from "@mui/material";
-import type { Socket } from "socket.io-client";
 import api from "../../services/api";
 import {
-  getRealtimeSocket,
   type RealtimeChatMessage,
   type RealtimeSessionReady,
 } from "../../services/realtime";
 import { ChatHeader, ChatMessages, ChatInput, ChatSearch, TypingIndicator } from "./components";
+import useRealtimeSocket from "../../hooks/useRealtimeSocket";
 import "./chat.css";
 
 const TYPING_STOP_DELAY_MS = 2000;
@@ -29,7 +28,7 @@ const fileToBase64 = (file: File): Promise<string> =>
   });
 
 const ChatRealtime = () => {
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const socket = useRealtimeSocket();
   const [session, setSession] = useState<RealtimeSessionReady | null>(null);
   const [messages, setMessages] = useState<RealtimeChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,15 +48,17 @@ const ChatRealtime = () => {
   const isTypingRef = useRef(false);
 
   useEffect(() => {
-    const currentSocket = getRealtimeSocket();
+    const currentSocket = socket;
 
     if (!currentSocket) {
-      setError("Sessão sem token. Faça login para usar o chat.");
-      setLoading(false);
+      // Sem socket ainda, mas com token: ele está sendo criado e chega no próximo render.
+      if (!localStorage.getItem("accessToken")) {
+        setError("Sessão sem token. Faça login para usar o chat.");
+        setLoading(false);
+      }
       return;
     }
 
-    setSocket(currentSocket);
     setIsConnected(currentSocket.connected);
 
     const onSessionReady = (payload: RealtimeSessionReady) => {
@@ -135,7 +136,7 @@ const ChatRealtime = () => {
         clearTimeout(typingStopTimeoutRef.current);
       }
     };
-  }, []);
+  }, [socket]);
 
   const handleImageSelect = useCallback(
     async (file: File) => {

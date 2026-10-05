@@ -18,12 +18,12 @@ import ChatIcon from "@mui/icons-material/Chat";
 import CloseIcon from "@mui/icons-material/Close";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
-import type { Socket } from "socket.io-client";
 import {
-  getRealtimeSocket,
   type RealtimeChatMessage,
   type RealtimeSessionReady,
 } from "../../services/realtime";
+import useNotifications from "../../hooks/useNotifications";
+import useRealtimeSocket from "../../hooks/useRealtimeSocket";
 
 type WidgetPosition = {
   x: number;
@@ -104,7 +104,7 @@ const FloatingChatWidget = () => {
   const theme = useTheme();
 
   const [open, setOpen] = useState(false);
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const socket = useRealtimeSocket();
   const [session, setSession] = useState<RealtimeSessionReady | null>(null);
   const [messages, setMessages] = useState<RealtimeChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,6 +120,12 @@ const FloatingChatWidget = () => {
   const inputFileRef = useRef<HTMLInputElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<DragMeta>(null);
+
+  const { setChatWidgetOpen } = useNotifications();
+  useEffect(() => {
+    setChatWidgetOpen(open);
+    return () => setChatWidgetOpen(false);
+  }, [open, setChatWidgetOpen]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -139,15 +145,17 @@ const FloatingChatWidget = () => {
   }, []);
 
   useEffect(() => {
-    const currentSocket = getRealtimeSocket();
+    const currentSocket = socket;
 
     if (!currentSocket) {
-      setError("Sessao sem token para chat.");
-      setLoading(false);
+      // Sem socket ainda, mas com token: ele está sendo criado e chega no próximo render.
+      if (!localStorage.getItem("accessToken")) {
+        setError("Sessao sem token para chat.");
+        setLoading(false);
+      }
       return;
     }
 
-    setSocket(currentSocket);
 
     const onSessionReady = (payload: RealtimeSessionReady) => {
       setSession(payload);
@@ -195,7 +203,7 @@ const FloatingChatWidget = () => {
       currentSocket.off("chat:message", onMessage);
       currentSocket.off("connect_error", onConnectError);
     };
-  }, [open, selectedUnitId, session?.account.id]);
+  }, [socket, open, selectedUnitId, session?.account.id]);
 
   useEffect(() => {
     if (!open || !selectedUnitId) {
