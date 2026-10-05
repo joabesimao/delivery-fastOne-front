@@ -42,7 +42,7 @@ import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import TwoWheelerOutlinedIcon from "@mui/icons-material/TwoWheelerOutlined";
 import WifiTetheringRoundedIcon from "@mui/icons-material/WifiTetheringRounded";
 import api from "../../services/api";
-import { getRealtimeSocket } from "../../services/realtime";
+import useRealtimeSocket from "../../hooks/useRealtimeSocket";
 
 type Period = "hoje" | "7dias" | "30dias" | "personalizado";
 
@@ -216,6 +216,7 @@ const StatCard = ({ item, loading }: { item: StatCardItem; loading: boolean }) =
 );
 
 const DashboardIndex = () => {
+  const socket = useRealtimeSocket();
   const navigate = useNavigate();
   const [period, setPeriod] = useState<Period>("hoje");
   const [customRange, setCustomRange] = useState(() => ({
@@ -290,8 +291,10 @@ const DashboardIndex = () => {
   }, [statusFilter]);
 
   useEffect(() => {
-    const socket = getRealtimeSocket();
-    if (!socket) return;
+    if (!socket) {
+      setSocketConnected(false);
+      return;
+    }
 
     setSocketConnected(socket.connected);
 
@@ -312,7 +315,7 @@ const DashboardIndex = () => {
       socket.off("delivery:changed", onDeliveryChanged);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [socket]);
 
   const revenueDelta = useMemo(() => {
     const previous = overview?.metrics.deliveredRevenuePreviousPeriod;

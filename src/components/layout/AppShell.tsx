@@ -4,7 +4,6 @@ import { alpha } from "@mui/material/styles";
 import {
   AppBar,
   Avatar,
-  Badge,
   Box,
   CircularProgress,
   ClickAwayListener,
@@ -44,7 +43,6 @@ import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import LocalShippingRoundedIcon from "@mui/icons-material/LocalShippingRounded";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
-import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
@@ -55,6 +53,8 @@ import useThemeMode from "../../hooks/useThemeMode";
 import { closeRealtimeSocket } from "../../services/realtime";
 import FloatingChatWidget from "../chat/FloatingChatWidget";
 import api from "../../services/api";
+import useNotifications from "../../hooks/useNotifications";
+import NotificationBell from "../notifications/NotificationBell";
 
 type NavItem = {
   label: string;
@@ -65,7 +65,7 @@ type NavItem = {
 
 const drawerWidth = 272;
 
-const buildNavItems = (role: string | null): NavItem[] => {
+const buildNavItems = (role: string | null, chatUnreadCount: number): NavItem[] => {
   const items: NavItem[] = [
     { label: "Dashboard", path: "/dashboard", icon: <DashboardOutlinedIcon fontSize="small" /> },
     { label: "Pedidos de Entrega", path: "/listagem-entregas", icon: <ListAltOutlinedIcon fontSize="small" /> },
@@ -77,7 +77,7 @@ const buildNavItems = (role: string | null): NavItem[] => {
     { label: "Abastecimento", path: "/cadastros/abastecimento", icon: <LocalGasStationOutlinedIcon fontSize="small" /> },
     { label: "Produtos", path: "/dashboard/produtos", icon: <Inventory2OutlinedIcon fontSize="small" /> },
     { label: "Localidades", path: "/cadastros/cidades", icon: <PlaceOutlinedIcon fontSize="small" /> },
-    { label: "Chat", path: "/chat", icon: <ChatOutlinedIcon fontSize="small" />, badge: 2 },
+    { label: "Chat", path: "/chat", icon: <ChatOutlinedIcon fontSize="small" />, badge: chatUnreadCount },
     { label: "Filiais", path: "/filiais", icon: <StoreOutlinedIcon fontSize="small" /> },
     { label: "Configurações", path: "/configuracoes/visuais", icon: <SettingsOutlinedIcon fontSize="small" /> },
   ];
@@ -167,7 +167,11 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
   const currentUserName = currentUserNameRaw || normalizeUserLabel(currentEmailRaw) || "Operador Admin";
   const currentEmail = currentEmailRaw || "carlos@delivery.com";
   const currentUserRole = typeof window !== "undefined" ? localStorage.getItem("currentUserRole") : null;
-  const navItems = useMemo(() => buildNavItems(currentUserRole), [currentUserRole]);
+  const { chatUnreadCount } = useNotifications();
+  const navItems = useMemo(
+    () => buildNavItems(currentUserRole, chatUnreadCount),
+    [currentUserRole, chatUnreadCount],
+  );
 
   const handleNavigate = (path: string, state?: unknown) => {
     navigate(path, state ? { state } : undefined);
@@ -302,7 +306,7 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
                       color: isActive ? "primary.contrastText" : "primary.main",
                     }}
                   >
-                    {item.badge}
+                    {item.badge > 99 ? "99+" : item.badge}
                   </Box>
                 ) : null}
               </ListItemButton>
@@ -435,13 +439,7 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
                 <RefreshRoundedIcon />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Notificações">
-              <IconButton>
-                <Badge color="error" variant="dot">
-                  <NotificationsNoneOutlinedIcon />
-                </Badge>
-              </IconButton>
-            </Tooltip>
+            <NotificationBell canSendNotice={currentUserRole === "admin"} />
             <Tooltip title="Configurações">
               <IconButton onClick={() => navigate("/configuracoes/visuais")}>
                 <SettingsOutlinedIcon />

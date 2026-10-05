@@ -29,7 +29,7 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import api from "../../services/api";
-import { getRealtimeSocket } from "../../services/realtime";
+import useRealtimeSocket from "../../hooks/useRealtimeSocket";
 import NovoPedidoDrawer from "./NovoPedidoDrawer";
 
 type OrderStatus = "actived" | "delivered" | "finished";
@@ -100,6 +100,7 @@ const currencyFormatter = new Intl.NumberFormat("pt-BR", {
 const getInitials = (name: string, lastName: string) => `${name.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 
 const ListagemEntregas: React.FC = () => {
+  const socket = useRealtimeSocket();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -159,8 +160,6 @@ const ListagemEntregas: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const socket = getRealtimeSocket();
-
     if (!socket) {
       return;
     }
@@ -174,7 +173,7 @@ const ListagemEntregas: React.FC = () => {
     return () => {
       socket.off("delivery:changed", onDeliveryChanged);
     };
-  }, []);
+  }, [socket]);
 
   const deliverymen = useMemo(() => {
     const map = new Map<number, string>();

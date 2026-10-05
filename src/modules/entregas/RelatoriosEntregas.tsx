@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import api from "../../services/api";
-import { getRealtimeSocket } from "../../services/realtime";
+import useRealtimeSocket from "../../hooks/useRealtimeSocket";
 
 interface RankingItem {
   deliverymanId: number;
@@ -39,6 +39,7 @@ const toInputDate = (date: Date): string => {
 };
 
 const RelatoriosEntregas: React.FC = () => {
+  const socket = useRealtimeSocket();
   const [startDate, setStartDate] = useState<string>(() => {
     const date = new Date();
     date.setDate(date.getDate() - 30);
@@ -167,8 +168,6 @@ const RelatoriosEntregas: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const socket = getRealtimeSocket();
-
     if (!socket) {
       return;
     }
@@ -182,7 +181,7 @@ const RelatoriosEntregas: React.FC = () => {
     return () => {
       socket.off("delivery:changed", onDeliveryChanged);
     };
-  }, [startDate, endDate, status, pageSize]);
+  }, [socket, startDate, endDate, status, pageSize]);
 
   return (
     <Box sx={{ maxWidth: 960, mx: "auto", px: { xs: 1, sm: 2 } }}>

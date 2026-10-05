@@ -1,5 +1,9 @@
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/pt-br";
 import { format } from "date-fns";
+
+dayjs.extend(relativeTime);
 
 export const formatDate = (
   date?: string | Date | null,
@@ -66,4 +70,11 @@ export const formatDateOnlyLocal = (value?: string | Date | null): string => {
   const day = String(date.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
+};
+
+// "há 5 minutos", "há 2 dias"...
+export const formatRelative = (date?: string | Date | null): string => {
+  if (!date) return "";
+  const d = dayjs(date);
+  return d.isValid() ? d.locale("pt-br").fromNow() : "";
 };
