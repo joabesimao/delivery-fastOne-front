@@ -1,17 +1,6 @@
-import React, { useState } from "react";
-import { Box } from "@mui/material";
+import React from "react";
 import AbastecimentoForm from "./AbastecimentoForm";
-import ListaAbastecimento from "./ListaAbastecimento";
 
-const CadastrarAbastecimento: React.FC = () => {
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <AbastecimentoForm onSuccess={() => setRefreshKey((k) => k + 1)} />
-      <ListaAbastecimento refreshKey={refreshKey} />
-    </Box>
-  );
-};
+const CadastrarAbastecimento: React.FC = () => <AbastecimentoForm />;
 
 export default CadastrarAbastecimento;

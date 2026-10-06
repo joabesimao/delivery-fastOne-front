@@ -27,21 +27,13 @@ import {
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import { useNavigate } from "react-router-dom";
 import api from "../../../services/api";
 import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
 import { computeTotalValue } from "./computeTotalValue";
-
-interface VehicleOption {
-  id: number;
-  plate: string;
-  model: string;
-}
-
-interface DeliverymanOption {
-  id: number;
-  name: string;
-  lastName: string;
-}
+import FiltrosFrota, { type DeliverymanOption, type VehicleOption } from "../shared/FiltrosFrota";
+import useFiltrosFrota from "../shared/useFiltrosFrota";
 
 interface FuelRefillItem {
   id: number;
@@ -66,10 +58,6 @@ interface EditValues {
   pricePerLiter: string;
   totalValue: string;
   refillDate: string;
-}
-
-interface ListaAbastecimentoProps {
-  refreshKey?: number;
 }
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -102,8 +90,10 @@ const isEditValid = (values: EditValues) =>
   Boolean(values.vehicleId && values.deliverymanId && values.refillDate) &&
   [values.km, values.liters, values.pricePerLiter, values.totalValue].every((v) => Number(v) > 0);
 
-const ListaAbastecimento: React.FC<ListaAbastecimentoProps> = ({ refreshKey }) => {
+const ListaAbastecimento: React.FC = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
+  const filters = useFiltrosFrota();
   const isDark = theme.palette.mode === "dark";
   const canManage = MANAGER_ROLES.includes(localStorage.getItem("currentUserRole") ?? "");
 
@@ -152,8 +142,9 @@ const ListaAbastecimento: React.FC<ListaAbastecimentoProps> = ({ refreshKey }) =
 
   const loadRefills = () => {
     setLoading(true);
+    setError(null);
     api
-      .get<FuelRefillItem[]>("/fuel-refill")
+      .get<FuelRefillItem[]>("/fuel-refill", { params: filters.params })
       .then((res) => setRefills(Array.isArray(res.data) ? res.data : []))
       .catch(() => setError("Erro ao carregar o histórico de abastecimentos."))
       .finally(() => setLoading(false));
@@ -161,7 +152,7 @@ const ListaAbastecimento: React.FC<ListaAbastecimentoProps> = ({ refreshKey }) =
 
   useEffect(() => {
     loadRefills();
-  }, [refreshKey]);
+  }, [filters.vehicleId, filters.deliverymanId]);
 
   const showSnackbar = (message: string, severity: "success" | "error") => {
     setSnackbar({ open: true, message, severity });
@@ -225,12 +216,32 @@ const ListaAbastecimento: React.FC<ListaAbastecimentoProps> = ({ refreshKey }) =
 
   return (
     <Box>
-      <Box display="flex" alignItems="center" gap={1} mb={3}>
-        <LocalGasStationIcon sx={{ color: isDark ? "#7C9CBF" : "#003459", fontSize: 28 }} />
-        <Typography variant="h5" fontWeight={700} sx={{ color: isDark ? "#E2E4EC" : "#003459" }}>
-          Histórico de abastecimentos
-        </Typography>
+      <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2} mb={3}>
+        <Box display="flex" alignItems="center" gap={1}>
+          <LocalGasStationIcon sx={{ color: isDark ? "#7C9CBF" : "#003459", fontSize: 28 }} />
+          <Typography variant="h5" fontWeight={700} sx={{ color: isDark ? "#E2E4EC" : "#003459" }}>
+            Histórico de abastecimentos
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => navigate("/cadastros/abastecimento")}
+          sx={{ textTransform: "none", bgcolor: "#4361EE", "&:hover": { bgcolor: "#3451D1" } }}
+        >
+          Lançar abastecimento
+        </Button>
       </Box>
+
+      <FiltrosFrota
+        vehicles={vehicles}
+        deliverymen={deliverymen}
+        vehicleId={filters.vehicleId}
+        deliverymanId={filters.deliverymanId}
+        onVehicleChange={filters.setVehicleId}
+        onDeliverymanChange={filters.setDeliverymanId}
+        onClear={filters.clear}
+      />
 
       {loading && (
         <Box display="flex" justifyContent="center" mt={6}>
@@ -285,7 +296,9 @@ const ListaAbastecimento: React.FC<ListaAbastecimentoProps> = ({ refreshKey }) =
                     align="center"
                     sx={{ py: 5, color: isDark ? "#7C7F8E" : "#94a3b8", fontSize: 14 }}
                   >
-                    Nenhum abastecimento lançado.
+                    {filters.hasFilters
+                      ? "Nenhum abastecimento encontrado para os filtros selecionados."
+                      : "Nenhum abastecimento lançado."}
                   </TableCell>
                 </TableRow>
               ) : (
