@@ -27,20 +27,12 @@ import {
 import BuildIcon from "@mui/icons-material/Build";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import { useNavigate } from "react-router-dom";
 import api from "../../../services/api";
 import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
-
-interface VehicleOption {
-  id: number;
-  plate: string;
-  model: string;
-}
-
-interface DeliverymanOption {
-  id: number;
-  name: string;
-  lastName: string;
-}
+import FiltrosFrota, { type DeliverymanOption, type VehicleOption } from "../shared/FiltrosFrota";
+import useFiltrosFrota from "../shared/useFiltrosFrota";
 
 interface OilChangeLogItem {
   id: number;
@@ -60,10 +52,6 @@ interface EditValues {
   changeDate: string;
 }
 
-interface ListaTrocaOleoProps {
-  refreshKey?: number;
-}
-
 const MANAGER_ROLES = ["admin", "gerente_estoque"];
 
 const formatDate = (value: string) => {
@@ -77,8 +65,10 @@ const EMPTY_EDIT_VALUES: EditValues = { vehicleId: "", deliverymanId: "", km: ""
 const isEditValid = (values: EditValues) =>
   Boolean(values.vehicleId && values.deliverymanId && values.changeDate) && Number(values.km) > 0;
 
-const ListaTrocaOleo: React.FC<ListaTrocaOleoProps> = ({ refreshKey }) => {
+const ListaTrocaOleo: React.FC = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
+  const filters = useFiltrosFrota();
   const isDark = theme.palette.mode === "dark";
   const canManage = MANAGER_ROLES.includes(localStorage.getItem("currentUserRole") ?? "");
 
@@ -122,8 +112,9 @@ const ListaTrocaOleo: React.FC<ListaTrocaOleoProps> = ({ refreshKey }) => {
 
   const loadLogs = () => {
     setLoading(true);
+    setError(null);
     api
-      .get<OilChangeLogItem[]>("/oil-change-log")
+      .get<OilChangeLogItem[]>("/oil-change-log", { params: filters.params })
       .then((res) => setLogs(Array.isArray(res.data) ? res.data : []))
       .catch(() => setError("Erro ao carregar o histórico de trocas de óleo."))
       .finally(() => setLoading(false));
@@ -131,7 +122,7 @@ const ListaTrocaOleo: React.FC<ListaTrocaOleoProps> = ({ refreshKey }) => {
 
   useEffect(() => {
     loadLogs();
-  }, [refreshKey]);
+  }, [filters.vehicleId, filters.deliverymanId]);
 
   const showSnackbar = (message: string, severity: "success" | "error") => {
     setSnackbar({ open: true, message, severity });
@@ -192,12 +183,32 @@ const ListaTrocaOleo: React.FC<ListaTrocaOleoProps> = ({ refreshKey }) => {
 
   return (
     <Box>
-      <Box display="flex" alignItems="center" gap={1} mb={3}>
-        <BuildIcon sx={{ color: isDark ? "#7C9CBF" : "#003459", fontSize: 28 }} />
-        <Typography variant="h5" fontWeight={700} sx={{ color: isDark ? "#E2E4EC" : "#003459" }}>
-          Histórico de trocas de óleo
-        </Typography>
+      <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2} mb={3}>
+        <Box display="flex" alignItems="center" gap={1}>
+          <BuildIcon sx={{ color: isDark ? "#7C9CBF" : "#003459", fontSize: 28 }} />
+          <Typography variant="h5" fontWeight={700} sx={{ color: isDark ? "#E2E4EC" : "#003459" }}>
+            Histórico de trocas de óleo
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => navigate("/cadastros/troca-oleo")}
+          sx={{ textTransform: "none", bgcolor: "#4361EE", "&:hover": { bgcolor: "#3451D1" } }}
+        >
+          Lançar troca de óleo
+        </Button>
       </Box>
+
+      <FiltrosFrota
+        vehicles={vehicles}
+        deliverymen={deliverymen}
+        vehicleId={filters.vehicleId}
+        deliverymanId={filters.deliverymanId}
+        onVehicleChange={filters.setVehicleId}
+        onDeliverymanChange={filters.setDeliverymanId}
+        onClear={filters.clear}
+      />
 
       {loading && (
         <Box display="flex" justifyContent="center" mt={6}>
@@ -252,7 +263,9 @@ const ListaTrocaOleo: React.FC<ListaTrocaOleoProps> = ({ refreshKey }) => {
                     align="center"
                     sx={{ py: 5, color: isDark ? "#7C7F8E" : "#94a3b8", fontSize: 14 }}
                   >
-                    Nenhuma troca de óleo lançada.
+                    {filters.hasFilters
+                      ? "Nenhuma troca de óleo encontrada para os filtros selecionados."
+                      : "Nenhuma troca de óleo lançada."}
                   </TableCell>
                 </TableRow>
               ) : (

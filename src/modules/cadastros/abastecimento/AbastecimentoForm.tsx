@@ -139,7 +139,7 @@ const AbastecimentoForm: React.FC<{ onSuccess?: () => void }> = ({ onSuccess }) 
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2.5 }}>
-          <IconButton size="small" onClick={() => navigate("/dashboard")}>
+          <IconButton size="small" onClick={() => navigate("/listagem-abastecimentos")}>
             <ArrowBackIcon fontSize="small" />
           </IconButton>
           <Typography variant="h6" fontWeight={700} sx={{ color: "text.primary" }}>

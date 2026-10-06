@@ -61,6 +61,7 @@ type NavItem = {
   path: string;
   icon: ReactNode;
   badge?: number;
+  activePaths?: string[];
 };
 
 const drawerWidth = 272;
@@ -73,8 +74,18 @@ const buildNavItems = (role: string | null, chatUnreadCount: number): NavItem[] 
     { label: "Clientes", path: "/dashboard/clientes", icon: <GroupOutlinedIcon fontSize="small" /> },
     { label: "Entregadores", path: "/listagem-entregadores", icon: <TwoWheelerOutlinedIcon fontSize="small" /> },
     { label: "Veículos", path: "/cadastros/veiculo", icon: <DirectionsCarOutlinedIcon fontSize="small" /> },
-    { label: "Troca de Óleo", path: "/cadastros/troca-oleo", icon: <BuildOutlinedIcon fontSize="small" /> },
-    { label: "Abastecimento", path: "/cadastros/abastecimento", icon: <LocalGasStationOutlinedIcon fontSize="small" /> },
+    {
+      label: "Troca de Óleo",
+      path: "/listagem-trocas-oleo",
+      icon: <BuildOutlinedIcon fontSize="small" />,
+      activePaths: ["/cadastros/troca-oleo"],
+    },
+    {
+      label: "Abastecimento",
+      path: "/listagem-abastecimentos",
+      icon: <LocalGasStationOutlinedIcon fontSize="small" />,
+      activePaths: ["/cadastros/abastecimento"],
+    },
     { label: "Produtos", path: "/dashboard/produtos", icon: <Inventory2OutlinedIcon fontSize="small" /> },
     { label: "Localidades", path: "/cadastros/cidades", icon: <PlaceOutlinedIcon fontSize="small" /> },
     { label: "Chat", path: "/chat", icon: <ChatOutlinedIcon fontSize="small" />, badge: chatUnreadCount },
@@ -271,6 +282,7 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
           {navItems.map((item) => {
             const isActive =
               location.pathname === item.path ||
+              Boolean(item.activePaths?.includes(location.pathname)) ||
               (item.path === "/dashboard" && location.pathname === "/dashboard/relatorios");
 
             return (

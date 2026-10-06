@@ -22,6 +22,8 @@ import CadastrarCidades from "./modules/cadastros/cidades/CadastrarCidades.tsx";
 import CadastrarVeiculo from "./modules/cadastros/veiculo/CadastrarVeiculo.tsx";
 import CadastrarTrocaOleo from "./modules/cadastros/trocaOleo/CadastrarTrocaOleo.tsx";
 import CadastrarAbastecimento from "./modules/cadastros/abastecimento/CadastrarAbastecimento.tsx";
+import ListaAbastecimento from "./modules/cadastros/abastecimento/ListaAbastecimento.tsx";
+import ListaTrocaOleo from "./modules/cadastros/trocaOleo/ListaTrocaOleo.tsx";
 import ConfiguracoesVisuais from "./modules/configuracoes/visuais/ConfiguracoesVisuais.tsx";
 import ConfiguracoesFrota from "./modules/configuracoes/frota/ConfiguracoesFrota.tsx";
 import App from "./App.tsx";
@@ -156,6 +158,14 @@ const router = createBrowserRouter([
   {
     path: "/cadastros/abastecimento",
     element: <RequireAuth><CadastrarAbastecimento /></RequireAuth>,
+  },
+  {
+    path: "/listagem-trocas-oleo",
+    element: <RequireAuth><ListaTrocaOleo /></RequireAuth>,
+  },
+  {
+    path: "/listagem-abastecimentos",
+    element: <RequireAuth><ListaAbastecimento /></RequireAuth>,
   },
   {
     path: "/configuracoes/visuais",
