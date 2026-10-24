@@ -428,7 +428,7 @@ const FloatingChatWidget = () => {
               onChange={(event) => handleStoreChange(event.target.value)}
               disabled={!session || session.units.length === 0}
             >
-              {session?.units.map((unit) => (
+              {(session?.units ?? []).map((unit) => (
                 <MenuItem key={unit.id} value={String(unit.id)}>
                   <Stack direction="row" alignItems="center" sx={{ width: "100%" }}>
                     <Box

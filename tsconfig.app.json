@@ -51,7 +51,6 @@
     "src/components/DateTimePickerComponent.tsx",
     "src/components/FilterWithDateRange.tsx",
     "src/components/modalConfirm",
-    "src/components/types",
-    "src/hooks/class"
+    "src/components/types"
   ]
 }

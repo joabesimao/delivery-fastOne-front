@@ -145,7 +145,7 @@ export const ChatHeader = ({
                   minWidth: { xs: "100%", sm: 250 },
                 }}
               >
-                {session?.units.map((unit) => (
+                {(session?.units ?? []).map((unit) => (
                   <MenuItem key={unit.id} value={String(unit.id)}>
                     <Box
                       sx={{

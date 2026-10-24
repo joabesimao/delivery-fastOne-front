@@ -17,7 +17,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   TextField,
   Tooltip,
@@ -28,6 +27,7 @@ import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import api from "../../../services/api";
+import ListTableHead from "../shared/ListTableHead";
 import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
 
 interface DeliverymanOption {
@@ -159,32 +159,7 @@ const VehicleList: React.FC<VehicleListProps> = ({ refreshKey }) => {
           }}
         >
           <Table size="small">
-            <TableHead>
-              <TableRow
-                sx={{
-                  background: isDark
-                    ? "#003459"
-                    : "linear-gradient(90deg, #003459 0%, #005588 100%)",
-                }}
-              >
-                {["#", "Placa", "Modelo", "Marca", "Entregador", "Ações"].map((col) => (
-                  <TableCell
-                    key={col}
-                    sx={{
-                      color: "#e7dbdb",
-                      fontWeight: 700,
-                      fontSize: 13,
-                      whiteSpace: "nowrap",
-                      letterSpacing: 0.4,
-                      borderBottom: "none",
-                      py: 1.5,
-                    }}
-                  >
-                    {col}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
+            <ListTableHead columns={["#", "Placa", "Modelo", "Marca", "Entregador", "Ações"]} />
             <TableBody>
               {vehicles.length === 0 ? (
                 <TableRow>
