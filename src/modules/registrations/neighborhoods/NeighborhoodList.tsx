@@ -17,7 +17,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   TextField,
   Tooltip,
@@ -28,6 +27,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import api from "../../../services/api";
+import ListTableHead from "../shared/ListTableHead";
 
 interface NeighborhoodItem {
   id: number;
@@ -149,32 +149,7 @@ const NeighborhoodList: React.FC<NeighborhoodListProps> = ({ refreshKey }) => {
           }}
         >
           <Table size="small">
-            <TableHead>
-              <TableRow
-                sx={{
-                  background: isDark
-                    ? "#003459"
-                    : "linear-gradient(90deg, #003459 0%, #005588 100%)",
-                }}
-              >
-                {["#", "Bairro", "Cidade", "Ações"].map((col) => (
-                  <TableCell
-                    key={col}
-                    sx={{
-                      color: "#e7dbdb",
-                      fontWeight: 700,
-                      fontSize: 13,
-                      whiteSpace: "nowrap",
-                      letterSpacing: 0.4,
-                      borderBottom: "none",
-                      py: 1.5,
-                    }}
-                  >
-                    {col}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
+            <ListTableHead columns={["#", "Bairro", "Cidade", "Ações"]} />
             <TableBody>
               {neighborhoods.length === 0 ? (
                 <TableRow>

@@ -17,7 +17,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   TextField,
   Tooltip,
@@ -30,6 +29,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import api from "../../../services/api";
+import ListTableHead from "../shared/ListTableHead";
 import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
 import FleetFilters, { type DeliverymanOption, type VehicleOption } from "../shared/FleetFilters";
 import useFleetFilters from "../shared/useFleetFilters";
@@ -229,32 +229,7 @@ const OilChangeList: React.FC = () => {
           }}
         >
           <Table size="small">
-            <TableHead>
-              <TableRow
-                sx={{
-                  background: isDark
-                    ? "#003459"
-                    : "linear-gradient(90deg, #003459 0%, #005588 100%)",
-                }}
-              >
-                {columns.map((col) => (
-                  <TableCell
-                    key={col}
-                    sx={{
-                      color: "#e7dbdb",
-                      fontWeight: 700,
-                      fontSize: 13,
-                      whiteSpace: "nowrap",
-                      letterSpacing: 0.4,
-                      borderBottom: "none",
-                      py: 1.5,
-                    }}
-                  >
-                    {col}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
+            <ListTableHead columns={columns} />
             <TableBody>
               {logs.length === 0 ? (
                 <TableRow>

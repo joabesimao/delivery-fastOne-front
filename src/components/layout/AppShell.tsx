@@ -299,6 +299,9 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
                   "&:hover": {
                     bgcolor: isActive ? "primary.main" : alpha(theme.palette.primary.main, 0.08),
                   },
+                  "&.Mui-selected, &.Mui-selected:hover": {
+                    bgcolor: "primary.main",
+                  },
                 }}
               >
                 <ListItemIcon sx={{ minWidth: 34, color: "inherit" }}>{item.icon}</ListItemIcon>
