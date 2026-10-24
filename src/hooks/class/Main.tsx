@@ -113,7 +113,7 @@ const Main = () => {
   const [searchClass, setSearchClass] = useState<string>("");
   const [filterPeriod, setFilterPeriod] = useState<string>("");
 
-  const [selectedSerieId, setSelectedSerieId] = useState<number | undefined>(
+  const [selectedGradeId, setSelectedGradeId] = useState<number | undefined>(
     undefined,
   );
   const [selectedYears, setSelectedYears] = useState<Option | null>(null);
@@ -139,7 +139,7 @@ const Main = () => {
     name: searchClass,
     shift_id: filterPeriod ? Number(filterPeriod) : undefined,
     unit_id: unitId ?? Number(unitId),
-    year_serie_id: selectedSerieId && Number(selectedSerieId),
+    year_serie_id: selectedGradeId && Number(selectedGradeId),
     page: 1,
     year: selectedYears?.name,
     limit: 1000,
@@ -150,27 +150,27 @@ const Main = () => {
   const [open, setOpen] = useState(false);
   const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
 
-  const [openConfirModal, setOpenConfirmModal] = useState(false);
+  const [openConfirmModal, setOpenConfirmModal] = useState(false);
 
-  const [openBoletinsModal, setOpenBoletinsModal] = useState(false);
-  const [boletinsClassId, setBoletinsClassId] = useState<number | null>(null);
-  const [isImprimindoBulletins, setIsImprimindoBulletins] = useState(false);
+  const [openBulletinsModal, setOpenBulletinsModal] = useState(false);
+  const [bulletinsClassId, setBulletinsClassId] = useState<number | null>(null);
+  const [isPrintingBulletins, setIsPrintingBulletins] = useState(false);
 
-  const handleOpenBoletins = (classId: number) => {
-    setBoletinsClassId(classId);
-    setOpenBoletinsModal(true);
+  const handleOpenBulletins = (classId: number) => {
+    setBulletinsClassId(classId);
+    setOpenBulletinsModal(true);
   };
 
-  const handleCloseBoletins = () => {
-    setOpenBoletinsModal(false);
-    setBoletinsClassId(null);
+  const handleCloseBulletins = () => {
+    setOpenBulletinsModal(false);
+    setBulletinsClassId(null);
   };
 
   const handlePrintBulletins = async (
     selectedIds: number[],
     classId: number | null,
   ) => {
-    setIsImprimindoBulletins(true);
+    setIsPrintingBulletins(true);
     try {
       const success = await generateBulletinsPdf(selectedIds, classId);
       if (!success) {
@@ -180,35 +180,35 @@ const Main = () => {
       toast.error("Erro ao preparar os boletins para impressão.");
       console.error(error);
     } finally {
-      setIsImprimindoBulletins(false);
-      handleCloseBoletins();
+      setIsPrintingBulletins(false);
+      handleCloseBulletins();
     }
   };
 
-  const [alunosSituacaoModal, setAlunosSituacaoModal] = useState<{
+  const [studentsStatusModal, setStudentsStatusModal] = useState<{
     open: boolean;
-    type: "aprovados" | "reprovados";
+    type: "approved" | "failed";
     classId: number | null;
     className: string;
     classPeriod: string;
     yearSerie: string;
   }>({
     open: false,
-    type: "aprovados",
+    type: "approved",
     classId: null,
     className: "",
     classPeriod: "",
     yearSerie: "",
   });
 
-  const handleOpenSituacao = (
-    type: "aprovados" | "reprovados",
+  const handleOpenStatus = (
+    type: "approved" | "failed",
     classId: number,
     className: string,
     classPeriod: string,
     yearSerie: string,
   ) => {
-    setAlunosSituacaoModal({
+    setStudentsStatusModal({
       open: true,
       type,
       classId,
@@ -218,8 +218,8 @@ const Main = () => {
     });
   };
 
-  const handleCloseSituacao = () => {
-    setAlunosSituacaoModal((prev) => ({ ...prev, open: false, classId: null }));
+  const handleCloseStatus = () => {
+    setStudentsStatusModal((prev) => ({ ...prev, open: false, classId: null }));
   };
 
   const handleOpenModal = (rowData?: TypeClassData): void => {
@@ -462,7 +462,7 @@ const Main = () => {
                 loading={!isErrorYears && isLoadingYears}
                 onChange={(_, newValue) => {
                   if (!!selectedYears) {
-                    setSelectedSerieId(undefined);
+                    setSelectedGradeId(undefined);
                   }
                   setSelectedYears(
                     newValue as { id: number; name: string } | null,
@@ -484,11 +484,11 @@ const Main = () => {
                 loading={isLoadingSeries}
                 value={
                   seriesSchool.find(
-                    (item: any) => String(item.id) === String(selectedSerieId),
+                    (item: any) => String(item.id) === String(selectedGradeId),
                   ) || null
                 }
                 onChange={(_, newValue) => {
-                  setSelectedSerieId(
+                  setSelectedGradeId(
                     Array.isArray(newValue)
                       ? undefined
                       : newValue
@@ -591,13 +591,13 @@ const Main = () => {
                     menuOptions={[
                       {
                         label: "Gerar Boletins",
-                        onClick: () => handleOpenBoletins(item.id),
+                        onClick: () => handleOpenBulletins(item.id),
                       },
                       {
                         label: "Alunos Aprovados",
                         onClick: () =>
-                          handleOpenSituacao(
-                            "aprovados",
+                          handleOpenStatus(
+                            "approved",
                             item.id,
                             item.name,
                             item.shift.name,
@@ -607,8 +607,8 @@ const Main = () => {
                       {
                         label: "Alunos Reprovados",
                         onClick: () =>
-                          handleOpenSituacao(
-                            "reprovados",
+                          handleOpenStatus(
+                            "failed",
                             item.id,
                             item.name,
                             item.shift.name,
@@ -656,7 +656,7 @@ const Main = () => {
       />
 
       <ModalConfirm
-        open={openConfirModal}
+        open={openConfirmModal}
         handleClose={() => setOpenConfirmModal(false)}
         handleConfirm={() => {
           setOpenConfirmModal(false);
@@ -667,21 +667,21 @@ const Main = () => {
       />
 
       <ModalGenerateBulletins
-        open={openBoletinsModal}
-        classId={boletinsClassId}
-        handleClose={handleCloseBoletins}
+        open={openBulletinsModal}
+        classId={bulletinsClassId}
+        handleClose={handleCloseBulletins}
         onGeneratePDF={handlePrintBulletins}
-        isGenerating={isImprimindoBulletins}
+        isGenerating={isPrintingBulletins}
       />
 
       <ModalStudentsSituation
-        open={alunosSituacaoModal.open}
-        type={alunosSituacaoModal.type}
-        classId={alunosSituacaoModal.classId}
-        className={alunosSituacaoModal.className}
-        classPeriod={alunosSituacaoModal.classPeriod}
-        yearSerie={alunosSituacaoModal.yearSerie}
-        handleClose={handleCloseSituacao}
+        open={studentsStatusModal.open}
+        type={studentsStatusModal.type}
+        classId={studentsStatusModal.classId}
+        className={studentsStatusModal.className}
+        classPeriod={studentsStatusModal.classPeriod}
+        yearSerie={studentsStatusModal.yearSerie}
+        handleClose={handleCloseStatus}
       />
     </>
   );

@@ -44,7 +44,7 @@ import WifiTetheringRoundedIcon from "@mui/icons-material/WifiTetheringRounded";
 import api from "../../services/api";
 import useRealtimeSocket from "../../hooks/useRealtimeSocket";
 
-type Period = "hoje" | "7dias" | "30dias" | "personalizado";
+type Period = "today" | "7days" | "30days" | "custom";
 
 type StatCardItem = {
   label: string;
@@ -107,10 +107,10 @@ const statusConfig: Record<BackendOrderStatus, { label: string; color: string; b
 };
 
 const periodOptions: Array<{ value: Period; label: string }> = [
-  { value: "hoje", label: "Hoje" },
-  { value: "7dias", label: "Últimos 7 dias" },
-  { value: "30dias", label: "30 dias" },
-  { value: "personalizado", label: "Personalizado" },
+  { value: "today", label: "Hoje" },
+  { value: "7days", label: "Últimos 7 dias" },
+  { value: "30days", label: "30 dias" },
+  { value: "custom", label: "Personalizado" },
 ];
 
 const ROWS_PER_PAGE = 5;
@@ -140,19 +140,19 @@ const getRangeForPeriod = (
 ): { startDate: string; endDate: string } => {
   const now = new Date();
 
-  if (period === "7dias") {
+  if (period === "7days") {
     const start = new Date(now);
     start.setDate(start.getDate() - 6);
     return { startDate: startOfDay(start).toISOString(), endDate: endOfDay(now).toISOString() };
   }
 
-  if (period === "30dias") {
+  if (period === "30days") {
     const start = new Date(now);
     start.setDate(start.getDate() - 29);
     return { startDate: startOfDay(start).toISOString(), endDate: endOfDay(now).toISOString() };
   }
 
-  if (period === "personalizado") {
+  if (period === "custom") {
     const start = customRange.start ? new Date(`${customRange.start}T00:00:00`) : startOfDay(now);
     const end = customRange.end ? new Date(`${customRange.end}T23:59:59`) : endOfDay(now);
     return { startDate: startOfDay(start).toISOString(), endDate: endOfDay(end).toISOString() };
@@ -218,12 +218,12 @@ const StatCard = ({ item, loading }: { item: StatCardItem; loading: boolean }) =
 const DashboardIndex = () => {
   const socket = useRealtimeSocket();
   const navigate = useNavigate();
-  const [period, setPeriod] = useState<Period>("hoje");
+  const [period, setPeriod] = useState<Period>("today");
   const [customRange, setCustomRange] = useState(() => ({
     start: toInputDate(new Date()),
     end: toInputDate(new Date()),
   }));
-  const [statusFilter, setStatusFilter] = useState<BackendOrderStatus | "todos">("todos");
+  const [statusFilter, setStatusFilter] = useState<BackendOrderStatus | "all">("all");
   const [page, setPage] = useState(1);
 
   const [overview, setOverview] = useState<OverviewResponse | null>(null);
@@ -384,7 +384,7 @@ const DashboardIndex = () => {
   }, [performance]);
 
   const filteredOrders = useMemo(
-    () => (statusFilter === "todos" ? orders : orders.filter((order) => order.status === statusFilter)),
+    () => (statusFilter === "all" ? orders : orders.filter((order) => order.status === statusFilter)),
     [orders, statusFilter],
   );
 
@@ -465,7 +465,7 @@ const DashboardIndex = () => {
             ))}
           </ToggleButtonGroup>
 
-          {period === "personalizado" ? (
+          {period === "custom" ? (
             <Stack direction="row" spacing={1}>
               <TextField
                 type="date"
@@ -739,10 +739,10 @@ const DashboardIndex = () => {
               <Select
                 size="small"
                 value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value as BackendOrderStatus | "todos")}
+                onChange={(event) => setStatusFilter(event.target.value as BackendOrderStatus | "all")}
                 sx={{ minWidth: 168, borderRadius: 999 }}
               >
-                <MenuItem value="todos">Todos os Status</MenuItem>
+                <MenuItem value="all">Todos os Status</MenuItem>
                 {Object.entries(statusConfig).map(([value, config]) => (
                   <MenuItem key={value} value={value}>
                     {config.label}

@@ -78,7 +78,7 @@ const AlterUnit = ({ open, onClose }: AlterUnitProps) => {
   const [selectedUnitRoles, setSelectedUnitRoles] =
     useState<Option[]>(initiaListRoles);
 
-  const handleAlterPerfil = async (values: FormValues) => {
+  const handleChangeProfile = async (values: FormValues) => {
     try {
       const roleSelected = selectedUnitRoles.find(
         (role) => role.id === Number(values.profile_id),
@@ -158,7 +158,7 @@ const AlterUnit = ({ open, onClose }: AlterUnitProps) => {
             innerRef={formikRef}
             initialValues={initialValues}
             validationSchema={validationSchema(!!isSuperAdminOrAdmin)}
-            onSubmit={handleAlterPerfil}
+            onSubmit={handleChangeProfile}
           >
             {({ setFieldValue }) => {
               const unitOptions =

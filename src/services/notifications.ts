@@ -1,5 +1,5 @@
 import api from "./api";
-import type { UsuarioRole } from "../types/Usuario";
+import type { UserRole } from "../types/User";
 
 export type NotificationType =
   | "chat_message"
@@ -47,7 +47,7 @@ export interface NotificationDeletedEvent {
 export interface BroadcastNoticePayload {
   title: string;
   body: string;
-  roles?: UsuarioRole[];
+  roles?: UserRole[];
   unitStoreId?: number;
 }
 

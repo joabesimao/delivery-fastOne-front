@@ -162,14 +162,14 @@ src/
 │   └── chat/               # Componentes de chat
 ├── modules/                # Páginas e módulos
 │   ├── dashboard/          # Dashboard, relatórios e listagem de usuários
-│   ├── entregas/           # Gestão de entregas
-│   ├── cadastros/          # Cadastros (clientes, usuários, etc)
+│   ├── deliveries/         # Gestão de entregas
+│   ├── registrations/      # Cadastros (clientes, usuários, etc)
 │   ├── auth/               # Autenticação
 │   ├── chat/               # Chat
-│   └── configuracoes/      # Configurações
+│   └── settings/           # Configurações
 ├── services/               # Serviços (API, WebSocket)
 │   └── api.ts             # Cliente Axios
-├── types/                  # Tipos compartilhados (ex.: Usuario.ts)
+├── types/                  # Tipos compartilhados (ex.: User.ts)
 ├── helpers/                # Funções utilitárias
 │   ├── masks.ts           # Máscaras de input
 │   └── exportHtmlToPdf.ts # Geração de PDF
