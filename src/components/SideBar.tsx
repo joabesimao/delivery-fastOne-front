@@ -37,7 +37,7 @@ const Sidebar = ({
   const [dashboardOpen, setDashboardOpen] = useState(
     location.pathname.startsWith("/dashboard")
   );
-  const [entregasOpen, setEntregasOpen] = useState(
+  const [deliveriesOpen, setDeliveriesOpen] = useState(
     location.pathname.startsWith("/listagem") || location.pathname.startsWith("/realizar") || location.pathname.startsWith("/finalizar") || location.pathname.startsWith("/relatorios-entregas")
   );
 
@@ -153,7 +153,7 @@ const Sidebar = ({
 
           <ListItem disablePadding>
             <ListItemButton
-              onClick={() => setEntregasOpen((prev) => !prev)}
+              onClick={() => setDeliveriesOpen((prev) => !prev)}
               sx={{
                 backgroundColor: (
                   location.pathname.startsWith("/listagem") ||
@@ -169,11 +169,11 @@ const Sidebar = ({
                 <LocalShippingIcon sx={{ color: "#fff" }} />
               </ListItemIcon>
               <ListItemText primary="Entregas" />
-              {open && (entregasOpen ? <ExpandLess sx={{ color: "#fff" }} /> : <ExpandMore sx={{ color: "#fff" }} />)}
+              {open && (deliveriesOpen ? <ExpandLess sx={{ color: "#fff" }} /> : <ExpandMore sx={{ color: "#fff" }} />)}
             </ListItemButton>
           </ListItem>
 
-          <Collapse in={entregasOpen && open} timeout="auto" unmountOnExit>
+          <Collapse in={deliveriesOpen && open} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
               <ListItemButton
                 onClick={() => navigate("/listagem-entregadores")}

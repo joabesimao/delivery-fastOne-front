@@ -5,31 +5,31 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import RealizarEntrega from "./modules/entregas/RealizarEntrega.tsx";
-import FinalizarEntrega from "./modules/entregas/FinalizarEntrega.tsx";
-import RelatoriosEntregas from "./modules/entregas/RelatoriosEntregas.tsx";
-import RelatoriosEntregasGeral from "./modules/entregas/RelatoriosEntregasGeral.tsx";
-import ListagemEntregas from "./modules/entregas/ListagemEntregas.tsx";
-import ListaEntregadores from "./modules/entregas/ListaEntregadores.tsx";
+import NewDelivery from "./modules/deliveries/NewDelivery.tsx";
+import FinishDelivery from "./modules/deliveries/FinishDelivery.tsx";
+import DeliverymanReports from "./modules/deliveries/DeliverymanReports.tsx";
+import DeliveryReports from "./modules/deliveries/DeliveryReports.tsx";
+import DeliveryList from "./modules/deliveries/DeliveryList.tsx";
+import DeliverymanList from "./modules/deliveries/DeliverymanList.tsx";
 import DashboardPage from "./modules/dashboard/DashboardPage";
-import ListaClientes from "./modules/dashboard/ListaClientes";
-import ListaProdutos from "./modules/dashboard/ListaProdutos";
-import CadastrarCliente from "./modules/cadastros/cliente/CadastrarCliente.tsx";
-import CadastrarProduto from "./modules/cadastros/produto/CadastrarProduto.tsx";
-import CadastrarEntregador from "./modules/cadastros/entregador/CadastrarEntregador.tsx";
-import CadastrarBairros from "./modules/cadastros/bairros/CadastrarBairros.tsx";
-import CadastrarCidades from "./modules/cadastros/cidades/CadastrarCidades.tsx";
-import CadastrarVeiculo from "./modules/cadastros/veiculo/CadastrarVeiculo.tsx";
-import CadastrarTrocaOleo from "./modules/cadastros/trocaOleo/CadastrarTrocaOleo.tsx";
-import CadastrarAbastecimento from "./modules/cadastros/abastecimento/CadastrarAbastecimento.tsx";
-import ListaAbastecimento from "./modules/cadastros/abastecimento/ListaAbastecimento.tsx";
-import ListaTrocaOleo from "./modules/cadastros/trocaOleo/ListaTrocaOleo.tsx";
-import ConfiguracoesVisuais from "./modules/configuracoes/visuais/ConfiguracoesVisuais.tsx";
-import ConfiguracoesFrota from "./modules/configuracoes/frota/ConfiguracoesFrota.tsx";
+import ClientList from "./modules/dashboard/ClientList";
+import ProductList from "./modules/dashboard/ProductList";
+import RegisterClient from "./modules/registrations/client/RegisterClient.tsx";
+import RegisterProduct from "./modules/registrations/product/RegisterProduct.tsx";
+import RegisterDeliveryman from "./modules/registrations/deliveryman/RegisterDeliveryman.tsx";
+import RegisterNeighborhoods from "./modules/registrations/neighborhoods/RegisterNeighborhoods.tsx";
+import RegisterCities from "./modules/registrations/cities/RegisterCities.tsx";
+import RegisterVehicle from "./modules/registrations/vehicle/RegisterVehicle.tsx";
+import RegisterOilChange from "./modules/registrations/oilChange/RegisterOilChange.tsx";
+import RegisterFuelRefill from "./modules/registrations/fuelRefill/RegisterFuelRefill.tsx";
+import FuelRefillList from "./modules/registrations/fuelRefill/FuelRefillList.tsx";
+import OilChangeList from "./modules/registrations/oilChange/OilChangeList.tsx";
+import VisualSettings from "./modules/settings/visual/VisualSettings.tsx";
+import FleetSettings from "./modules/settings/fleet/FleetSettings.tsx";
 import App from "./App.tsx";
 import LoginPage from "./modules/auth/LoginPage.tsx";
 import ChatRealtime from "./modules/chat/ChatRealtime.tsx";
-import ListaUsuarios from "./modules/dashboard/ListaUsuarios.tsx";
+import UserList from "./modules/dashboard/UserList.tsx";
 
 const HOME_ROUTE = "/dashboard";
 const LOGIN_ROUTE = "/login";
@@ -89,91 +89,91 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard/clientes",
-    element: <RequireAuth><ListaClientes /></RequireAuth>,
+    element: <RequireAuth><ClientList /></RequireAuth>,
   },
   {
     path: "/dashboard/produtos",
-    element: <RequireAuth><ListaProdutos /></RequireAuth>,
+    element: <RequireAuth><ProductList /></RequireAuth>,
   },
   {
     path: "/dashboard/usuarios",
     element: (
       <RequireAuth roles={["admin"]}>
-        <ListaUsuarios />
+        <UserList />
       </RequireAuth>
     ),
   },
   {
     path: "/realizar-entrega",
-    element: <RequireAuth><RealizarEntrega /></RequireAuth>,
+    element: <RequireAuth><NewDelivery /></RequireAuth>,
   },
   {
     path: "/finalizar-entrega",
-    element: <RequireAuth><FinalizarEntrega /></RequireAuth>,
+    element: <RequireAuth><FinishDelivery /></RequireAuth>,
   },
   {
     path: "/relatorios-entregas",
-    element: <RequireAuth><RelatoriosEntregasGeral /></RequireAuth>,
+    element: <RequireAuth><DeliveryReports /></RequireAuth>,
   },
   {
     path: "/relatorios-entregas/entregadores",
-    element: <RequireAuth><RelatoriosEntregas /></RequireAuth>,
+    element: <RequireAuth><DeliverymanReports /></RequireAuth>,
   },
   {
     path: "/listagem-entregas",
-    element: <RequireAuth><ListagemEntregas /></RequireAuth>,
+    element: <RequireAuth><DeliveryList /></RequireAuth>,
   },
   {
     path: "/listagem-entregadores",
-    element: <RequireAuth><ListaEntregadores /></RequireAuth>,
+    element: <RequireAuth><DeliverymanList /></RequireAuth>,
   },
   {
     path: "/cadastros/cliente",
-    element: <RequireAuth><CadastrarCliente /></RequireAuth>,
+    element: <RequireAuth><RegisterClient /></RequireAuth>,
   },
   {
     path: "/cadastros/produto",
-    element: <RequireAuth><CadastrarProduto /></RequireAuth>,
+    element: <RequireAuth><RegisterProduct /></RequireAuth>,
   },
   {
     path: "/cadastros/entregador",
-    element: <RequireAuth><CadastrarEntregador /></RequireAuth>,
+    element: <RequireAuth><RegisterDeliveryman /></RequireAuth>,
   },
   {
     path: "/cadastros/bairros",
-    element: <RequireAuth><CadastrarBairros /></RequireAuth>,
+    element: <RequireAuth><RegisterNeighborhoods /></RequireAuth>,
   },
   {
     path: "/cadastros/cidades",
-    element: <RequireAuth><CadastrarCidades /></RequireAuth>,
+    element: <RequireAuth><RegisterCities /></RequireAuth>,
   },
   {
     path: "/cadastros/veiculo",
-    element: <RequireAuth><CadastrarVeiculo /></RequireAuth>,
+    element: <RequireAuth><RegisterVehicle /></RequireAuth>,
   },
   {
     path: "/cadastros/troca-oleo",
-    element: <RequireAuth><CadastrarTrocaOleo /></RequireAuth>,
+    element: <RequireAuth><RegisterOilChange /></RequireAuth>,
   },
   {
     path: "/cadastros/abastecimento",
-    element: <RequireAuth><CadastrarAbastecimento /></RequireAuth>,
+    element: <RequireAuth><RegisterFuelRefill /></RequireAuth>,
   },
   {
     path: "/listagem-trocas-oleo",
-    element: <RequireAuth><ListaTrocaOleo /></RequireAuth>,
+    element: <RequireAuth><OilChangeList /></RequireAuth>,
   },
   {
     path: "/listagem-abastecimentos",
-    element: <RequireAuth><ListaAbastecimento /></RequireAuth>,
+    element: <RequireAuth><FuelRefillList /></RequireAuth>,
   },
   {
     path: "/configuracoes/visuais",
-    element: <RequireAuth><ConfiguracoesVisuais /></RequireAuth>,
+    element: <RequireAuth><VisualSettings /></RequireAuth>,
   },
   {
     path: "/configuracoes/frota",
-    element: <RequireAuth><ConfiguracoesFrota /></RequireAuth>,
+    element: <RequireAuth><FleetSettings /></RequireAuth>,
   },
   {
     path: "/chat",

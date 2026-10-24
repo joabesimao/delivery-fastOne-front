@@ -16,7 +16,7 @@ import { Form, Formik } from "formik";
 import { broadcastNotice } from "../../services/notifications";
 import { getRealtimeSessionUnits } from "../../services/realtime";
 import { extractApiErrorMessage } from "../../helpers/extractApiErrorMessage";
-import { ROLE_OPTIONS, type UsuarioRole } from "../../types/Usuario";
+import { ROLE_OPTIONS, type UserRole } from "../../types/User";
 
 const TITLE_MAX = 191;
 const BODY_MAX = 2000;
@@ -24,7 +24,7 @@ const BODY_MAX = 2000;
 interface NoticeFormValues {
   title: string;
   body: string;
-  roles: UsuarioRole[];
+  roles: UserRole[];
   unitStoreId: string;
 }
 
@@ -41,7 +41,7 @@ const validate = (values: NoticeFormValues): FormErrors => {
   return errors;
 };
 
-const roleLabel = (role: UsuarioRole) => ROLE_OPTIONS.find((option) => option.value === role)?.label ?? role;
+const roleLabel = (role: UserRole) => ROLE_OPTIONS.find((option) => option.value === role)?.label ?? role;
 
 interface SendNoticeDialogProps {
   open: boolean;
@@ -111,7 +111,7 @@ const SendNoticeDialog = ({ open, onClose, onSent }: SendNoticeDialogProps) => {
                   label="Perfis"
                   value={values.roles}
                   onChange={(event) => {
-                    const value = event.target.value as unknown as UsuarioRole[] | string;
+                    const value = event.target.value as unknown as UserRole[] | string;
                     void setFieldValue("roles", typeof value === "string" ? value.split(",") : value);
                   }}
                   helperText="Vazio = todos os perfis"
@@ -120,7 +120,7 @@ const SendNoticeDialog = ({ open, onClose, onSent }: SendNoticeDialogProps) => {
                       multiple: true,
                       renderValue: (selected) => (
                         <Stack direction="row" spacing={0.5} useFlexGap flexWrap="wrap">
-                          {(selected as UsuarioRole[]).map((role) => (
+                          {(selected as UserRole[]).map((role) => (
                             <Chip key={role} label={roleLabel(role)} size="small" />
                           ))}
                         </Stack>

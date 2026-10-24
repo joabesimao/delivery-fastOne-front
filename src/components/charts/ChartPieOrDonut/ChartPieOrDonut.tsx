@@ -26,7 +26,7 @@ interface ChartPieOrDonutProps {
   height?: number | string;
   sizeCircularSkeleton?: number | string;
   width?: number | string;
-  menssageDefault?: string;
+  defaultMessage?: string;
   colors?: string[];
   type?: "pie" | "donut";
   showLegend?: boolean;
@@ -86,7 +86,7 @@ const ChartPieOrDonut: React.FC<ChartPieOrDonutProps> = ({
   data,
   height,
   width,
-  menssageDefault = "Nenhum dado encontrado",
+  defaultMessage = "Nenhum dado encontrado",
   heightCard,
   colors = ["#17D6A3", "#FF6B6B", "#FFC107", "#07A7DF", "#6C5CE7", "#A0A0A0"],
   type = "donut",
@@ -318,7 +318,7 @@ const ChartPieOrDonut: React.FC<ChartPieOrDonutProps> = ({
           }}
         >
           <Typography variant="body2" color="text.secondary">
-            {menssageDefault || "Nenhum dado disponível para exibir."}
+            {defaultMessage || "Nenhum dado disponível para exibir."}
           </Typography>
         </Box>
       );

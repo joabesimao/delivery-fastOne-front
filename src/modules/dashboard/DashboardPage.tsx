@@ -2,7 +2,7 @@ import type { SyntheticEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Stack, Tab, Tabs } from "@mui/material";
 import DashboardIndex from "./DashboardIndex";
-import RelatoriosDashboard from "./RelatoriosDashboard";
+import DashboardReports from "./DashboardReports";
 
 type DashboardTab = "geral" | "relatorios";
 
@@ -36,7 +36,7 @@ const DashboardPage = () => {
         <Tab label="Relatórios" value="relatorios" />
       </Tabs>
 
-      {activeTab === "relatorios" ? <RelatoriosDashboard /> : <DashboardIndex />}
+      {activeTab === "relatorios" ? <DashboardReports /> : <DashboardIndex />}
     </Stack>
   );
 };

@@ -49,7 +49,6 @@ import RegistrationIcon from "@/assets/img/registration.svg";
 import WasteIcon from "@/assets/img/waste.svg";
 import AlertIcon from "@/assets/img/alert.svg";
 import BannerSection from "@/assets/img/banner_section.svg";
-import VideosAulas from "@/assets/img/videos_aulas.svg";
 import UnitBlue from "@/assets/img/unit_blue.svg";
 import Aprovad from "@/assets/img/approved.svg";
 import ArrowUp from "@/assets/img/arrow-up.svg";
@@ -130,7 +129,6 @@ export const SvgIcons = {
   WasteIcon,
   AlertIcon,
   BannerSection,
-  VideosAulas,
   UnitBlue,
   Aprovad,
   ArrowUp,
