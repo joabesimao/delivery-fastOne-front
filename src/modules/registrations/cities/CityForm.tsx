@@ -15,7 +15,7 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Formik, Form } from "formik";
 import { useNavigate } from "react-router-dom";
-import api from "../../../services/api";
+import api from "@/shared/api/httpClient";
 
 interface CityFormValues {
   name: string;

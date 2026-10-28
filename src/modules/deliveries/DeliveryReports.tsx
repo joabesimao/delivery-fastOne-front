@@ -28,8 +28,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import api from "../../services/api";
-import useRealtimeSocket from "../../hooks/useRealtimeSocket";
+import api from "@/shared/api/httpClient";
+import useRealtimeSocket from "@/shared/realtime/useRealtimeSocket";
 
 type DeliveryStatus = "actived" | "delivered" | "finished";
 

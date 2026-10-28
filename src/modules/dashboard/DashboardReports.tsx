@@ -24,10 +24,10 @@ import AssignmentTurnedInOutlinedIcon from "@mui/icons-material/AssignmentTurned
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import PublicOutlinedIcon from "@mui/icons-material/PublicOutlined";
 import PendingActionsOutlinedIcon from "@mui/icons-material/PendingActionsOutlined";
-import PageHeader from "../../components/ui/PageHeader";
-import StatCard from "../../components/ui/StatCard";
-import EmptyState from "../../components/ui/EmptyState";
-import api from "../../services/api";
+import PageHeader from "@/shared/ui/PageHeader";
+import StatCard from "@/shared/ui/StatCard";
+import EmptyState from "@/shared/ui/EmptyState";
+import api from "@/shared/api/httpClient";
 
 interface DataItem {
   name: string;

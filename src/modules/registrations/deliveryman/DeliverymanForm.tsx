@@ -15,9 +15,9 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Formik, Form } from "formik";
-import api from "../../../services/api";
-import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "../../../helpers/masks";
-import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
+import api from "@/shared/api/httpClient";
+import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "@/shared/lib/masks";
+import { extractApiErrorMessage } from "@/shared/lib/errors/extractApiErrorMessage";
 
 interface DeliverymanFormValues {
   name: string;
@@ -102,7 +102,7 @@ const DeliverymanForm: React.FC = () => {
       setExistingQualifications((prev) => new Set(prev).add(values.numberQualification));
       setSnackbar({ open: true, message: "Entregador cadastrado com sucesso!", severity: "success" });
       resetForm();
-    } catch (error: any) {
+    } catch (error) {
       setSnackbar({
         open: true,
         message: extractApiErrorMessage(error, "Erro ao cadastrar entregador. Tente novamente."),

@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Formik, Form } from "formik";
-import api from "../../../services/api";
+import api from "@/shared/api/httpClient";
 
 interface CityOption {
   id: number;

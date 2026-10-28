@@ -22,13 +22,14 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { Formik, Form } from "formik";
-import api from "../../services/api";
-import { exportHtmlToPdf } from "../../helpers/exportHtmlToPdf";
+import api from "@/shared/api/httpClient";
+import { exportHtmlToPdf } from "@/shared/lib/exportHtmlToPdf";
 import {
   currencyInputMask,
   parseCurrencyToNumber,
   phoneMask,
-} from "../../helpers/masks";
+} from "@/shared/lib/masks";
+import { storage } from "@/shared/lib/storage";
 
 interface RegisterResult {
   id: number;
@@ -160,10 +161,9 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ onClose, preloadedClientDat
   const [registers, setRegisters] = useState<RegisterResult[]>([]);
   const [registersLoading, setRegistersLoading] = useState(true);
   const [deliverymen, setDeliverymen] = useState<DeliverymanOption[]>([]);
-  const [skipPrintPreview, setSkipPrintPreview] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return window.localStorage.getItem(DELIVERY_PRINT_PREF_KEY) === "1";
-  });
+  const [skipPrintPreview, setSkipPrintPreview] = useState<boolean>(
+    () => storage.get(DELIVERY_PRINT_PREF_KEY) === "1",
+  );
   const [sheetData, setSheetData] = useState<DeliverySheetData | null>(null);
   const [sheetFormat, setSheetFormat] = useState<DeliverySheetFormat>(DELIVERY_DEFAULT_SHEET_FORMAT);
   const [formInitialValues, setFormInitialValues] = useState<DeliveryFormValues>(initialValues);
@@ -542,10 +542,7 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ onClose, preloadedClientDat
                     onChange={(event) => {
                       const checked = event.target.checked;
                       setSkipPrintPreview(checked);
-                      window.localStorage.setItem(
-                        DELIVERY_PRINT_PREF_KEY,
-                        checked ? "1" : "0"
-                      );
+                      storage.set(DELIVERY_PRINT_PREF_KEY, checked ? "1" : "0");
                     }}
                   />
                 )}

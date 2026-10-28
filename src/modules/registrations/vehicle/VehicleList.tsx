@@ -26,9 +26,9 @@ import {
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import api from "../../../services/api";
+import api from "@/shared/api/httpClient";
 import ListTableHead from "../shared/ListTableHead";
-import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
+import { extractApiErrorMessage } from "@/shared/lib/errors/extractApiErrorMessage";
 
 interface DeliverymanOption {
   id: number;

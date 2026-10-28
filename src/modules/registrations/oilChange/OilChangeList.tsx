@@ -28,11 +28,12 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
-import api from "../../../services/api";
+import api from "@/shared/api/httpClient";
 import ListTableHead from "../shared/ListTableHead";
-import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
+import { extractApiErrorMessage } from "@/shared/lib/errors/extractApiErrorMessage";
 import FleetFilters, { type DeliverymanOption, type VehicleOption } from "../shared/FleetFilters";
 import useFleetFilters from "../shared/useFleetFilters";
+import { session } from "@/shared/session/session";
 
 interface OilChangeLogItem {
   id: number;
@@ -70,7 +71,7 @@ const OilChangeList: React.FC = () => {
   const navigate = useNavigate();
   const filters = useFleetFilters();
   const isDark = theme.palette.mode === "dark";
-  const canManage = MANAGER_ROLES.includes(localStorage.getItem("currentUserRole") ?? "");
+  const canManage = session.hasRole(MANAGER_ROLES);
 
   const [logs, setLogs] = useState<OilChangeLogItem[]>([]);
   const [vehicles, setVehicles] = useState<VehicleOption[]>([]);

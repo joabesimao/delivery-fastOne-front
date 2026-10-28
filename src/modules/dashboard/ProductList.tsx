@@ -50,8 +50,8 @@ import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import SellRoundedIcon from "@mui/icons-material/SellRounded";
 import TableRowsRoundedIcon from "@mui/icons-material/TableRowsRounded";
 import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
-import api from "../../services/api";
-import { currencyInputMask, formatCurrencyFromNumber, parseCurrencyToNumber } from "../../helpers/masks";
+import api from "@/shared/api/httpClient";
+import { currencyInputMask, formatCurrencyFromNumber, parseCurrencyToNumber } from "@/shared/lib/masks";
 import ProductForm from "../registrations/product/ProductForm";
 import { toProductImageSrc, type Product } from "../../types/Product";
 

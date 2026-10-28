@@ -29,8 +29,8 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import api from "../../services/api";
-import useRealtimeSocket from "../../hooks/useRealtimeSocket";
+import api from "@/shared/api/httpClient";
+import useRealtimeSocket from "@/shared/realtime/useRealtimeSocket";
 import NewOrderDrawer from "./NewOrderDrawer";
 import DeliveryDetailsDialog, { type OrderDetail } from "./DeliveryDetailsDialog";
 

@@ -20,9 +20,9 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Formik, Form } from "formik";
-import api from "../../../services/api";
-import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "../../../helpers/masks";
-import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
+import api from "@/shared/api/httpClient";
+import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "@/shared/lib/masks";
+import { extractApiErrorMessage } from "@/shared/lib/errors/extractApiErrorMessage";
 
 interface AddressValues {
   street: string;
@@ -145,7 +145,7 @@ const ClientForm: React.FC = () => {
       });
       setModalOpen(true);
       resetForm();
-    } catch (error: any) {
+    } catch (error) {
       setSnackbar({
         open: true,
         message: extractApiErrorMessage(error, "Erro ao cadastrar cliente. Tente novamente."),

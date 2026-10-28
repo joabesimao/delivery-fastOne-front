@@ -36,9 +36,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { useLocation, useNavigate } from "react-router-dom";
-import api from "../../services/api";
-import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "../../helpers/masks";
-import { extractApiErrorMessage } from "../../helpers/extractApiErrorMessage";
+import api from "@/shared/api/httpClient";
+import { isValidPhone, phoneMask, stripPhone, isValidCPF, cpfMask, stripCPF } from "@/shared/lib/masks";
+import { extractApiErrorMessage } from "@/shared/lib/errors/extractApiErrorMessage";
 
 interface Address {
   id?: number;

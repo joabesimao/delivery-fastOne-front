@@ -21,8 +21,9 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import { useNavigate } from "react-router-dom";
-import useThemeMode from "../../hooks/useThemeMode";
-import api from "../../services/api";
+import useThemeMode from "@/shared/theme/useThemeMode";
+import api from "@/shared/api/httpClient";
+import { session } from "@/shared/session/session";
 
 const DEFAULT_LOGIN = import.meta.env.VITE_DEFAULT_LOGIN ?? "admin";
 const DEFAULT_PASSWORD = import.meta.env.VITE_DEFAULT_PASSWORD ?? "12345678";
@@ -57,14 +58,15 @@ const LoginPage = () => {
   ) => {
     const userLabel = normalizeUserLabel(userEmail);
 
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("currentUserEmail", userLabel || userEmail);
-    localStorage.setItem("currentUserName", name || userLabel || userEmail);
-    localStorage.setItem(
-      "refreshToken",
-      refreshToken || `static-refresh-${Date.now()}`,
-    );
-    localStorage.setItem("currentUserRole", role || "user");
+    session.start({
+      accessToken,
+      refreshToken: refreshToken || `static-refresh-${Date.now()}`,
+      user: {
+        email: userLabel || userEmail,
+        name: name || userLabel || userEmail,
+        role: role || "user",
+      },
+    });
     navigate("/dashboard/relatorios", { replace: true });
   };
 

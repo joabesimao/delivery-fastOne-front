@@ -41,8 +41,9 @@ import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import TwoWheelerOutlinedIcon from "@mui/icons-material/TwoWheelerOutlined";
 import WifiTetheringRoundedIcon from "@mui/icons-material/WifiTetheringRounded";
-import api from "../../services/api";
-import useRealtimeSocket from "../../hooks/useRealtimeSocket";
+import api from "@/shared/api/httpClient";
+import useRealtimeSocket from "@/shared/realtime/useRealtimeSocket";
+import { session } from "@/shared/session/session";
 
 type Period = "today" | "7days" | "30days" | "custom";
 
@@ -162,10 +163,8 @@ const getRangeForPeriod = (
 };
 
 const currentUserGreeting = (): string => {
-  if (typeof window === "undefined") return "Operador";
-  const name = localStorage.getItem("currentUserName") ?? "";
+  const { name, email } = session.getUser();
   if (name) return name;
-  const email = localStorage.getItem("currentUserEmail") ?? "";
   if (!email) return "Operador";
   if (email.toLowerCase() === "admin@fastone.local") return "Operador Admin";
   return email;

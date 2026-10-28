@@ -11,8 +11,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import api from "../../services/api";
-import useRealtimeSocket from "../../hooks/useRealtimeSocket";
+import api from "@/shared/api/httpClient";
+import useRealtimeSocket from "@/shared/realtime/useRealtimeSocket";
 
 interface RankingItem {
   deliverymanId: number;

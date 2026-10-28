@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
-import type { RealtimeChatMessage } from "../../../services/realtime";
+import type { RealtimeChatMessage } from "@/shared/realtime/realtimeSocket";
 
 interface ChatMessageItemProps {
   message: RealtimeChatMessage;

@@ -26,7 +26,7 @@ import {
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import api from "../../../services/api";
+import api from "@/shared/api/httpClient";
 import ListTableHead from "../shared/ListTableHead";
 
 interface NeighborhoodItem {
