@@ -29,7 +29,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import api from "@/shared/api/httpClient";
-import ListTableHead from "../shared/ListTableHead";
+import DataTableHead from "@/shared/ui/data-table/DataTableHead";
 import { extractApiErrorMessage } from "@/shared/lib/errors/extractApiErrorMessage";
 import { computeTotalValue } from "./computeTotalValue";
 import FleetFilters, { type DeliverymanOption, type VehicleOption } from "../shared/FleetFilters";
@@ -263,7 +263,7 @@ const FuelRefillList: React.FC = () => {
           }}
         >
           <Table size="small">
-            <ListTableHead columns={columns} />
+            <DataTableHead columns={columns} />
             <TableBody>
               {refills.length === 0 ? (
                 <TableRow>

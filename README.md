@@ -183,6 +183,19 @@ src/
 
 **Regra de dependência:** `ui → application → data → domain`. Uma feature só importa outra pelo `index.ts`. As fronteiras são verificadas pelo ESLint (`no-restricted-imports` em `eslint.config.js`), então `npm run lint` falha se alguma for violada.
 
+### Criando ou migrando uma feature
+
+Use `src/features/vehicles` como referência:
+
+1. **domain/**: tipos da entidade, valores do formulário, validação e a conversão formulário → payload (`toVehicleInput`), tudo em funções puras
+2. **data/**: repository com o DTO da API e o mapeamento para a entidade (`vehiclesRepository`)
+3. **application/**: query keys e hooks `useQuery`/`useMutation`; as mutations invalidam a lista, sem `refreshKey`
+4. **ui/components/**: componentes que só recebem props (`VehicleForm`, `VehicleTable`, `VehicleEditDialog`)
+5. **ui/pages/**: a página orquestra os hooks e o feedback (`useToast`)
+6. **index.ts**: exporta só o que outras partes usam e entra no router via `lazy`
+
+Antes de criar UI nova, procure em `shared/ui` (`DataTable`, `RowActions`, `ConfirmDialog`, `FormCard`, `FormActions`, `FieldLabel`, `SectionHeader`).
+
 ---
 
 ## 🔑 Credenciais Padrão (Demo)

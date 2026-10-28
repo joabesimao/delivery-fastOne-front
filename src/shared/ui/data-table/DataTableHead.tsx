@@ -1,10 +1,10 @@
 import { TableCell, TableHead, TableRow, useTheme } from "@mui/material";
 
-type ListTableHeadProps = {
+interface DataTableHeadProps {
   columns: string[];
-};
+}
 
-export default function ListTableHead({ columns }: ListTableHeadProps) {
+const DataTableHead = ({ columns }: DataTableHeadProps) => {
   const isDark = useTheme().palette.mode === "dark";
 
   return (
@@ -16,9 +16,9 @@ export default function ListTableHead({ columns }: ListTableHeadProps) {
             : "linear-gradient(90deg, #003459 0%, #005588 100%)",
         }}
       >
-        {columns.map((col) => (
+        {columns.map((column) => (
           <TableCell
-            key={col}
+            key={column}
             sx={{
               backgroundColor: "transparent",
               color: "#e7dbdb",
@@ -30,10 +30,12 @@ export default function ListTableHead({ columns }: ListTableHeadProps) {
               py: 1.5,
             }}
           >
-            {col}
+            {column}
           </TableCell>
         ))}
       </TableRow>
     </TableHead>
   );
-}
+};
+
+export default DataTableHead;

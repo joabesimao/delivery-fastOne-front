@@ -26,7 +26,7 @@ import LocationCityIcon from "@mui/icons-material/LocationCity";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import api from "@/shared/api/httpClient";
-import ListTableHead from "../shared/ListTableHead";
+import DataTableHead from "@/shared/ui/data-table/DataTableHead";
 
 interface CityItem {
   id: number;
@@ -133,7 +133,7 @@ const CityList: React.FC<CityListProps> = ({ refreshKey }) => {
           }}
         >
           <Table size="small">
-            <ListTableHead columns={["#", "Nome", "Ações"]} />
+            <DataTableHead columns={["#", "Nome", "Ações"]} />
             <TableBody>
               {cities.length === 0 ? (
                 <TableRow>
