@@ -1,0 +1,544 @@
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { alpha } from "@mui/material/styles";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  CircularProgress,
+  ClickAwayListener,
+  Divider,
+  Drawer,
+  IconButton,
+  InputAdornment,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Paper,
+  Popper,
+  Stack,
+  TextField,
+  Toolbar,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
+import ChatOutlinedIcon from "@mui/icons-material/ChatOutlined";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import DirectionsCarOutlinedIcon from "@mui/icons-material/DirectionsCarOutlined";
+import BuildOutlinedIcon from "@mui/icons-material/BuildOutlined";
+import LocalGasStationOutlinedIcon from "@mui/icons-material/LocalGasStationOutlined";
+import SpeedOutlinedIcon from "@mui/icons-material/SpeedOutlined";
+import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
+import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
+import LocalShippingRoundedIcon from "@mui/icons-material/LocalShippingRounded";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
+import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
+import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import StoreOutlinedIcon from "@mui/icons-material/StoreOutlined";
+import TwoWheelerOutlinedIcon from "@mui/icons-material/TwoWheelerOutlined";
+import useThemeMode from "@/shared/theme/useThemeMode";
+import { closeRealtimeSocket } from "@/shared/realtime/realtimeSocket";
+import FloatingChatWidget from "@/modules/chat/components/FloatingChatWidget";
+import api from "@/shared/api/httpClient";
+import useNotifications from "@/modules/notifications/useNotifications";
+import NotificationBell from "@/modules/notifications/components/NotificationBell";
+import { session } from "@/shared/session/session";
+
+type NavItem = {
+  label: string;
+  path: string;
+  icon: ReactNode;
+  badge?: number;
+  activePaths?: string[];
+};
+
+const drawerWidth = 272;
+
+const buildNavItems = (role: string | null, chatUnreadCount: number): NavItem[] => {
+  const items: NavItem[] = [
+    { label: "Dashboard", path: "/dashboard", icon: <DashboardOutlinedIcon fontSize="small" /> },
+    { label: "Pedidos de Entrega", path: "/listagem-entregas", icon: <ListAltOutlinedIcon fontSize="small" /> },
+    { label: "Finalizar Entregas", path: "/finalizar-entrega", icon: <CheckCircleOutlineIcon fontSize="small" /> },
+    { label: "Clientes", path: "/dashboard/clientes", icon: <GroupOutlinedIcon fontSize="small" /> },
+    { label: "Entregadores", path: "/listagem-entregadores", icon: <TwoWheelerOutlinedIcon fontSize="small" /> },
+    { label: "Veículos", path: "/cadastros/veiculo", icon: <DirectionsCarOutlinedIcon fontSize="small" /> },
+    {
+      label: "Troca de Óleo",
+      path: "/listagem-trocas-oleo",
+      icon: <BuildOutlinedIcon fontSize="small" />,
+      activePaths: ["/cadastros/troca-oleo"],
+    },
+    {
+      label: "Abastecimento",
+      path: "/listagem-abastecimentos",
+      icon: <LocalGasStationOutlinedIcon fontSize="small" />,
+      activePaths: ["/cadastros/abastecimento"],
+    },
+    { label: "Produtos", path: "/dashboard/produtos", icon: <Inventory2OutlinedIcon fontSize="small" /> },
+    { label: "Localidades", path: "/cadastros/cidades", icon: <PlaceOutlinedIcon fontSize="small" /> },
+    { label: "Chat", path: "/chat", icon: <ChatOutlinedIcon fontSize="small" />, badge: chatUnreadCount },
+    { label: "Filiais", path: "/filiais", icon: <StoreOutlinedIcon fontSize="small" /> },
+    { label: "Configurações", path: "/configuracoes/visuais", icon: <SettingsOutlinedIcon fontSize="small" /> },
+  ];
+
+  if (role === "admin" || role === "gerente_estoque") {
+    items.push({
+      label: "Configurações de Frota",
+      path: "/configuracoes/frota",
+      icon: <SpeedOutlinedIcon fontSize="small" />,
+    });
+  }
+
+  if (role === "admin") {
+    items.push({
+      label: "Usuários",
+      path: "/dashboard/usuarios",
+      icon: <AdminPanelSettingsOutlinedIcon fontSize="small" />,
+    });
+  }
+
+  return items;
+};
+
+interface SearchOrderResult {
+  id: number;
+  status: string;
+  amount: number;
+  clientName: string;
+  deliverymanName: string | null;
+}
+
+interface SearchClientResult {
+  id: number;
+  name: string;
+  cpf: string;
+  phone: string;
+}
+
+interface SearchDeliverymanResult {
+  id: number;
+  name: string;
+  lastName: string;
+  phone: string;
+}
+
+interface SearchResults {
+  orders: SearchOrderResult[];
+  clients: SearchClientResult[];
+  deliverymen: SearchDeliverymanResult[];
+}
+
+const ADMIN_TECH_EMAIL = "admin@fastone.local";
+
+const normalizeUserLabel = (value: string): string => {
+  const normalized = value.trim();
+  if (!normalized) return "";
+  if (normalized.toLowerCase() === ADMIN_TECH_EMAIL) return "Operador Admin";
+  return normalized;
+};
+
+const getAvatarLabel = (name: string) =>
+  name
+    .trim()
+    .split(/\s+/)
+    .map((part) => part.charAt(0).toUpperCase())
+    .slice(0, 2)
+    .join("") || "U";
+
+const AppShell = ({ children }: { children?: ReactNode }) => {
+  const theme = useTheme();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const { mode, toggleMode } = useThemeMode();
+
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileAnchorEl, setProfileAnchorEl] = useState<HTMLElement | null>(null);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResults | null>(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchAnchorEl, setSearchAnchorEl] = useState<HTMLDivElement | null>(null);
+
+  const [sessionUser] = useState(session.getUser);
+  const { email: currentEmailRaw, name: currentUserNameRaw, role: currentUserRole } = sessionUser;
+  const currentUserName = currentUserNameRaw || normalizeUserLabel(currentEmailRaw) || "Operador Admin";
+  const currentEmail = currentEmailRaw || "carlos@delivery.com";
+  const { chatUnreadCount } = useNotifications();
+  const navItems = useMemo(
+    () => buildNavItems(currentUserRole, chatUnreadCount),
+    [currentUserRole, chatUnreadCount],
+  );
+
+  const handleNavigate = (path: string, state?: unknown) => {
+    navigate(path, state ? { state } : undefined);
+    setMobileOpen(false);
+  };
+
+  useEffect(() => {
+    const term = searchTerm.trim();
+    if (term.length < 2) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setSearchLoading(true);
+      api
+        .get<SearchResults>("/search", { params: { q: term } })
+        .then((res) => setSearchResults(res.data))
+        .catch(() => setSearchResults(null))
+        .finally(() => setSearchLoading(false));
+    }, 300);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [searchTerm]);
+
+  const closeSearch = () => setSearchOpen(false);
+
+  const handleSelectOrder = (order: SearchOrderResult) => {
+    setSearchTerm("");
+    setSearchResults(null);
+    closeSearch();
+    navigate("/listagem-entregas", { state: { search: String(order.id) } });
+  };
+
+  const handleSelectClient = (client: SearchClientResult) => {
+    setSearchTerm("");
+    setSearchResults(null);
+    closeSearch();
+    navigate("/dashboard/clientes", { state: { search: client.name } });
+  };
+
+  const handleSelectDeliveryman = (deliveryman: SearchDeliverymanResult) => {
+    setSearchTerm("");
+    setSearchResults(null);
+    closeSearch();
+    navigate("/listagem-entregadores", { state: { search: deliveryman.name } });
+  };
+
+  const hasSearchResults = Boolean(
+    searchResults &&
+      (searchResults.orders.length > 0 ||
+        searchResults.clients.length > 0 ||
+        searchResults.deliverymen.length > 0)
+  );
+
+  const handleLogout = () => {
+    closeRealtimeSocket();
+    session.clear();
+    setProfileAnchorEl(null);
+    navigate("/login", { replace: true });
+  };
+
+  const drawerContent = (
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <Stack spacing={2} sx={{ p: 2.5, pb: 2 }}>
+        <Stack direction="row" alignItems="center" spacing={1.5}>
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: 2.5,
+              display: "grid",
+              placeItems: "center",
+              bgcolor: "primary.main",
+              color: "primary.contrastText",
+            }}
+          >
+            <LocalShippingRoundedIcon fontSize="small" />
+          </Box>
+
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="subtitle1" sx={{ lineHeight: 1.15, fontWeight: 800 }} noWrap>
+              Delivery Manager
+            </Typography>
+            <Typography variant="caption" color="text.secondary" noWrap>
+              Gestão Multi-Filial
+            </Typography>
+          </Box>
+        </Stack>
+      </Stack>
+
+      <Box sx={{ px: 1.5, overflowY: "auto", flex: 1 }}>
+        <List disablePadding>
+          {navItems.map((item) => {
+            const isActive =
+              location.pathname === item.path ||
+              Boolean(item.activePaths?.includes(location.pathname)) ||
+              (item.path === "/dashboard" && location.pathname === "/dashboard/relatorios");
+
+            return (
+              <ListItemButton
+                key={item.path}
+                onClick={() => handleNavigate(item.path)}
+                selected={isActive}
+                sx={{
+                  borderRadius: 2.5,
+                  mb: 0.5,
+                  py: 1,
+                  color: isActive ? "primary.contrastText" : "text.secondary",
+                  bgcolor: isActive ? "primary.main" : "transparent",
+                  "&:hover": {
+                    bgcolor: isActive ? "primary.main" : alpha(theme.palette.primary.main, 0.08),
+                  },
+                  "&.Mui-selected, &.Mui-selected:hover": {
+                    bgcolor: "primary.main",
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 34, color: "inherit" }}>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: 650, fontSize: 13.5 }} />
+                {item.badge ? (
+                  <Box
+                    sx={{
+                      minWidth: 20,
+                      height: 20,
+                      px: 0.6,
+                      borderRadius: 999,
+                      display: "grid",
+                      placeItems: "center",
+                      fontSize: 11,
+                      fontWeight: 800,
+                      bgcolor: isActive ? "rgba(255,255,255,0.24)" : alpha(theme.palette.primary.main, 0.14),
+                      color: isActive ? "primary.contrastText" : "primary.main",
+                    }}
+                  >
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </Box>
+                ) : null}
+              </ListItemButton>
+            );
+          })}
+        </List>
+      </Box>
+    </Box>
+  );
+
+  return (
+    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "background.default" }}>
+      <AppBar
+        position="fixed"
+        color="default"
+        elevation={0}
+        sx={{
+          zIndex: (t) => t.zIndex.drawer + 1,
+          width: { md: `calc(100% - ${drawerWidth}px)` },
+          ml: { md: `${drawerWidth}px` },
+        }}
+      >
+        <Toolbar sx={{ minHeight: 72, px: { xs: 1.5, sm: 3 }, gap: 1.25 }}>
+          <IconButton onClick={() => setMobileOpen(!mobileOpen)} aria-label="Abrir menu" sx={{ display: { md: "none" } }}>
+            <MenuRoundedIcon />
+          </IconButton>
+
+          <ClickAwayListener onClickAway={closeSearch}>
+            <Box ref={setSearchAnchorEl} sx={{ flex: 1, minWidth: 0, display: { xs: "none", sm: "block" } }}>
+              <TextField
+                size="small"
+                fullWidth
+                placeholder="Buscar pedido, cliente, entregador..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setSearchOpen(true);
+                }}
+                onFocus={() => {
+                  if (searchTerm.trim().length >= 2) setSearchOpen(true);
+                }}
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchRoundedIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+
+              <Popper
+                open={searchOpen && searchTerm.trim().length >= 2}
+                anchorEl={searchAnchorEl}
+                placement="bottom-start"
+                sx={{ zIndex: (t) => t.zIndex.drawer + 2, width: searchAnchorEl?.clientWidth }}
+              >
+                <Paper elevation={6} sx={{ mt: 0.5, borderRadius: 2, overflow: "hidden", maxHeight: 420, overflowY: "auto" }}>
+                  {searchLoading ? (
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", py: 3 }}>
+                      <CircularProgress size={20} />
+                    </Box>
+                  ) : !hasSearchResults ? (
+                    <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+                      Nenhum resultado encontrado.
+                    </Typography>
+                  ) : (
+                    <List disablePadding dense>
+                      {searchResults!.orders.length > 0 && (
+                        <>
+                          <Typography variant="caption" sx={{ px: 2, pt: 1.5, display: "block", fontWeight: 700, color: "text.secondary" }}>
+                            Pedidos
+                          </Typography>
+                          {searchResults!.orders.map((order) => (
+                            <ListItemButton key={`order-${order.id}`} onClick={() => handleSelectOrder(order)}>
+                              <ListItemIcon sx={{ minWidth: 34 }}>
+                                <ListAltOutlinedIcon fontSize="small" />
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={`Pedido #${order.id} — ${order.clientName}`}
+                                secondary={order.deliverymanName ?? "Sem entregador"}
+                              />
+                            </ListItemButton>
+                          ))}
+                        </>
+                      )}
+                      {searchResults!.clients.length > 0 && (
+                        <>
+                          <Typography variant="caption" sx={{ px: 2, pt: 1.5, display: "block", fontWeight: 700, color: "text.secondary" }}>
+                            Clientes
+                          </Typography>
+                          {searchResults!.clients.map((client) => (
+                            <ListItemButton key={`client-${client.id}`} onClick={() => handleSelectClient(client)}>
+                              <ListItemIcon sx={{ minWidth: 34 }}>
+                                <GroupOutlinedIcon fontSize="small" />
+                              </ListItemIcon>
+                              <ListItemText primary={client.name} secondary={client.phone} />
+                            </ListItemButton>
+                          ))}
+                        </>
+                      )}
+                      {searchResults!.deliverymen.length > 0 && (
+                        <>
+                          <Typography variant="caption" sx={{ px: 2, pt: 1.5, display: "block", fontWeight: 700, color: "text.secondary" }}>
+                            Entregadores
+                          </Typography>
+                          {searchResults!.deliverymen.map((deliveryman) => (
+                            <ListItemButton key={`deliveryman-${deliveryman.id}`} onClick={() => handleSelectDeliveryman(deliveryman)}>
+                              <ListItemIcon sx={{ minWidth: 34 }}>
+                                <TwoWheelerOutlinedIcon fontSize="small" />
+                              </ListItemIcon>
+                              <ListItemText primary={`${deliveryman.name} ${deliveryman.lastName}`} secondary={deliveryman.phone} />
+                            </ListItemButton>
+                          ))}
+                        </>
+                      )}
+                    </List>
+                  )}
+                </Paper>
+              </Popper>
+            </Box>
+          </ClickAwayListener>
+
+          <Box sx={{ flexGrow: { xs: 1, sm: 0 } }} />
+
+          <Stack direction="row" spacing={0.25} alignItems="center">
+            <Tooltip title="Atualizar">
+              <IconButton>
+                <RefreshRoundedIcon />
+              </IconButton>
+            </Tooltip>
+            <NotificationBell canSendNotice={currentUserRole === "admin"} />
+            <Tooltip title="Configurações">
+              <IconButton onClick={() => navigate("/configuracoes/visuais")}>
+                <SettingsOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={mode === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}>
+              <IconButton onClick={toggleMode}>
+                {mode === "dark" ? <LightModeOutlinedIcon /> : <DarkModeOutlinedIcon />}
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={currentUserName}>
+              <IconButton onClick={(event) => setProfileAnchorEl(event.currentTarget)} sx={{ ml: 0.25 }}>
+                <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    bgcolor: "secondary.main",
+                    color: "secondary.contrastText",
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                  }}
+                >
+                  {getAvatarLabel(currentUserName)}
+                </Avatar>
+              </IconButton>
+            </Tooltip>
+          </Stack>
+
+          <Menu
+            anchorEl={profileAnchorEl}
+            open={Boolean(profileAnchorEl)}
+            onClose={() => setProfileAnchorEl(null)}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <Box sx={{ px: 2, py: 1, minWidth: 200 }}>
+              <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.15 }} noWrap>
+                {currentUserName}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" noWrap>
+                {currentEmail}
+              </Typography>
+            </Box>
+            <Divider />
+            <MenuItem onClick={handleLogout}>
+              <ListItemIcon>
+                <LogoutOutlinedIcon fontSize="small" />
+              </ListItemIcon>
+              Sair
+            </MenuItem>
+          </Menu>
+        </Toolbar>
+      </AppBar>
+
+      <Drawer
+        variant={isDesktop ? "permanent" : "temporary"}
+        open={isDesktop ? true : mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+            border: "none",
+            borderRight: `1px solid ${theme.palette.divider}`,
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          minWidth: 0,
+          pt: "88px",
+          px: { xs: 1.5, sm: 3 },
+          pb: { xs: 3, md: 4 },
+        }}
+      >
+        <Box sx={{ maxWidth: 1600, mx: "auto", width: "100%" }}>{children ?? <Outlet />}</Box>
+      </Box>
+
+      <FloatingChatWidget />
+    </Box>
+  );
+};
+
+export default AppShell;

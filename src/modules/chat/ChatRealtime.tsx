@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Alert, Box, Card, CardContent, Container } from "@mui/material";
-import api from "../../services/api";
+import api from "@/shared/api/httpClient";
 import {
   type RealtimeChatMessage,
   type RealtimeSessionReady,
-} from "../../services/realtime";
+} from "@/shared/realtime/realtimeSocket";
 import { ChatHeader, ChatMessages, ChatInput, ChatSearch, TypingIndicator } from "./components";
-import useRealtimeSocket from "../../hooks/useRealtimeSocket";
+import useRealtimeSocket from "@/shared/realtime/useRealtimeSocket";
 import "./chat.css";
+import { session as authSession } from "@/shared/session/session";
 
 const TYPING_STOP_DELAY_MS = 2000;
 const SEARCH_DEBOUNCE_MS = 350;
@@ -52,7 +53,7 @@ const ChatRealtime = () => {
 
     if (!currentSocket) {
       // Sem socket ainda, mas com token: ele está sendo criado e chega no próximo render.
-      if (!localStorage.getItem("accessToken")) {
+      if (!authSession.isAuthenticated()) {
         setError("Sessão sem token. Faça login para usar o chat.");
         setLoading(false);
       }

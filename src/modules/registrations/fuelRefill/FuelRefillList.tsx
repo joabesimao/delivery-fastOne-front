@@ -28,12 +28,13 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
-import api from "../../../services/api";
-import ListTableHead from "../shared/ListTableHead";
-import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
+import api from "@/shared/api/httpClient";
+import DataTableHead from "@/shared/ui/data-table/DataTableHead";
+import { extractApiErrorMessage } from "@/shared/lib/errors/extractApiErrorMessage";
 import { computeTotalValue } from "./computeTotalValue";
 import FleetFilters, { type DeliverymanOption, type VehicleOption } from "../shared/FleetFilters";
 import useFleetFilters from "../shared/useFleetFilters";
+import { session } from "@/shared/session/session";
 
 interface FuelRefillItem {
   id: number;
@@ -95,7 +96,7 @@ const FuelRefillList: React.FC = () => {
   const navigate = useNavigate();
   const filters = useFleetFilters();
   const isDark = theme.palette.mode === "dark";
-  const canManage = MANAGER_ROLES.includes(localStorage.getItem("currentUserRole") ?? "");
+  const canManage = session.hasRole(MANAGER_ROLES);
 
   const [refills, setRefills] = useState<FuelRefillItem[]>([]);
   const [vehicles, setVehicles] = useState<VehicleOption[]>([]);
@@ -262,7 +263,7 @@ const FuelRefillList: React.FC = () => {
           }}
         >
           <Table size="small">
-            <ListTableHead columns={columns} />
+            <DataTableHead columns={columns} />
             <TableBody>
               {refills.length === 0 ? (
                 <TableRow>

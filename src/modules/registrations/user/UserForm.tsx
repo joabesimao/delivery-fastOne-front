@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
-import api from "../../../services/api";
+import api from "@/shared/api/httpClient";
 import { ROLE_OPTIONS, type UserItem, type UserRole } from "../../../types/User";
 
 interface UserFormProps {

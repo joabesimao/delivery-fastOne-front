@@ -17,7 +17,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
-import useThemeMode from "../../../hooks/useThemeMode";
+import useThemeMode from "@/shared/theme/useThemeMode";
 
 const MobileSwitch = styled(Switch)(({ theme }) => ({
   width: 58,

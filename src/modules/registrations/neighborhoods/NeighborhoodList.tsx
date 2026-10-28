@@ -26,8 +26,8 @@ import {
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import api from "../../../services/api";
-import ListTableHead from "../shared/ListTableHead";
+import api from "@/shared/api/httpClient";
+import DataTableHead from "@/shared/ui/data-table/DataTableHead";
 
 interface NeighborhoodItem {
   id: number;
@@ -149,7 +149,7 @@ const NeighborhoodList: React.FC<NeighborhoodListProps> = ({ refreshKey }) => {
           }}
         >
           <Table size="small">
-            <ListTableHead columns={["#", "Bairro", "Cidade", "Ações"]} />
+            <DataTableHead columns={["#", "Bairro", "Cidade", "Ações"]} />
             <TableBody>
               {neighborhoods.length === 0 ? (
                 <TableRow>

@@ -32,7 +32,7 @@ import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import PowerSettingsNewRoundedIcon from "@mui/icons-material/PowerSettingsNewRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-import api from "../../services/api";
+import api from "@/shared/api/httpClient";
 import UserForm from "../registrations/user/UserForm";
 import { ROLE_OPTIONS, type UserItem, type UserRole } from "../../types/User";
 

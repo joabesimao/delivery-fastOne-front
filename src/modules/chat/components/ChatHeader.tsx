@@ -19,7 +19,7 @@ import MessageIcon from "@mui/icons-material/Message";
 
 import PersonIcon from "@mui/icons-material/Person";
 import { useState } from "react";
-import type { RealtimeSessionReady } from "../../../services/realtime";
+import type { RealtimeSessionReady } from "@/shared/realtime/realtimeSocket";
 
 interface ChatHeaderProps {
   session: RealtimeSessionReady | null;

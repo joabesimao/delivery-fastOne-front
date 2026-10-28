@@ -1,6 +1,6 @@
 import { Box, Stack, CircularProgress, Typography } from "@mui/material";
 import { useEffect, useRef, useMemo } from "react";
-import type { RealtimeChatMessage } from "../../../services/realtime";
+import type { RealtimeChatMessage } from "@/shared/realtime/realtimeSocket";
 import { ChatMessageItem } from "./ChatMessageItem";
 import InboxIcon from "@mui/icons-material/Inbox";
 

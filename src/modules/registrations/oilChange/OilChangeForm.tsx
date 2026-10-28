@@ -16,8 +16,8 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Formik, Form } from "formik";
 import { useNavigate } from "react-router-dom";
-import api from "../../../services/api";
-import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
+import api from "@/shared/api/httpClient";
+import { extractApiErrorMessage } from "@/shared/lib/errors/extractApiErrorMessage";
 
 interface VehicleOption {
   id: number;

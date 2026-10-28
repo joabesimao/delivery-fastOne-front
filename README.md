@@ -152,33 +152,49 @@ Somente contas `admin` veem o item **Usuários** no menu lateral e conseguem ace
 
 ---
 
-## 📁 Estrutura do Projeto
+## 📁 Arquitetura e Estrutura do Projeto
+
+O front segue Clean Architecture organizada por feature. A migração é incremental: o que ainda está em `modules/` é legado e vai para `features/` fase a fase.
 
 ```
 src/
-├── components/              # Componentes reutilizáveis
-│   ├── layout/             # Layout principal (AppShell: menu lateral + header)
-│   ├── forms/              # Componentes de formulário
-│   └── chat/               # Componentes de chat
-├── modules/                # Páginas e módulos
-│   ├── dashboard/          # Dashboard, relatórios e listagem de usuários
-│   ├── deliveries/         # Gestão de entregas
-│   ├── registrations/      # Cadastros (clientes, usuários, etc)
-│   ├── auth/               # Autenticação
-│   ├── chat/               # Chat
-│   └── settings/           # Configurações
-├── services/               # Serviços (API, WebSocket)
-│   └── api.ts             # Cliente Axios
-├── types/                  # Tipos compartilhados (ex.: User.ts)
-├── helpers/                # Funções utilitárias
-│   ├── masks.ts           # Máscaras de input
-│   └── exportHtmlToPdf.ts # Geração de PDF
-├── hooks/                  # React Hooks customizados
-├── context/                # Context API
-├── theme/                  # Configuração de tema
-├── App.tsx                 # Componente principal
-└── main.tsx                # Entrada da aplicação (rotas)
+├── main.tsx                # Bootstrap: providers + router
+├── app/                    # Composição da aplicação (pode importar tudo)
+│   ├── providers/          # QueryClient, tema, toast
+│   ├── router/             # Rotas (lazy) e guards (auth/papel)
+│   └── layout/             # AppShell e layout da área logada
+├── shared/                 # Sem regra de negócio; não importa app/features/modules
+│   ├── api/                # httpClient (axios + refresh de token)
+│   ├── config/             # env e ROUTES (caminhos de URL)
+│   ├── session/            # Sessão do usuário (único acesso às chaves de auth)
+│   ├── realtime/           # Socket.io
+│   ├── theme/              # Tema MUI e modo claro/escuro
+│   ├── lib/                # storage, datas, máscaras, erros, PDF
+│   └── ui/                 # Componentes visuais genéricos e toast (useToast)
+├── features/<feature>/     # Destino das features migradas
+│   ├── domain/             # Entidades e regras puras (sem React/axios)
+│   ├── data/               # Repository: chamadas HTTP e DTO ↔ entidade
+│   ├── application/        # Casos de uso = hooks React Query
+│   ├── ui/components/      # Componentes de apresentação
+│   ├── ui/pages/           # Páginas (montam os componentes)
+│   └── index.ts            # API pública da feature
+└── modules/                # Legado em migração
 ```
+
+**Regra de dependência:** `ui → application → data → domain`. Uma feature só importa outra pelo `index.ts`. As fronteiras são verificadas pelo ESLint (`no-restricted-imports` em `eslint.config.js`), então `npm run lint` falha se alguma for violada.
+
+### Criando ou migrando uma feature
+
+Use `src/features/vehicles` como referência:
+
+1. **domain/**: tipos da entidade, valores do formulário, validação e a conversão formulário → payload (`toVehicleInput`), tudo em funções puras
+2. **data/**: repository com o DTO da API e o mapeamento para a entidade (`vehiclesRepository`)
+3. **application/**: query keys e hooks `useQuery`/`useMutation`; as mutations invalidam a lista, sem `refreshKey`
+4. **ui/components/**: componentes que só recebem props (`VehicleForm`, `VehicleTable`, `VehicleEditDialog`)
+5. **ui/pages/**: a página orquestra os hooks e o feedback (`useToast`)
+6. **index.ts**: exporta só o que outras partes usam e entra no router via `lazy`
+
+Antes de criar UI nova, procure em `shared/ui` (`DataTable`, `RowActions`, `ConfirmDialog`, `FormCard`, `FormActions`, `FieldLabel`, `SectionHeader`).
 
 ---
 
@@ -244,8 +260,8 @@ Ao criar um pedido:
 1. Usuário acessa `/login`
 2. Entra com login/e-mail e senha
 3. Backend valida a conta (rejeitando contas inativas) e retorna `accessToken`, `refreshToken`, `name` e `role`
-4. Esses dados são armazenados no `localStorage` (`accessToken`, `refreshToken`, `currentUserEmail`, `currentUserName`, `currentUserRole`)
-5. Requisições incluem `Authorization: Bearer <token>`
+4. Esses dados são salvos pelo serviço `shared/session` (no `localStorage`: `accessToken`, `refreshToken`, `currentUserEmail`, `currentUserName`, `currentUserRole`)
+5. Requisições incluem o header `x-access-token`
 6. O menu lateral e as rotas restritas usam `currentUserRole` para decidir o que exibir/liberar
 
 ### Renovação de Token

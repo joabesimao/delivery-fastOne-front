@@ -12,8 +12,8 @@ import {
   Typography,
 } from "@mui/material";
 import BuildIcon from "@mui/icons-material/Build";
-import api from "../../../services/api";
-import { extractApiErrorMessage } from "../../../helpers/extractApiErrorMessage";
+import api from "@/shared/api/httpClient";
+import { extractApiErrorMessage } from "@/shared/lib/errors/extractApiErrorMessage";
 
 interface OilChangeConfigResponse {
   id: number;

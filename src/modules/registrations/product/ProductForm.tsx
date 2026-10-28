@@ -23,8 +23,8 @@ import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined";
 import { Formik, Form, FieldArray } from "formik";
 import { useNavigate } from "react-router-dom";
-import api from "../../../services/api";
-import { currencyInputMask, formatCurrencyFromNumber, parseCurrencyToNumber } from "../../../helpers/masks";
+import api from "@/shared/api/httpClient";
+import { currencyInputMask, formatCurrencyFromNumber, parseCurrencyToNumber } from "@/shared/lib/masks";
 import { toProductImageSrc, type Product } from "../../../types/Product";
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;

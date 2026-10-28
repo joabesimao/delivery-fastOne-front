@@ -31,14 +31,14 @@ import ClearIcon from "@mui/icons-material/Clear";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Formik, Form } from "formik";
-import api from "../../services/api";
+import api from "@/shared/api/httpClient";
 import {
   currencyInputMask,
   formatCurrencyFromNumber,
   parseCurrencyToNumber,
   phoneMask,
-} from "../../helpers/masks";
-import useRealtimeSocket from "../../hooks/useRealtimeSocket";
+} from "@/shared/lib/masks";
+import useRealtimeSocket from "@/shared/realtime/useRealtimeSocket";
 
 type OrderStatus = "actived" | "delivered" | "finished";
 

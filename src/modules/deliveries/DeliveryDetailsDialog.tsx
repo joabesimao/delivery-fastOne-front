@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import { phoneMask } from "../../helpers/masks";
+import { phoneMask } from "@/shared/lib/masks";
 
 type OrderStatus = "actived" | "delivered" | "finished";
 
