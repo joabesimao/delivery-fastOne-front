@@ -1,12 +1,6 @@
-import {
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "@mui/material";
+import { Dialog, DialogContent, DialogTitle } from "@mui/material";
 import type { DeliverymanSummary } from "@/features/deliverymen";
+import FormDialogActions from "@/shared/ui/dialogs/FormDialogActions";
 import {
   toVehicleFormValues,
   type Vehicle,
@@ -39,16 +33,7 @@ const VehicleEditDialog = ({
         {({ fields, submitting }) => (
           <>
             <DialogContent dividers>{fields}</DialogContent>
-            <DialogActions>
-              <Button onClick={onClose}>Cancelar</Button>
-              <Button type="submit" variant="contained" disabled={submitting}>
-                {submitting ? (
-                  <CircularProgress size={20} sx={{ color: "#fff" }} />
-                ) : (
-                  "Salvar"
-                )}
-              </Button>
-            </DialogActions>
+            <FormDialogActions submitting={submitting} onCancel={onClose} />
           </>
         )}
       </VehicleForm>

@@ -4,12 +4,14 @@ interface FormActionsProps {
   submitting: boolean;
   submitLabel?: string;
   submittingLabel?: string;
+  resetLabel?: string;
 }
 
 const FormActions = ({
   submitting,
   submitLabel = "Cadastrar",
   submittingLabel = "Salvando...",
+  resetLabel,
 }: FormActionsProps) => (
   <>
     <Divider sx={{ mt: 2.5, mb: 2.5 }} />
@@ -21,6 +23,22 @@ const FormActions = ({
         gap: 1.25,
       }}
     >
+      {resetLabel && (
+        <Button
+          type="reset"
+          variant="outlined"
+          color="inherit"
+          disabled={submitting}
+          sx={{
+            textTransform: "none",
+            borderColor: "divider",
+            color: "text.secondary",
+            width: { xs: "100%", sm: "auto" },
+          }}
+        >
+          {resetLabel}
+        </Button>
+      )}
       <Button
         type="submit"
         variant="contained"

@@ -21,10 +21,12 @@ const RegisterProduct = lazy(() => import("@/modules/registrations/product/Regis
 const RegisterDeliveryman = lazy(
   () => import("@/modules/registrations/deliveryman/RegisterDeliveryman"),
 );
-const RegisterNeighborhoods = lazy(
-  () => import("@/modules/registrations/neighborhoods/RegisterNeighborhoods"),
+const NeighborhoodsPage = lazy(() =>
+  import("@/features/neighborhoods").then((m) => ({ default: m.NeighborhoodsPage })),
 );
-const RegisterCities = lazy(() => import("@/modules/registrations/cities/RegisterCities"));
+const CitiesPage = lazy(() =>
+  import("@/features/cities").then((m) => ({ default: m.CitiesPage })),
+);
 const VehiclesPage = lazy(() =>
   import("@/features/vehicles").then((m) => ({ default: m.VehiclesPage })),
 );
@@ -77,8 +79,8 @@ export const router = createBrowserRouter([
           { path: ROUTES.registerClient, element: <RegisterClient /> },
           { path: ROUTES.registerProduct, element: <RegisterProduct /> },
           { path: ROUTES.registerDeliveryman, element: <RegisterDeliveryman /> },
-          { path: ROUTES.registerNeighborhoods, element: <RegisterNeighborhoods /> },
-          { path: ROUTES.registerCities, element: <RegisterCities /> },
+          { path: ROUTES.registerNeighborhoods, element: <NeighborhoodsPage /> },
+          { path: ROUTES.registerCities, element: <CitiesPage /> },
           { path: ROUTES.registerVehicle, element: <VehiclesPage /> },
           { path: ROUTES.registerOilChange, element: <RegisterOilChange /> },
           { path: ROUTES.registerFuelRefill, element: <RegisterFuelRefill /> },
