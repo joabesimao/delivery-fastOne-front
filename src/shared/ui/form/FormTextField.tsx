@@ -3,7 +3,7 @@ import { TextField, type TextFieldProps } from "@mui/material";
 import { useField } from "formik";
 import FieldLabel from "./FieldLabel";
 
-type FormTextFieldProps = Omit<
+export type FormTextFieldProps = Omit<
   TextFieldProps,
   "name" | "value" | "error" | "label" | "onChange"
 > & {

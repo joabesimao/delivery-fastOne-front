@@ -1,11 +1,12 @@
 import { useSearchParams } from "react-router-dom";
+import type { FleetFilterValues } from "../domain/fleetRecord";
 
-const useFleetFilters = () => {
+export const useFleetFilters = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const vehicleId = searchParams.get("vehicleId") ?? "";
   const deliverymanId = searchParams.get("deliverymanId") ?? "";
 
-  const setFilter = (key: "vehicleId" | "deliverymanId", value: string) => {
+  const setFilter = (key: keyof FleetFilterValues, value: string) => {
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev);
@@ -30,5 +31,3 @@ const useFleetFilters = () => {
     clear: () => setSearchParams({}, { replace: true }),
   };
 };
-
-export default useFleetFilters;

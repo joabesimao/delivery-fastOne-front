@@ -6,6 +6,9 @@ export interface Vehicle {
   deliverymanId: number | null;
 }
 
+export const vehicleLabel = (vehicle: Pick<Vehicle, "plate" | "model">) =>
+  `${vehicle.plate} — ${vehicle.model}`;
+
 export interface VehicleInput {
   plate: string;
   model: string;

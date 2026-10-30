@@ -34,14 +34,18 @@ const CitiesPage = lazy(() =>
 const VehiclesPage = lazy(() =>
   import("@/features/vehicles").then((m) => ({ default: m.VehiclesPage })),
 );
-const RegisterOilChange = lazy(
-  () => import("@/modules/registrations/oilChange/RegisterOilChange"),
+const RegisterOilChangePage = lazy(() =>
+  import("@/features/oil-changes").then((m) => ({ default: m.RegisterOilChangePage })),
 );
-const RegisterFuelRefill = lazy(
-  () => import("@/modules/registrations/fuelRefill/RegisterFuelRefill"),
+const RegisterFuelRefillPage = lazy(() =>
+  import("@/features/fuel-refills").then((m) => ({ default: m.RegisterFuelRefillPage })),
 );
-const OilChangeList = lazy(() => import("@/modules/registrations/oilChange/OilChangeList"));
-const FuelRefillList = lazy(() => import("@/modules/registrations/fuelRefill/FuelRefillList"));
+const OilChangesPage = lazy(() =>
+  import("@/features/oil-changes").then((m) => ({ default: m.OilChangesPage })),
+);
+const FuelRefillsPage = lazy(() =>
+  import("@/features/fuel-refills").then((m) => ({ default: m.FuelRefillsPage })),
+);
 const VisualSettings = lazy(() => import("@/modules/settings/visual/VisualSettings"));
 const FleetSettings = lazy(() => import("@/modules/settings/fleet/FleetSettings"));
 const ChatRealtime = lazy(() => import("@/modules/chat/ChatRealtime"));
@@ -86,10 +90,10 @@ export const router = createBrowserRouter([
           { path: ROUTES.registerNeighborhoods, element: <NeighborhoodsPage /> },
           { path: ROUTES.registerCities, element: <CitiesPage /> },
           { path: ROUTES.registerVehicle, element: <VehiclesPage /> },
-          { path: ROUTES.registerOilChange, element: <RegisterOilChange /> },
-          { path: ROUTES.registerFuelRefill, element: <RegisterFuelRefill /> },
-          { path: ROUTES.oilChanges, element: <OilChangeList /> },
-          { path: ROUTES.fuelRefills, element: <FuelRefillList /> },
+          { path: ROUTES.registerOilChange, element: <RegisterOilChangePage /> },
+          { path: ROUTES.registerFuelRefill, element: <RegisterFuelRefillPage /> },
+          { path: ROUTES.oilChanges, element: <OilChangesPage /> },
+          { path: ROUTES.fuelRefills, element: <FuelRefillsPage /> },
           { path: ROUTES.visualSettings, element: <VisualSettings /> },
           { path: ROUTES.fleetSettings, element: <FleetSettings /> },
           { path: ROUTES.chat, element: <ChatRealtime /> },
