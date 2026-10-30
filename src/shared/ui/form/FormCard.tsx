@@ -5,15 +5,17 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 interface FormCardProps {
   title: string;
   onBack?: () => void;
+  maxWidth?: number;
   children: ReactNode;
 }
 
-const FormCard = ({ title, onBack, children }: FormCardProps) => (
+const FormCard = ({ title, onBack, maxWidth, children }: FormCardProps) => (
   <Paper
     elevation={0}
     sx={{
       p: { xs: 2, sm: 3, md: 4 },
       width: "100%",
+      ...(maxWidth && { maxWidth, mx: "auto" }),
       bgcolor: "background.paper",
       border: "1px solid",
       borderColor: "divider",

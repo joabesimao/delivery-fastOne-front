@@ -4,10 +4,10 @@ import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import { useNavigate } from "react-router-dom";
 import { useDeliverymen } from "@/features/deliverymen";
 import { ROUTES } from "@/shared/config/routes";
-import { extractApiErrorMessage } from "@/shared/lib/errors/extractApiErrorMessage";
+import { getBusyRowId } from "@/shared/lib/query/createCrudQueries";
 import SectionHeader from "@/shared/ui/SectionHeader";
 import ConfirmDialog from "@/shared/ui/dialogs/ConfirmDialog";
-import { useToast } from "@/shared/ui/feedback/useToast";
+import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
 import FormActions from "@/shared/ui/form/FormActions";
 import FormCard from "@/shared/ui/form/FormCard";
 import FormSectionTitle from "@/shared/ui/form/FormSectionTitle";
@@ -28,7 +28,7 @@ import VehicleTable from "../components/VehicleTable";
 
 const VehiclesPage = () => {
   const navigate = useNavigate();
-  const toast = useToast();
+  const runWithFeedback = useActionFeedback();
 
   const vehiclesQuery = useVehicles();
   const deliverymen = useDeliverymen().data ?? [];
@@ -39,34 +39,20 @@ const VehiclesPage = () => {
   const [editing, setEditing] = useState<Vehicle | null>(null);
   const [deleting, setDeleting] = useState<Vehicle | null>(null);
 
-  const runWithFeedback = async (
-    action: () => Promise<void>,
-    successMessage: string,
-    errorMessage: string,
-  ): Promise<boolean> => {
-    try {
-      await action();
-      toast.success(successMessage);
-      return true;
-    } catch (error) {
-      toast.error(extractApiErrorMessage(error, errorMessage));
-      return false;
-    }
-  };
-
   const handleCreate = (input: VehicleInput) =>
-    runWithFeedback(
-      () => createVehicle.mutateAsync(input),
-      "Veículo cadastrado com sucesso!",
-      "Erro ao cadastrar veículo. Tente novamente.",
-    );
+    runWithFeedback(() => createVehicle.mutateAsync(input), {
+      success: "Veículo cadastrado com sucesso!",
+      error: "Erro ao cadastrar veículo. Tente novamente.",
+    });
 
   const handleUpdate = async (input: VehicleInput) => {
     if (!editing) return false;
     const succeeded = await runWithFeedback(
       () => updateVehicle.mutateAsync({ id: editing.id, input }),
-      "Veículo atualizado com sucesso.",
-      "Erro ao atualizar veículo. Tente novamente.",
+      {
+        success: "Veículo atualizado com sucesso.",
+        error: "Erro ao atualizar veículo. Tente novamente.",
+      },
     );
     if (succeeded) setEditing(null);
     return succeeded;
@@ -76,16 +62,15 @@ const VehiclesPage = () => {
     if (!deleting) return;
     const succeeded = await runWithFeedback(
       () => deleteVehicle.mutateAsync(deleting.id),
-      "Veículo deletado com sucesso.",
-      "Erro ao deletar veículo. Tente novamente.",
+      {
+        success: "Veículo deletado com sucesso.",
+        error: "Erro ao deletar veículo. Tente novamente.",
+      },
     );
     if (succeeded) setDeleting(null);
   };
 
-  const busyVehicleId =
-    (updateVehicle.isPending && updateVehicle.variables?.id) ||
-    (deleteVehicle.isPending && deleteVehicle.variables) ||
-    null;
+  const busyVehicleId = getBusyRowId(updateVehicle, deleteVehicle);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>

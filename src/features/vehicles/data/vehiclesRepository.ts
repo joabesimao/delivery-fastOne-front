@@ -1,4 +1,4 @@
-import httpClient from "@/shared/api/httpClient";
+import { createCrudRepository } from "@/shared/api/createCrudRepository";
 import type { Vehicle, VehicleInput } from "../domain/vehicle";
 
 interface VehicleDto {
@@ -17,21 +17,8 @@ const toVehicle = (dto: VehicleDto): Vehicle => ({
   deliverymanId: dto.deliverymanId ?? null,
 });
 
-export const vehiclesRepository = {
-  async list(): Promise<Vehicle[]> {
-    const { data } = await httpClient.get<VehicleDto[]>("/vehicle");
-    return Array.isArray(data) ? data.map(toVehicle) : [];
-  },
-
-  async create(input: VehicleInput): Promise<void> {
-    await httpClient.post("/vehicle", input);
-  },
-
-  async update(id: number, input: VehicleInput): Promise<void> {
-    await httpClient.put(`/vehicle/${id}`, input);
-  },
-
-  async remove(id: number): Promise<void> {
-    await httpClient.delete(`/vehicle/${id}`);
-  },
-};
+export const vehiclesRepository = createCrudRepository<
+  VehicleDto,
+  Vehicle,
+  VehicleInput
+>("/vehicle", toVehicle);
