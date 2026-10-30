@@ -16,7 +16,9 @@ const DeliveryReports = lazy(() => import("@/modules/deliveries/DeliveryReports"
 const DeliverymanReports = lazy(() => import("@/modules/deliveries/DeliverymanReports"));
 const DeliveryList = lazy(() => import("@/modules/deliveries/DeliveryList"));
 const DeliverymanList = lazy(() => import("@/modules/deliveries/DeliverymanList"));
-const RegisterClient = lazy(() => import("@/modules/registrations/client/RegisterClient"));
+const RegisterClientPage = lazy(() =>
+  import("@/features/clients").then((m) => ({ default: m.RegisterClientPage })),
+);
 const RegisterProduct = lazy(() => import("@/modules/registrations/product/RegisterProduct"));
 const RegisterDeliverymanPage = lazy(() =>
   import("@/features/deliverymen").then((m) => ({ default: m.RegisterDeliverymanPage })),
@@ -76,7 +78,7 @@ export const router = createBrowserRouter([
           { path: ROUTES.deliverymanReports, element: <DeliverymanReports /> },
           { path: ROUTES.deliveries, element: <DeliveryList /> },
           { path: ROUTES.deliverymen, element: <DeliverymanList /> },
-          { path: ROUTES.registerClient, element: <RegisterClient /> },
+          { path: ROUTES.registerClient, element: <RegisterClientPage /> },
           { path: ROUTES.registerProduct, element: <RegisterProduct /> },
           { path: ROUTES.registerDeliveryman, element: <RegisterDeliverymanPage /> },
           { path: ROUTES.registerNeighborhoods, element: <NeighborhoodsPage /> },

@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
-import { Grid, MenuItem, TextField } from "@mui/material";
+import { Grid, MenuItem } from "@mui/material";
 import { Form, Formik } from "formik";
 import {
   deliverymanFullName,
   type DeliverymanSummary,
 } from "@/features/deliverymen";
-import FieldLabel from "@/shared/ui/form/FieldLabel";
+import FormTextField from "@/shared/ui/form/FormTextField";
 import {
   toVehicleInput,
   validateVehicleForm,
@@ -36,63 +36,39 @@ const VehicleForm = ({
       if (succeeded && resetOnSuccess) resetForm();
     }}
   >
-    {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+    {({ isSubmitting }) => (
       <Form noValidate>
         {children({
           submitting: isSubmitting,
           fields: (
             <Grid container spacing={2} sx={{ mb: 1 }}>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <FieldLabel label="Placa *" />
-                <TextField
-                  fullWidth
-                  size="small"
-                  placeholder="Ex: ABC1D23"
+                <FormTextField
                   name="plate"
-                  value={values.plate}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={Boolean(touched.plate && errors.plate)}
-                  helperText={touched.plate && errors.plate}
+                  label="Placa *"
+                  placeholder="Ex: ABC1D23"
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <FieldLabel label="Modelo *" />
-                <TextField
-                  fullWidth
-                  size="small"
-                  placeholder="Ex: CG 160"
+                <FormTextField
                   name="model"
-                  value={values.model}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={Boolean(touched.model && errors.model)}
-                  helperText={touched.model && errors.model}
+                  label="Modelo *"
+                  placeholder="Ex: CG 160"
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <FieldLabel label="Marca" />
-                <TextField
-                  fullWidth
-                  size="small"
-                  placeholder="Ex: Honda"
+                <FormTextField
                   name="brand"
-                  value={values.brand}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
+                  label="Marca"
+                  placeholder="Ex: Honda"
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <FieldLabel label="Entregador" />
-                <TextField
+                <FormTextField
                   select
-                  fullWidth
-                  size="small"
                   name="deliverymanId"
+                  label="Entregador"
                   slotProps={{ select: { displayEmpty: true } }}
-                  value={values.deliverymanId}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
                 >
                   <MenuItem value="">
                     <em>Nenhum</em>
@@ -105,7 +81,7 @@ const VehicleForm = ({
                       {deliverymanFullName(deliveryman)}
                     </MenuItem>
                   ))}
-                </TextField>
+                </FormTextField>
               </Grid>
             </Grid>
           ),
