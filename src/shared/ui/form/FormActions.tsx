@@ -5,6 +5,7 @@ interface FormActionsProps {
   submitLabel?: string;
   submittingLabel?: string;
   resetLabel?: string;
+  onCancel?: () => void;
 }
 
 const FormActions = ({
@@ -12,6 +13,7 @@ const FormActions = ({
   submitLabel = "Cadastrar",
   submittingLabel = "Salvando...",
   resetLabel,
+  onCancel,
 }: FormActionsProps) => (
   <>
     <Divider sx={{ mt: 2.5, mb: 2.5 }} />
@@ -23,6 +25,15 @@ const FormActions = ({
         gap: 1.25,
       }}
     >
+      {onCancel && (
+        <Button
+          onClick={onCancel}
+          disabled={submitting}
+          sx={{ textTransform: "none", width: { xs: "100%", sm: "auto" } }}
+        >
+          Cancelar
+        </Button>
+      )}
       {resetLabel && (
         <Button
           type="reset"
