@@ -52,8 +52,11 @@ import TableRowsRoundedIcon from "@mui/icons-material/TableRowsRounded";
 import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 import api from "@/shared/api/httpClient";
 import { currencyInputMask, formatCurrencyFromNumber, parseCurrencyToNumber } from "@/shared/lib/masks";
-import ProductForm from "../registrations/product/ProductForm";
-import { toProductImageSrc, type Product } from "../../types/Product";
+import {
+  ProductEditForm,
+  toProductImageSrc,
+  type Product,
+} from "@/features/products";
 
 type ProductItem = Product;
 
@@ -771,11 +774,10 @@ const ProductList: React.FC = () => {
         <DialogTitle>Editar produto</DialogTitle>
         <DialogContent dividers>
           {editProduct ? (
-            <ProductForm
-              embedded
+            <ProductEditForm
               product={editProduct}
               onCancel={closeEditDialog}
-              onSuccess={handleProductSaved}
+              onSaved={handleProductSaved}
             />
           ) : null}
         </DialogContent>

@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
-import { Grid, MenuItem, TextField } from "@mui/material";
+import { Grid, MenuItem } from "@mui/material";
 import { Form, Formik } from "formik";
 import type { City } from "@/features/cities";
-import FieldLabel from "@/shared/ui/form/FieldLabel";
+import FormTextField from "@/shared/ui/form/FormTextField";
 import {
   toNeighborhoodInput,
   validateNeighborhoodForm,
@@ -33,25 +33,14 @@ const NeighborhoodForm = ({
       if (succeeded && resetOnSuccess) resetForm();
     }}
   >
-    {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+    {({ isSubmitting }) => (
       <Form noValidate>
         {children({
           submitting: isSubmitting,
           fields: (
             <Grid container spacing={2} sx={{ mb: 1 }}>
               <Grid size={{ xs: 12 }}>
-                <FieldLabel label="Cidade *" />
-                <TextField
-                  select
-                  fullWidth
-                  size="small"
-                  name="cityId"
-                  value={values.cityId}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={Boolean(touched.cityId && errors.cityId)}
-                  helperText={touched.cityId && errors.cityId}
-                >
+                <FormTextField select name="cityId" label="Cidade *">
                   <MenuItem value="" disabled>
                     <em>Selecione a cidade</em>
                   </MenuItem>
@@ -60,20 +49,13 @@ const NeighborhoodForm = ({
                       {city.name}
                     </MenuItem>
                   ))}
-                </TextField>
+                </FormTextField>
               </Grid>
               <Grid size={{ xs: 12 }}>
-                <FieldLabel label="Nome do bairro *" />
-                <TextField
-                  fullWidth
-                  size="small"
-                  placeholder="Ex: Centro"
+                <FormTextField
                   name="name"
-                  value={values.name}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={Boolean(touched.name && errors.name)}
-                  helperText={touched.name && errors.name}
+                  label="Nome do bairro *"
+                  placeholder="Ex: Centro"
                 />
               </Grid>
             </Grid>

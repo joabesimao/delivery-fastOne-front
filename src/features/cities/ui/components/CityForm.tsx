@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import { Grid, TextField } from "@mui/material";
+import { Grid } from "@mui/material";
 import { Form, Formik } from "formik";
-import FieldLabel from "@/shared/ui/form/FieldLabel";
+import FormTextField from "@/shared/ui/form/FormTextField";
 import {
   toCityInput,
   validateCityForm,
@@ -30,24 +30,17 @@ const CityForm = ({
       if (succeeded && resetOnSuccess) resetForm();
     }}
   >
-    {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+    {({ isSubmitting }) => (
       <Form noValidate>
         {children({
           submitting: isSubmitting,
           fields: (
             <Grid container spacing={2} sx={{ mb: 1 }}>
               <Grid size={{ xs: 12 }}>
-                <FieldLabel label="Nome da cidade *" />
-                <TextField
-                  fullWidth
-                  size="small"
-                  placeholder="Ex: São Paulo"
+                <FormTextField
                   name="name"
-                  value={values.name}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={Boolean(touched.name && errors.name)}
-                  helperText={touched.name && errors.name}
+                  label="Nome da cidade *"
+                  placeholder="Ex: São Paulo"
                 />
               </Grid>
             </Grid>
