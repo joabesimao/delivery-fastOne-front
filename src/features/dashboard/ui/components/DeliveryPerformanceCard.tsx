@@ -9,6 +9,7 @@ import {
   type DashboardPerformance,
 } from "../../domain/dashboardMetrics";
 
+import { COLORS } from "@/shared/theme/colors";
 interface DeliveryPerformanceCardProps {
   performance: DashboardPerformance | undefined;
   loading: boolean;
@@ -129,7 +130,9 @@ const DeliveryPerformanceCard = ({
                       maxWidth: 34,
                       borderRadius: "8px 8px 0 0",
                       height: `${(item.total / maxVolume) * 100}%`,
-                      bgcolor: isPeak ? "primary.main" : alpha("#0EA5E9", 0.28),
+                      bgcolor: isPeak
+                        ? "primary.main"
+                        : alpha(COLORS.info, 0.28),
                       transition: "height 240ms ease",
                     }}
                   />

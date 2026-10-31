@@ -5,6 +5,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import type { ReactNode } from "react";
 import ActionIconButton from "./ActionIconButton";
 
+import { COLORS } from "@/shared/theme/colors";
 interface RowActionsProps {
   onEdit: () => void;
   onDelete?: () => void;
@@ -13,7 +14,7 @@ interface RowActionsProps {
   children?: ReactNode;
 }
 
-const WHITE_ICON = { fontSize: 16, color: "#fff" };
+const WHITE_ICON = { fontSize: 16, color: COLORS.white };
 
 const RowActions = ({
   onEdit,
@@ -44,8 +45,8 @@ const RowActions = ({
         title="Editar"
         disabled={disabled}
         onClick={onEdit}
-        color="#f59e0b"
-        hoverColor="#d97706"
+        color={COLORS.warning}
+        hoverColor={COLORS.warningHover}
         icon={<EditIcon sx={WHITE_ICON} />}
       />
       {onDelete && (
@@ -53,8 +54,8 @@ const RowActions = ({
           title="Deletar"
           disabled={disabled}
           onClick={onDelete}
-          color="#ef4444"
-          hoverColor="#dc2626"
+          color={COLORS.danger}
+          hoverColor={COLORS.dangerHover}
           icon={<DeleteIcon sx={WHITE_ICON} />}
         />
       )}

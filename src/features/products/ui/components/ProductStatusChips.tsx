@@ -3,6 +3,7 @@ import { alpha } from "@mui/material/styles";
 import type { StockInfo } from "../../domain/productCatalog";
 import { STOCK_COLOR } from "./categoryStyle";
 
+import { COLORS } from "@/shared/theme/colors";
 export const StockChip = ({
   stock,
   sx,
@@ -39,8 +40,10 @@ export const ProductActiveChip = ({
     sx={[
       {
         fontWeight: 700,
-        bgcolor: active ? alpha("#10B981", 0.14) : alpha("#94A3B8", 0.18),
-        color: active ? "#10B981" : "#64748B",
+        bgcolor: active
+          ? alpha(COLORS.success, 0.14)
+          : alpha(COLORS.slate, 0.18),
+        color: active ? COLORS.success : COLORS.slateStrong,
       },
       ...(Array.isArray(sx) ? sx : [sx]),
     ]}

@@ -11,7 +11,8 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import type { RankingItem } from "@/features/deliveries";
 import { initialsOf } from "../../domain/dashboardMetrics";
 
-const MEDAL_COLORS = ["#F59E0B", "#94A3B8", "#B45309"];
+import { COLORS } from "@/shared/theme/colors";
+const MEDAL_COLORS = [COLORS.warning, COLORS.slate, "#B45309"];
 
 interface TopDeliverymenCardProps {
   ranking: RankingItem[];
@@ -69,8 +70,8 @@ const TopDeliverymenCard = ({
                   placeItems: "center",
                   fontSize: 11,
                   fontWeight: 800,
-                  color: "#fff",
-                  bgcolor: MEDAL_COLORS[index] ?? "#64748B",
+                  color: COLORS.white,
+                  bgcolor: MEDAL_COLORS[index] ?? COLORS.slateStrong,
                   flexShrink: 0,
                 }}
               >

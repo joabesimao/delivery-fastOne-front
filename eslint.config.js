@@ -35,7 +35,7 @@ export default defineConfig([
   {
     files: ['src/shared/**/*.{ts,tsx}'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: noImportFrom('app', 'features', 'modules') }],
+      'no-restricted-imports': ['error', { patterns: noImportFrom('app', 'features') }],
     },
   },
   {
@@ -43,15 +43,8 @@ export default defineConfig([
     rules: {
       'no-restricted-imports': [
         'error',
-        { patterns: [...noImportFrom('app', 'modules'), featureInternals] },
+        { patterns: [...noImportFrom('app'), featureInternals] },
       ],
-    },
-  },
-  {
-    files: ['src/modules/**/*.{ts,tsx}'],
-    rules: {
-      'no-restricted-imports': ['error', { patterns: [...noImportFrom('app'), featureInternals] }],
-      'react-hooks/set-state-in-effect': 'warn',
     },
   },
   {

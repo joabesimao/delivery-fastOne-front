@@ -12,6 +12,7 @@ import {
 } from "../../domain/dashboardMetrics";
 import DashboardStatCard, { type DashboardStatItem } from "./DashboardStatCard";
 
+import { COLORS } from "@/shared/theme/colors";
 interface DashboardStatGridProps {
   metrics: DashboardMetrics | undefined;
   loading: boolean;
@@ -28,7 +29,7 @@ const DashboardStatGrid = ({ metrics, loading }: DashboardStatGridProps) => {
       value: countOf(metrics?.activeDeliveries),
       hint: "no período selecionado",
       icon: <Inventory2RoundedIcon fontSize="small" />,
-      color: "#0EA5E9",
+      color: COLORS.info,
     },
     {
       label: "Receita entregue",
@@ -37,21 +38,21 @@ const DashboardStatGrid = ({ metrics, loading }: DashboardStatGridProps) => {
       deltaTone: delta?.startsWith("-") ? "warning" : "success",
       hint: "no período",
       icon: <MonetizationOnOutlinedIcon fontSize="small" />,
-      color: "#10B981",
+      color: COLORS.success,
     },
     {
       label: "Total de Clientes",
       value: countOf(metrics?.clients),
       hint: "cadastrados no sistema",
       icon: <GroupOutlinedIcon fontSize="small" />,
-      color: "#8B5CF6",
+      color: COLORS.violet,
     },
     {
       label: "Entregadores Cadastrados",
       value: countOf(metrics?.deliverymen),
       hint: "na frota",
       icon: <TwoWheelerOutlinedIcon fontSize="small" />,
-      color: "#F59E0B",
+      color: COLORS.warning,
     },
     {
       label: "Cidades atendidas",

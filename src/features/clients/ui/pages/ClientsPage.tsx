@@ -24,6 +24,7 @@ import ClientDetailsDialog from "../components/ClientDetailsDialog";
 import ClientEditDialog from "../components/ClientEditDialog";
 import ClientsPanel from "../components/ClientsPanel";
 
+import { COLORS } from "@/shared/theme/colors";
 const ClientsPage = () => {
   const navigate = useNavigate();
   const locationState = useLocation().state as { search?: string } | null;
@@ -112,8 +113,8 @@ const ClientsPage = () => {
           startIcon={<PersonAddIcon />}
           onClick={() => navigate(ROUTES.registerClient)}
           sx={{
-            bgcolor: "#0ea5e9",
-            "&:hover": { bgcolor: "#0284c7" },
+            bgcolor: COLORS.info,
+            "&:hover": { bgcolor: COLORS.infoHover },
             textTransform: "none",
             borderRadius: 2,
             fontWeight: 600,

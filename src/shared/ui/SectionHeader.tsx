@@ -1,6 +1,7 @@
 import type { ElementType, ReactNode } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 
+import { COLORS } from "@/shared/theme/colors";
 interface SectionHeaderProps {
   icon: ElementType;
   title: string;
@@ -12,11 +13,13 @@ const SectionHeader = ({ icon: Icon, title, action }: SectionHeaderProps) => {
 
   const heading = (
     <Box display="flex" alignItems="center" gap={1} mb={action ? 0 : 3}>
-      <Icon sx={{ color: isDark ? "#7C9CBF" : "#003459", fontSize: 28 }} />
+      <Icon
+        sx={{ color: isDark ? COLORS.navySoft : COLORS.navy, fontSize: 28 }}
+      />
       <Typography
         variant="h5"
         fontWeight={700}
-        sx={{ color: isDark ? "#E2E4EC" : "#003459" }}
+        sx={{ color: isDark ? COLORS.inkOnDark : COLORS.navy }}
       >
         {title}
       </Typography>

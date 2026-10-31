@@ -4,6 +4,7 @@ import { phoneMask } from "@/shared/lib/masks";
 import { deliveryStreetLine, type Delivery } from "../../domain/delivery";
 import FinishStatusChip from "./FinishStatusChip";
 
+import { COLORS } from "@/shared/theme/colors";
 const SummaryCard = ({
   title,
   children,
@@ -62,8 +63,8 @@ const DeliverySummaryCards = ({ delivery }: { delivery: Delivery }) => {
           label={`Pedido #${delivery.id}`}
           size="small"
           sx={{
-            bgcolor: "#E8ECFF",
-            color: "#4361EE",
+            bgcolor: COLORS.brandSoft,
+            color: COLORS.brand,
             fontWeight: 700,
             border: "1px solid #C7D2FE",
           }}
