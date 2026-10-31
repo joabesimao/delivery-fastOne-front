@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   Button,
   CircularProgress,
@@ -11,7 +12,7 @@ import {
 interface ConfirmDialogProps {
   open: boolean;
   title: string;
-  message: string;
+  message: ReactNode;
   confirmLabel?: string;
   loading?: boolean;
   onConfirm: () => void;

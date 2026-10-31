@@ -1,27 +1,27 @@
-import type { SyntheticEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Stack, Tab, Tabs } from "@mui/material";
-import DashboardIndex from "./DashboardIndex";
-import DashboardReports from "./DashboardReports";
+import { ROUTES } from "@/shared/config/routes";
+import DashboardOverview from "../components/DashboardOverview";
+import DashboardReports from "../components/DashboardReports";
 
 type DashboardTab = "geral" | "relatorios";
 
+const TAB_ROUTES: Record<DashboardTab, string> = {
+  geral: ROUTES.dashboard,
+  relatorios: ROUTES.dashboardReports,
+};
+
 const DashboardPage = () => {
-  const location = useLocation();
+  const { pathname } = useLocation();
   const navigate = useNavigate();
-
   const activeTab: DashboardTab =
-    location.pathname === "/dashboard/relatorios" ? "relatorios" : "geral";
-
-  const handleTabChange = (_: SyntheticEvent, value: DashboardTab) => {
-    navigate(value === "relatorios" ? "/dashboard/relatorios" : "/dashboard");
-  };
+    pathname === ROUTES.dashboardReports ? "relatorios" : "geral";
 
   return (
     <Stack spacing={2.5}>
       <Tabs
         value={activeTab}
-        onChange={handleTabChange}
+        onChange={(_, value: DashboardTab) => navigate(TAB_ROUTES[value])}
         sx={{
           minHeight: 40,
           "& .MuiTab-root": {
@@ -36,7 +36,11 @@ const DashboardPage = () => {
         <Tab label="Relatórios" value="relatorios" />
       </Tabs>
 
-      {activeTab === "relatorios" ? <DashboardReports /> : <DashboardIndex />}
+      {activeTab === "relatorios" ? (
+        <DashboardReports />
+      ) : (
+        <DashboardOverview />
+      )}
     </Stack>
   );
 };
