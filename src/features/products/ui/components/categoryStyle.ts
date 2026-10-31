@@ -6,18 +6,19 @@ import LocalCafeRoundedIcon from "@mui/icons-material/LocalCafeRounded";
 import LocalPizzaRoundedIcon from "@mui/icons-material/LocalPizzaRounded";
 import RestaurantRoundedIcon from "@mui/icons-material/RestaurantRounded";
 
+import { COLORS } from "@/shared/theme/colors";
 export interface CategoryStyle {
   color: string;
   icon: SvgIconComponent;
 }
 
 const CATEGORY_PALETTE: CategoryStyle[] = [
-  { color: "#EF4444", icon: FastfoodRoundedIcon },
-  { color: "#F59E0B", icon: LocalPizzaRoundedIcon },
-  { color: "#0EA5E9", icon: LocalBarRoundedIcon },
+  { color: COLORS.danger, icon: FastfoodRoundedIcon },
+  { color: COLORS.warning, icon: LocalPizzaRoundedIcon },
+  { color: COLORS.info, icon: LocalBarRoundedIcon },
   { color: "#EC4899", icon: IcecreamRoundedIcon },
-  { color: "#8B5CF6", icon: RestaurantRoundedIcon },
-  { color: "#10B981", icon: LocalCafeRoundedIcon },
+  { color: COLORS.violet, icon: RestaurantRoundedIcon },
+  { color: COLORS.success, icon: LocalCafeRoundedIcon },
 ];
 
 export const categoryStyleOf = (category: string): CategoryStyle => {
@@ -27,4 +28,4 @@ export const categoryStyleOf = (category: string): CategoryStyle => {
   return CATEGORY_PALETTE[hash % CATEGORY_PALETTE.length];
 };
 
-export const STOCK_COLOR = { low: "#F59E0B", in: "#10B981" } as const;
+export const STOCK_COLOR = { low: COLORS.warning, in: COLORS.success } as const;

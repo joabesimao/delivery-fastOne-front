@@ -13,7 +13,7 @@ import {
   type DistributionItem,
 } from "../../domain/deliveryDistribution";
 
-const COLORS = [
+const SLICE_COLORS = [
   "#4361EE",
   "#17D6A3",
   "#FFC107",
@@ -98,7 +98,10 @@ const DonutChart = ({ data, height = 300 }: DonutChartProps) => {
           labelLine={{ stroke: theme.palette.divider }}
         >
           {data.map((_, index) => (
-            <Cell key={index} fill={COLORS[index % COLORS.length]} />
+            <Cell
+              key={index}
+              fill={SLICE_COLORS[index % SLICE_COLORS.length]}
+            />
           ))}
         </Pie>
         <Tooltip

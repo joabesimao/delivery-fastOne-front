@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { CircularProgress, IconButton, Tooltip } from "@mui/material";
 
+import { COLORS } from "@/shared/theme/colors";
 interface ActionIconButtonProps {
   title: string;
   icon: ReactNode;
@@ -32,7 +33,11 @@ const ActionIconButton = ({
         "&:hover": { bgcolor: hoverColor },
       }}
     >
-      {loading ? <CircularProgress size={14} sx={{ color: "#fff" }} /> : icon}
+      {loading ? (
+        <CircularProgress size={14} sx={{ color: COLORS.white }} />
+      ) : (
+        icon
+      )}
     </IconButton>
   </Tooltip>
 );

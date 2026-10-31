@@ -5,7 +5,9 @@ import PageLoader from "@/shared/ui/PageLoader";
 import ProtectedLayout from "../layout/ProtectedLayout";
 import { PublicOnlyRoute, RequireAuth, RequireRole } from "./guards";
 
-const LoginPage = lazy(() => import("@/modules/auth/LoginPage"));
+const LoginPage = lazy(() =>
+  import("@/features/auth").then((m) => ({ default: m.LoginPage })),
+);
 const DashboardPage = lazy(() =>
   import("@/features/dashboard").then((m) => ({ default: m.DashboardPage })),
 );
@@ -86,13 +88,17 @@ const FuelRefillsPage = lazy(() =>
     default: m.FuelRefillsPage,
   })),
 );
-const VisualSettings = lazy(
-  () => import("@/modules/settings/visual/VisualSettings"),
+const VisualSettingsPage = lazy(() =>
+  import("@/features/settings").then((m) => ({
+    default: m.VisualSettingsPage,
+  })),
 );
-const FleetSettings = lazy(
-  () => import("@/modules/settings/fleet/FleetSettings"),
+const FleetSettingsPage = lazy(() =>
+  import("@/features/settings").then((m) => ({ default: m.FleetSettingsPage })),
 );
-const ChatRealtime = lazy(() => import("@/modules/chat/ChatRealtime"));
+const ChatPage = lazy(() =>
+  import("@/features/chat").then((m) => ({ default: m.ChatPage })),
+);
 
 const ADMIN_ONLY = ["admin"] as const;
 
@@ -153,9 +159,9 @@ export const router = createBrowserRouter([
           },
           { path: ROUTES.oilChanges, element: <OilChangesPage /> },
           { path: ROUTES.fuelRefills, element: <FuelRefillsPage /> },
-          { path: ROUTES.visualSettings, element: <VisualSettings /> },
-          { path: ROUTES.fleetSettings, element: <FleetSettings /> },
-          { path: ROUTES.chat, element: <ChatRealtime /> },
+          { path: ROUTES.visualSettings, element: <VisualSettingsPage /> },
+          { path: ROUTES.fleetSettings, element: <FleetSettingsPage /> },
+          { path: ROUTES.chat, element: <ChatPage /> },
         ],
       },
     ],

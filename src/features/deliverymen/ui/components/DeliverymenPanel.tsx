@@ -19,6 +19,7 @@ import {
   type DeliverymanFilters,
 } from "../../domain/deliveryman";
 
+import { COLORS } from "@/shared/theme/colors";
 interface DeliverymenPanelProps {
   deliverymen: Deliveryman[];
   total: number;
@@ -107,7 +108,7 @@ const DeliverymenPanel = ({
       title="Listagem de entregadores"
       loading={loading}
       error={error}
-      loaderColor="#0ea5e9"
+      loaderColor={COLORS.info}
       filters={
         <>
           <SurfaceFilter label="Buscar entregador" minWidth={200}>

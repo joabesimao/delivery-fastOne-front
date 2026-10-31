@@ -14,6 +14,7 @@ import SellRoundedIcon from "@mui/icons-material/SellRounded";
 import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 import { formatCurrency } from "@/shared/lib/format/currency";
 
+import { COLORS } from "@/shared/theme/colors";
 interface ProductStatCardsProps {
   loading: boolean;
   total: number;
@@ -42,28 +43,28 @@ const ProductStatCards = ({
       label: "Total de Produtos Ativos",
       value: loading ? <CircularProgress size={22} /> : total,
       caption: "em catálogo",
-      color: "#0EA5E9",
+      color: COLORS.info,
       icon: <Inventory2RoundedIcon fontSize="small" />,
     },
     {
       label: "Categorias Ativas",
       value: categories,
       caption: "seções no catálogo",
-      color: "#8B5CF6",
+      color: COLORS.violet,
       icon: <CategoryRoundedIcon fontSize="small" />,
     },
     {
       label: "Itens com Baixo Estoque",
       value: lowStock,
       caption: "atenção requerida",
-      color: "#F59E0B",
+      color: COLORS.warning,
       icon: <WarningAmberRoundedIcon fontSize="small" />,
     },
     {
       label: "Preço Médio do Catálogo",
       value: formatCurrency(averagePrice),
       caption: "por item cadastrado",
-      color: "#10B981",
+      color: COLORS.success,
       icon: <SellRoundedIcon fontSize="small" />,
     },
   ];

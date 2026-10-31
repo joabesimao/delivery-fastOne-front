@@ -24,6 +24,7 @@ import {
 import FuelRefillEditDialog from "../components/FuelRefillEditDialog";
 import FuelRefillTable from "../components/FuelRefillTable";
 
+import { COLORS } from "@/shared/theme/colors";
 const FuelRefillsPage = () => {
   const navigate = useNavigate();
   const runWithFeedback = useActionFeedback();
@@ -75,8 +76,8 @@ const FuelRefillsPage = () => {
             onClick={() => navigate(ROUTES.registerFuelRefill)}
             sx={{
               textTransform: "none",
-              bgcolor: "#4361EE",
-              "&:hover": { bgcolor: "#3451D1" },
+              bgcolor: COLORS.brand,
+              "&:hover": { bgcolor: COLORS.brandHover },
             }}
           >
             Lançar abastecimento

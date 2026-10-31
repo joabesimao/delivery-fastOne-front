@@ -24,6 +24,7 @@ import {
 } from "../../domain/client";
 import ClientStatusChip from "./ClientStatusChip";
 
+import { COLORS } from "@/shared/theme/colors";
 interface ClientsPanelProps {
   clients: Client[];
   total: number;
@@ -129,10 +130,12 @@ const ClientsPanel = ({
               disabled={busy}
               loading={busy}
               onClick={() => onToggleActive(c)}
-              color={c.active ? "#ef4444" : "#22c55e"}
-              hoverColor={c.active ? "#dc2626" : "#16a34a"}
+              color={c.active ? COLORS.danger : "#22c55e"}
+              hoverColor={c.active ? COLORS.dangerHover : "#16a34a"}
               icon={
-                <PowerSettingsNewIcon sx={{ fontSize: 16, color: "#fff" }} />
+                <PowerSettingsNewIcon
+                  sx={{ fontSize: 16, color: COLORS.white }}
+                />
               }
             />
           </RowActions>
@@ -146,7 +149,7 @@ const ClientsPanel = ({
       title="Listagem de clientes"
       loading={loading}
       error={error}
-      loaderColor="#0ea5e9"
+      loaderColor={COLORS.info}
       filters={
         <>
           <SurfaceFilter label="Buscar cliente" minWidth={200}>
