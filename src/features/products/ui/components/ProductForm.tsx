@@ -1,14 +1,7 @@
 import { useState, type ReactNode } from "react";
-import {
-  Divider,
-  FormControlLabel,
-  Grid,
-  InputAdornment,
-  Switch,
-  Typography,
-} from "@mui/material";
+import { Divider, FormControlLabel, Grid, Switch } from "@mui/material";
 import { Form, Formik } from "formik";
-import { currencyInputMask } from "@/shared/lib/masks";
+import FormCurrencyField from "@/shared/ui/form/FormCurrencyField";
 import FormSectionTitle from "@/shared/ui/form/FormSectionTitle";
 import FormTextField from "@/shared/ui/form/FormTextField";
 import {
@@ -67,27 +60,7 @@ const ProductForm = ({
                     />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 4 }}>
-                    <FormTextField
-                      name="price"
-                      label="Preço *"
-                      placeholder="0,00"
-                      mask={currencyInputMask}
-                      slotProps={{
-                        htmlInput: { inputMode: "numeric" },
-                        input: {
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                R$
-                              </Typography>
-                            </InputAdornment>
-                          ),
-                        },
-                      }}
-                    />
+                    <FormCurrencyField name="price" label="Preço *" />
                   </Grid>
                 </Grid>
 

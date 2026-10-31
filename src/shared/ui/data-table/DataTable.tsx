@@ -29,6 +29,7 @@ interface DataTableProps<T> {
   loading?: boolean;
   error?: string | null;
   emptyMessage: string;
+  scrollable?: boolean;
 }
 
 const DataTable = <T,>({
@@ -38,6 +39,7 @@ const DataTable = <T,>({
   loading = false,
   error = null,
   emptyMessage,
+  scrollable = false,
 }: DataTableProps<T>) => {
   const isDark = useTheme().palette.mode === "dark";
 
@@ -66,7 +68,7 @@ const DataTable = <T,>({
           ? "0 2px 12px rgba(0,0,0,0.4)"
           : "0 4px 20px rgba(0,52,89,0.10)",
         border: isDark ? "none" : "1px solid #e2e8f0",
-        overflow: "hidden",
+        ...(scrollable ? { overflowX: "auto" } : { overflow: "hidden" }),
       }}
     >
       <Table size="small">

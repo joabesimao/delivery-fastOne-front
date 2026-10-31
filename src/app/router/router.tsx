@@ -10,12 +10,24 @@ const DashboardPage = lazy(() => import("@/modules/dashboard/DashboardPage"));
 const ClientList = lazy(() => import("@/modules/dashboard/ClientList"));
 const ProductList = lazy(() => import("@/modules/dashboard/ProductList"));
 const UserList = lazy(() => import("@/modules/dashboard/UserList"));
-const NewDelivery = lazy(() => import("@/modules/deliveries/NewDelivery"));
-const FinishDelivery = lazy(() => import("@/modules/deliveries/FinishDelivery"));
-const DeliveryReports = lazy(() => import("@/modules/deliveries/DeliveryReports"));
-const DeliverymanReports = lazy(() => import("@/modules/deliveries/DeliverymanReports"));
-const DeliveryList = lazy(() => import("@/modules/deliveries/DeliveryList"));
-const DeliverymanList = lazy(() => import("@/modules/deliveries/DeliverymanList"));
+const DeliveriesPage = lazy(() =>
+  import("@/features/deliveries").then((m) => ({ default: m.DeliveriesPage })),
+);
+const NewDeliveryPage = lazy(() =>
+  import("@/features/deliveries").then((m) => ({ default: m.NewDeliveryPage })),
+);
+const FinishDeliveryPage = lazy(() =>
+  import("@/features/deliveries").then((m) => ({ default: m.FinishDeliveryPage })),
+);
+const DeliveryReportsPage = lazy(() =>
+  import("@/features/deliveries").then((m) => ({ default: m.DeliveryReportsPage })),
+);
+const DeliverymanRankingPage = lazy(() =>
+  import("@/features/deliveries").then((m) => ({ default: m.DeliverymanRankingPage })),
+);
+const DeliverymenPage = lazy(() =>
+  import("@/features/deliverymen").then((m) => ({ default: m.DeliverymenPage })),
+);
 const RegisterClientPage = lazy(() =>
   import("@/features/clients").then((m) => ({ default: m.RegisterClientPage })),
 );
@@ -34,14 +46,18 @@ const CitiesPage = lazy(() =>
 const VehiclesPage = lazy(() =>
   import("@/features/vehicles").then((m) => ({ default: m.VehiclesPage })),
 );
-const RegisterOilChange = lazy(
-  () => import("@/modules/registrations/oilChange/RegisterOilChange"),
+const RegisterOilChangePage = lazy(() =>
+  import("@/features/oil-changes").then((m) => ({ default: m.RegisterOilChangePage })),
 );
-const RegisterFuelRefill = lazy(
-  () => import("@/modules/registrations/fuelRefill/RegisterFuelRefill"),
+const RegisterFuelRefillPage = lazy(() =>
+  import("@/features/fuel-refills").then((m) => ({ default: m.RegisterFuelRefillPage })),
 );
-const OilChangeList = lazy(() => import("@/modules/registrations/oilChange/OilChangeList"));
-const FuelRefillList = lazy(() => import("@/modules/registrations/fuelRefill/FuelRefillList"));
+const OilChangesPage = lazy(() =>
+  import("@/features/oil-changes").then((m) => ({ default: m.OilChangesPage })),
+);
+const FuelRefillsPage = lazy(() =>
+  import("@/features/fuel-refills").then((m) => ({ default: m.FuelRefillsPage })),
+);
 const VisualSettings = lazy(() => import("@/modules/settings/visual/VisualSettings"));
 const FleetSettings = lazy(() => import("@/modules/settings/fleet/FleetSettings"));
 const ChatRealtime = lazy(() => import("@/modules/chat/ChatRealtime"));
@@ -74,22 +90,22 @@ export const router = createBrowserRouter([
             element: <RequireRole roles={ADMIN_ONLY} />,
             children: [{ path: ROUTES.users, element: <UserList /> }],
           },
-          { path: ROUTES.newDelivery, element: <NewDelivery /> },
-          { path: ROUTES.finishDelivery, element: <FinishDelivery /> },
-          { path: ROUTES.deliveryReports, element: <DeliveryReports /> },
-          { path: ROUTES.deliverymanReports, element: <DeliverymanReports /> },
-          { path: ROUTES.deliveries, element: <DeliveryList /> },
-          { path: ROUTES.deliverymen, element: <DeliverymanList /> },
+          { path: ROUTES.newDelivery, element: <NewDeliveryPage /> },
+          { path: ROUTES.finishDelivery, element: <FinishDeliveryPage /> },
+          { path: ROUTES.deliveryReports, element: <DeliveryReportsPage /> },
+          { path: ROUTES.deliverymanReports, element: <DeliverymanRankingPage /> },
+          { path: ROUTES.deliveries, element: <DeliveriesPage /> },
+          { path: ROUTES.deliverymen, element: <DeliverymenPage /> },
           { path: ROUTES.registerClient, element: <RegisterClientPage /> },
           { path: ROUTES.registerProduct, element: <RegisterProductPage /> },
           { path: ROUTES.registerDeliveryman, element: <RegisterDeliverymanPage /> },
           { path: ROUTES.registerNeighborhoods, element: <NeighborhoodsPage /> },
           { path: ROUTES.registerCities, element: <CitiesPage /> },
           { path: ROUTES.registerVehicle, element: <VehiclesPage /> },
-          { path: ROUTES.registerOilChange, element: <RegisterOilChange /> },
-          { path: ROUTES.registerFuelRefill, element: <RegisterFuelRefill /> },
-          { path: ROUTES.oilChanges, element: <OilChangeList /> },
-          { path: ROUTES.fuelRefills, element: <FuelRefillList /> },
+          { path: ROUTES.registerOilChange, element: <RegisterOilChangePage /> },
+          { path: ROUTES.registerFuelRefill, element: <RegisterFuelRefillPage /> },
+          { path: ROUTES.oilChanges, element: <OilChangesPage /> },
+          { path: ROUTES.fuelRefills, element: <FuelRefillsPage /> },
           { path: ROUTES.visualSettings, element: <VisualSettings /> },
           { path: ROUTES.fleetSettings, element: <FleetSettings /> },
           { path: ROUTES.chat, element: <ChatRealtime /> },

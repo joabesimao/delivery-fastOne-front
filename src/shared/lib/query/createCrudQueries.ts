@@ -1,5 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { CrudRepository } from "@/shared/api/createCrudRepository";
+import type {
+  CrudRepository,
+  QueryFilters,
+} from "@/shared/api/createCrudRepository";
 
 interface PendingMutation<TVariables> {
   isPending: boolean;
@@ -12,7 +15,10 @@ export const createCrudQueries = <TEntity, TInput>(
 ) => {
   const keys = {
     all: [scope] as const,
-    list: () => [scope, "list"] as const,
+    list: (filters?: QueryFilters) =>
+      filters
+        ? ([scope, "list", filters] as const)
+        : ([scope, "list"] as const),
   };
 
   const useInvalidate = () => {
@@ -20,8 +26,11 @@ export const createCrudQueries = <TEntity, TInput>(
     return () => queryClient.invalidateQueries({ queryKey: keys.all });
   };
 
-  const useList = () =>
-    useQuery({ queryKey: keys.list(), queryFn: () => repository.list() });
+  const useList = (filters?: QueryFilters) =>
+    useQuery({
+      queryKey: keys.list(filters),
+      queryFn: () => repository.list(filters),
+    });
 
   const useCreate = () => {
     const invalidate = useInvalidate();

@@ -1,5 +1,5 @@
 import api from "@/shared/api/httpClient";
-import type { UserRole } from "@/types/User";
+import type { UserRole } from "@/features/users";
 
 export type NotificationType =
   | "chat_message"
