@@ -22,7 +22,7 @@ export interface DeliverymanInput {
   name: string;
   lastName: string;
   phone: string;
-  cpf: string;
+  cpf?: string;
   numberQualification: string;
 }
 
@@ -81,9 +81,29 @@ export const collectRegisteredDocuments = (
   };
 };
 
+export interface DeliverymanFilters {
+  name: string;
+  phone: string;
+}
+
+export const filterDeliverymen = (
+  deliverymen: Deliveryman[],
+  filters: DeliverymanFilters,
+): Deliveryman[] => {
+  const nameTerm = filters.name.trim().toLowerCase();
+  const phoneTerm = stripPhone(filters.phone.trim().toLowerCase());
+  return deliverymen.filter(
+    (d) =>
+      (!nameTerm ||
+        `${d.name} ${d.lastName}`.toLowerCase().includes(nameTerm)) &&
+      (!filters.phone.trim() || stripPhone(d.phone).includes(phoneTerm)),
+  );
+};
+
 export const validateDeliverymanForm = (
   values: DeliverymanFormValues,
   registered: RegisteredDocuments,
+  { requireCpf = true }: { requireCpf?: boolean } = {},
 ): DeliverymanFormErrors => {
   const errors: DeliverymanFormErrors = {};
   if (!values.name.trim()) errors.name = "Informe o nome.";
@@ -91,8 +111,9 @@ export const validateDeliverymanForm = (
   if (!values.phone.trim()) errors.phone = "Informe o telefone.";
   else if (!isValidPhone(values.phone))
     errors.phone = "Telefone inválido. Use DDD + número.";
-  if (!values.cpf.trim()) errors.cpf = "Informe o CPF.";
-  else if (!isValidCPF(values.cpf))
+  if (!values.cpf.trim()) {
+    if (requireCpf) errors.cpf = "Informe o CPF.";
+  } else if (!isValidCPF(values.cpf))
     errors.cpf =
       "CPF inválido. Use o formato XXX.XXX.XXX-XX ou apenas números.";
   else if (registered.cpfs.has(stripCPF(values.cpf)))
@@ -111,6 +132,6 @@ export const toDeliverymanInput = (
   name: values.name.trim(),
   lastName: values.lastName.trim(),
   phone: stripPhone(values.phone),
-  cpf: stripCPF(values.cpf),
+  cpf: values.cpf ? stripCPF(values.cpf) : undefined,
   numberQualification: values.numberQualification,
 });

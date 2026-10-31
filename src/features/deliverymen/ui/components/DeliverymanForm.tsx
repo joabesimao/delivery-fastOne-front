@@ -18,6 +18,7 @@ interface DeliverymanFormProps {
   registeredDocuments: RegisteredDocuments;
   onSubmit: (input: DeliverymanInput) => Promise<boolean>;
   resetOnSuccess?: boolean;
+  requireCpf?: boolean;
   children: (form: { fields: ReactNode; submitting: boolean }) => ReactNode;
 }
 
@@ -26,11 +27,14 @@ const DeliverymanForm = ({
   registeredDocuments,
   onSubmit,
   resetOnSuccess = false,
+  requireCpf = true,
   children,
 }: DeliverymanFormProps) => (
   <Formik
     initialValues={initialValues}
-    validate={(values) => validateDeliverymanForm(values, registeredDocuments)}
+    validate={(values) =>
+      validateDeliverymanForm(values, registeredDocuments, { requireCpf })
+    }
     onSubmit={async (values, { resetForm }) => {
       const succeeded = await onSubmit(toDeliverymanInput(values));
       if (succeeded && resetOnSuccess) resetForm();
@@ -74,7 +78,7 @@ const DeliverymanForm = ({
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormTextField
                     name="cpf"
-                    label="CPF *"
+                    label={requireCpf ? "CPF *" : "CPF"}
                     placeholder="000.000.000-00"
                     mask={cpfMask}
                     touchOnChange={(cpf) => stripCPF(cpf).length === 11}

@@ -33,8 +33,12 @@ import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import PowerSettingsNewRoundedIcon from "@mui/icons-material/PowerSettingsNewRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import api from "@/shared/api/httpClient";
-import UserForm from "../registrations/user/UserForm";
-import { ROLE_OPTIONS, type UserItem, type UserRole } from "../../types/User";
+import {
+  ROLE_OPTIONS,
+  UserFormDialog,
+  type User as UserItem,
+  type UserRole,
+} from "@/features/users";
 
 const DEBOUNCE_MS = 400;
 
@@ -133,10 +137,8 @@ const UserList: React.FC = () => {
   };
 
   const handleSaved = () => {
-    const wasEdit = Boolean(editingUser);
     closeForm();
     void loadUsers();
-    showSnackbar(wasEdit ? "Usuário atualizado com sucesso." : "Usuário cadastrado com sucesso.", "success");
   };
 
   const handleToggleActive = async (user: UserItem) => {
@@ -354,7 +356,7 @@ const UserList: React.FC = () => {
         </Stack>
       </Card>
 
-      <UserForm open={formOpen} onClose={closeForm} onSaved={handleSaved} user={editingUser} />
+      <UserFormDialog open={formOpen} onClose={closeForm} onSaved={handleSaved} user={editingUser} />
 
       <Dialog open={Boolean(deleteTarget)} onClose={() => setDeleteTarget(null)}>
         <DialogTitle>Excluir usuário</DialogTitle>

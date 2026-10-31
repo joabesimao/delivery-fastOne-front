@@ -16,7 +16,7 @@ import { Form, Formik } from "formik";
 import { broadcastNotice } from "@/modules/notifications/notificationsService";
 import { getRealtimeSessionUnits } from "@/shared/realtime/realtimeSocket";
 import { extractApiErrorMessage } from "@/shared/lib/errors/extractApiErrorMessage";
-import { ROLE_OPTIONS, type UserRole } from "@/types/User";
+import { ROLE_OPTIONS, type UserRole } from "@/features/users";
 
 const TITLE_MAX = 191;
 const BODY_MAX = 2000;

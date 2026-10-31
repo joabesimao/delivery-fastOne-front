@@ -10,12 +10,24 @@ const DashboardPage = lazy(() => import("@/modules/dashboard/DashboardPage"));
 const ClientList = lazy(() => import("@/modules/dashboard/ClientList"));
 const ProductList = lazy(() => import("@/modules/dashboard/ProductList"));
 const UserList = lazy(() => import("@/modules/dashboard/UserList"));
-const NewDelivery = lazy(() => import("@/modules/deliveries/NewDelivery"));
-const FinishDelivery = lazy(() => import("@/modules/deliveries/FinishDelivery"));
-const DeliveryReports = lazy(() => import("@/modules/deliveries/DeliveryReports"));
-const DeliverymanReports = lazy(() => import("@/modules/deliveries/DeliverymanReports"));
-const DeliveryList = lazy(() => import("@/modules/deliveries/DeliveryList"));
-const DeliverymanList = lazy(() => import("@/modules/deliveries/DeliverymanList"));
+const DeliveriesPage = lazy(() =>
+  import("@/features/deliveries").then((m) => ({ default: m.DeliveriesPage })),
+);
+const NewDeliveryPage = lazy(() =>
+  import("@/features/deliveries").then((m) => ({ default: m.NewDeliveryPage })),
+);
+const FinishDeliveryPage = lazy(() =>
+  import("@/features/deliveries").then((m) => ({ default: m.FinishDeliveryPage })),
+);
+const DeliveryReportsPage = lazy(() =>
+  import("@/features/deliveries").then((m) => ({ default: m.DeliveryReportsPage })),
+);
+const DeliverymanRankingPage = lazy(() =>
+  import("@/features/deliveries").then((m) => ({ default: m.DeliverymanRankingPage })),
+);
+const DeliverymenPage = lazy(() =>
+  import("@/features/deliverymen").then((m) => ({ default: m.DeliverymenPage })),
+);
 const RegisterClientPage = lazy(() =>
   import("@/features/clients").then((m) => ({ default: m.RegisterClientPage })),
 );
@@ -78,12 +90,12 @@ export const router = createBrowserRouter([
             element: <RequireRole roles={ADMIN_ONLY} />,
             children: [{ path: ROUTES.users, element: <UserList /> }],
           },
-          { path: ROUTES.newDelivery, element: <NewDelivery /> },
-          { path: ROUTES.finishDelivery, element: <FinishDelivery /> },
-          { path: ROUTES.deliveryReports, element: <DeliveryReports /> },
-          { path: ROUTES.deliverymanReports, element: <DeliverymanReports /> },
-          { path: ROUTES.deliveries, element: <DeliveryList /> },
-          { path: ROUTES.deliverymen, element: <DeliverymanList /> },
+          { path: ROUTES.newDelivery, element: <NewDeliveryPage /> },
+          { path: ROUTES.finishDelivery, element: <FinishDeliveryPage /> },
+          { path: ROUTES.deliveryReports, element: <DeliveryReportsPage /> },
+          { path: ROUTES.deliverymanReports, element: <DeliverymanRankingPage /> },
+          { path: ROUTES.deliveries, element: <DeliveriesPage /> },
+          { path: ROUTES.deliverymen, element: <DeliverymenPage /> },
           { path: ROUTES.registerClient, element: <RegisterClientPage /> },
           { path: ROUTES.registerProduct, element: <RegisterProductPage /> },
           { path: ROUTES.registerDeliveryman, element: <RegisterDeliverymanPage /> },
