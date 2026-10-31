@@ -7,6 +7,7 @@ import type {
 } from "../../domain/deliverySheet";
 import { deliverySheetConfig } from "../../application/deliverySheetConfig";
 
+import { COLORS } from "@/shared/theme/colors";
 interface DeliverySheetDocumentProps {
   ref: Ref<HTMLDivElement>;
   sheet: DeliverySheet;
@@ -49,7 +50,7 @@ const DeliverySheetDocument = ({
         position: "fixed",
         left: "-99999px",
         top: 0,
-        bgcolor: "#fff",
+        bgcolor: COLORS.white,
         color: "#111",
         p: isA4 ? 4 : 1.5,
         border: "1px solid #d0d0d0",

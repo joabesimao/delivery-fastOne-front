@@ -14,6 +14,7 @@ import {
   type FinishDeliveryInput,
 } from "../../domain/finishDelivery";
 
+import { COLORS } from "@/shared/theme/colors";
 interface FinishDeliveryFormProps {
   delivery: Delivery;
   deliverymanOptions: SelectOption[];
@@ -80,8 +81,8 @@ const FinishDeliveryForm = ({
             disabled={isSubmitting}
             sx={{
               textTransform: "none",
-              bgcolor: "#4361EE",
-              "&:hover": { bgcolor: "#3451D1" },
+              bgcolor: COLORS.brand,
+              "&:hover": { bgcolor: COLORS.brandHover },
             }}
             startIcon={
               isSubmitting ? (

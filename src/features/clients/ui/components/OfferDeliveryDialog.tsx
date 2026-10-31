@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 
+import { COLORS } from "@/shared/theme/colors";
 interface OfferDeliveryDialogProps {
   clientName: string | null;
   onAccept: () => void;
@@ -39,8 +40,8 @@ const OfferDeliveryDialog = ({
         variant="contained"
         sx={{
           textTransform: "none",
-          bgcolor: "#4361EE",
-          "&:hover": { bgcolor: "#3451D1" },
+          bgcolor: COLORS.brand,
+          "&:hover": { bgcolor: COLORS.brandHover },
         }}
       >
         Sim

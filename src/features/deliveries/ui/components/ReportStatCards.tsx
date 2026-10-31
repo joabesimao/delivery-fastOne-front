@@ -8,6 +8,7 @@ import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
 import { formatCurrency } from "@/shared/lib/format/currency";
 import type { DeliverySummary } from "../../domain/deliveryReport";
 
+import { COLORS } from "@/shared/theme/colors";
 interface ReportStatCardsProps {
   summary: DeliverySummary;
   loading: boolean;
@@ -25,14 +26,14 @@ const ReportStatCards = ({ summary, loading }: ReportStatCardsProps) => {
   const cards: StatCardConfig[] = [
     {
       icon: <TagIcon fontSize="small" />,
-      color: "#8b5cf6",
+      color: COLORS.violet,
       value: summary.totalOrders,
       label: "TOTAL DE PEDIDOS",
       skeletonWidth: 70,
     },
     {
       icon: <CheckCircleOutlineIcon fontSize="small" />,
-      color: "#10b981",
+      color: COLORS.success,
       value: summary.finishedCount,
       label: "FINALIZADOS",
       skeletonWidth: 70,
