@@ -1,5 +1,6 @@
 import { TableCell, TableHead, TableRow, useTheme } from "@mui/material";
 
+import { COLORS } from "@/shared/theme/colors";
 interface DataTableHeadProps {
   columns: string[];
 }
@@ -12,7 +13,7 @@ const DataTableHead = ({ columns }: DataTableHeadProps) => {
       <TableRow
         sx={{
           background: isDark
-            ? "#003459"
+            ? COLORS.navy
             : "linear-gradient(90deg, #003459 0%, #005588 100%)",
         }}
       >

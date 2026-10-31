@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   Button,
   CircularProgress,
@@ -8,10 +9,11 @@ import {
   Typography,
 } from "@mui/material";
 
+import { COLORS } from "@/shared/theme/colors";
 interface ConfirmDialogProps {
   open: boolean;
   title: string;
-  message: string;
+  message: ReactNode;
   confirmLabel?: string;
   loading?: boolean;
   onConfirm: () => void;
@@ -41,7 +43,7 @@ const ConfirmDialog = ({
         disabled={loading}
       >
         {loading ? (
-          <CircularProgress size={20} sx={{ color: "#fff" }} />
+          <CircularProgress size={20} sx={{ color: COLORS.white }} />
         ) : (
           confirmLabel
         )}

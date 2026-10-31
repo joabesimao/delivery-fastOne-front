@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import DataTableHead from "./DataTableHead";
 
+import { COLORS } from "@/shared/theme/colors";
 export interface DataTableColumn<T> {
   key: string;
   header: string;
@@ -46,7 +47,9 @@ const DataTable = <T,>({
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" mt={6}>
-        <CircularProgress sx={{ color: isDark ? "#7C9CBF" : "#003459" }} />
+        <CircularProgress
+          sx={{ color: isDark ? COLORS.navySoft : COLORS.navy }}
+        />
       </Box>
     );
   }
@@ -81,7 +84,7 @@ const DataTable = <T,>({
                 align="center"
                 sx={{
                   py: 5,
-                  color: isDark ? "#7C7F8E" : "#94a3b8",
+                  color: isDark ? "#7C7F8E" : COLORS.slate,
                   fontSize: 14,
                 }}
               >
@@ -99,7 +102,7 @@ const DataTable = <T,>({
                       ? "#0e0f0f"
                       : "#0f0e0e"
                     : index % 2 === 0
-                      ? "#ffffff"
+                      ? COLORS.white
                       : "#f8fafd",
                   transition: "background-color 0.15s",
                   "&:hover": {

@@ -1,5 +1,6 @@
 import { Card, CircularProgress, Grid, Typography } from "@mui/material";
 
+import { COLORS } from "@/shared/theme/colors";
 interface DeliveryCountCardsProps {
   loading: boolean;
   total: number;
@@ -22,7 +23,7 @@ const DeliveryCountCards = ({
       label: "Pedidos em andamento",
       value: active,
       caption: "aguardando ou em trânsito",
-      color: "#F59E0B",
+      color: COLORS.warning,
     },
   ];
 

@@ -1,5 +1,12 @@
 export type { Delivery, DeliveryStatus } from "./domain/delivery";
-export { deliveryKeys, useDeliveries } from "./application/deliveryQueries";
+export { deliveryDeliverymanName } from "./domain/delivery";
+export type { RankingItem } from "./domain/deliverymanRanking";
+export {
+  deliveryKeys,
+  useDeliveries,
+  useDeliverymanRanking,
+} from "./application/deliveryQueries";
+export { useDeliveryRealtimeSync } from "./application/useDeliveryRealtimeSync";
 export { default as DeliveriesPage } from "./ui/pages/DeliveriesPage";
 export { default as NewDeliveryPage } from "./ui/pages/NewDeliveryPage";
 export { default as FinishDeliveryPage } from "./ui/pages/FinishDeliveryPage";
