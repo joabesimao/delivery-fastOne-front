@@ -21,7 +21,11 @@ const ADDRESS_FIELDS = [
   { name: "address.street", label: "Rua" },
   { name: "address.neighborhood", label: "Bairro" },
   { name: "address.city", label: "Cidade" },
-  { name: "address.numberHouse", label: "Número" },
+  {
+    name: "address.numberHouse",
+    label: "Número",
+    slotProps: { htmlInput: { inputMode: "numeric" as const } },
+  },
   { name: "address.reference", label: "Referência" },
 ];
 
@@ -74,6 +78,7 @@ const ClientEditDialog = ({
                     name={field.name}
                     label={field.label}
                     labelPlacement="floating"
+                    slotProps={field.slotProps}
                   />
                 ))}
               </Box>

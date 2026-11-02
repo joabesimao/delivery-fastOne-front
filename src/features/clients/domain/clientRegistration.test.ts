@@ -63,6 +63,33 @@ describe("validateClientRegistrationForm", () => {
     ).toBeUndefined();
   });
 
+  it("numberHouse vazio pede o número", () => {
+    const errors = validateClientRegistrationForm(
+      validValues({ address: { ...validValues().address, numberHouse: "" } }),
+    );
+    expect(errors.address?.numberHouse).toBe("Informe o número.");
+  });
+
+  it("numberHouse não numérico pede apenas números", () => {
+    const errors = validateClientRegistrationForm(
+      validValues({
+        address: { ...validValues().address, numberHouse: "S/N" },
+      }),
+    );
+    expect(errors.address?.numberHouse).toBe(
+      "Informe apenas números (ex.: 120).",
+    );
+  });
+
+  it("numberHouse numérico não gera erro", () => {
+    const errors = validateClientRegistrationForm(
+      validValues({
+        address: { ...validValues().address, numberHouse: "120" },
+      }),
+    );
+    expect(errors.address).toBeUndefined();
+  });
+
   it("só inclui address nos erros quando algum campo falha", () => {
     const errors = validateClientRegistrationForm(
       validValues({
@@ -95,6 +122,34 @@ describe("toClientRegistrationInput", () => {
         street: "Rua A",
         neighborhood: "Centro",
         numberHouse: 10,
+        reference: "Perto",
+        city: "Recife",
+      },
+    });
+  });
+});
+
+describe("toClientRegistrationInput com espaços nas pontas", () => {
+  it("aplica trim em todos os campos de texto, inclusive numberHouse", () => {
+    expect(
+      toClientRegistrationInput(
+        validValues({
+          name: "  Maria  ",
+          address: {
+            street: " Rua A ",
+            neighborhood: "  Centro ",
+            numberHouse: " 12 ",
+            reference: " Perto ",
+            city: " Recife  ",
+          },
+        }),
+      ),
+    ).toEqual({
+      client: { name: "Maria", cpf: "52998224725", phone: "81988887777" },
+      address: {
+        street: "Rua A",
+        neighborhood: "Centro",
+        numberHouse: 12,
         reference: "Perto",
         city: "Recife",
       },

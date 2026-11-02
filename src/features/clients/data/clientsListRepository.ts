@@ -33,7 +33,8 @@ const toClient = (dto: ClientDto): Client => {
           id: dto.Register?.addressId ?? address.id ?? null,
           street: address.street ?? "",
           neighborhood: address.neighborhood ?? "",
-          numberHouse: address.numberHouse ? String(address.numberHouse) : "",
+          numberHouse:
+            address.numberHouse != null ? String(address.numberHouse) : "",
           reference: address.reference ?? "",
           city: address.city ?? "",
         }
@@ -53,7 +54,14 @@ export const clientsListRepository = {
     input: ClientUpdateInput,
   ): Promise<void> {
     await httpClient.put(`/client/${clientId}`, input.client);
-    await httpClient.put(`/address/${addressId}`, input.address);
+    try {
+      await httpClient.put(`/address/${addressId}`, input.address);
+    } catch (cause) {
+      throw new Error(
+        "Os dados do cliente foram salvos, mas o endereço não. Tente salvar novamente.",
+        { cause },
+      );
+    }
   },
 
   async setActive(clientId: number, active: boolean): Promise<void> {

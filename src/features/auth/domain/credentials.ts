@@ -22,8 +22,9 @@ export const DEFAULT_CREDENTIALS: LoginCredentials = {
 
 export const LOGIN_MESSAGES = {
   required: "Informe login e senha.",
-  rejected: "Nao foi possivel autenticar com as credenciais informadas.",
-  invalid: "Login ou senha invalidos.",
+  rejected: "Não foi possível autenticar com as credenciais informadas.",
+  invalid: "Login ou senha inválidos.",
+  unavailable: "Não foi possível conectar ao servidor. Tente novamente.",
 } as const;
 
 export const validateCredentials = ({
@@ -68,8 +69,17 @@ export const toSessionData = (
 };
 
 export const loginErrorMessage = (error: unknown): string => {
-  const data = (
-    error as { response?: { data?: { error?: string; message?: string } } }
-  )?.response?.data;
+  const response = (
+    error as {
+      response?: {
+        status?: number;
+        data?: { error?: string; message?: string };
+      };
+    }
+  )?.response;
+  if (!response || (response.status ?? 0) >= 500) {
+    return LOGIN_MESSAGES.unavailable;
+  }
+  const data = response.data;
   return data?.error ?? data?.message ?? LOGIN_MESSAGES.invalid;
 };

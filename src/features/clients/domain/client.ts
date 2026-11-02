@@ -6,6 +6,7 @@ import {
   stripCPF,
   stripPhone,
 } from "@/shared/lib/masks";
+import { isValidHouseNumber } from "./houseNumber";
 
 export interface ClientAddress {
   id: number | null;
@@ -138,6 +139,8 @@ export const validateClientEditForm = (
   if (!values.address.city.trim()) addressErrors.city = "Informe a cidade.";
   if (!values.address.numberHouse.trim())
     addressErrors.numberHouse = "Informe o número.";
+  else if (!isValidHouseNumber(values.address.numberHouse))
+    addressErrors.numberHouse = "Informe apenas números (ex.: 120).";
   if (Object.keys(addressErrors).length) errors.address = addressErrors;
 
   return errors;
@@ -147,15 +150,15 @@ export const toClientUpdateInput = (
   values: ClientEditFormValues,
 ): ClientUpdateInput => ({
   client: {
-    name: values.name,
+    name: values.name.trim(),
     cpf: values.cpf ? stripCPF(values.cpf) : undefined,
     phone: stripPhone(values.phone),
   },
   address: {
-    street: values.address.street,
-    neighborhood: values.address.neighborhood,
-    city: values.address.city,
-    numberHouse: Number(values.address.numberHouse),
-    reference: values.address.reference,
+    street: values.address.street.trim(),
+    neighborhood: values.address.neighborhood.trim(),
+    city: values.address.city.trim(),
+    numberHouse: Number(values.address.numberHouse.trim()),
+    reference: values.address.reference.trim(),
   },
 });

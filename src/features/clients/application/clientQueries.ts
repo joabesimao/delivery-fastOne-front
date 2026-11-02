@@ -48,7 +48,7 @@ export const useUpdateClient = () => {
       addressId: number;
       input: ClientUpdateInput;
     }) => clientsListRepository.update(id, addressId, input),
-    onSuccess: invalidate,
+    onSettled: invalidate,
   });
 };
 

@@ -1,4 +1,5 @@
-export const stripPhone = (value: string = "") => value.replace(/\D/g, "").slice(0, 11);
+export const stripPhone = (value: string = "") =>
+  value.replace(/\D/g, "").slice(0, 11);
 
 export const phoneMask = (value: string = "") => {
   const digits = stripPhone(value);
@@ -18,7 +19,8 @@ export const isValidPhone = (value: string = "") => {
   return digits.length === 10 || digits.length === 11;
 };
 
-export const stripCPF = (value: string = "") => value.replace(/\D/g, "").slice(0, 11);
+export const stripCPF = (value: string = "") =>
+  value.replace(/\D/g, "").slice(0, 11);
 
 export const cpfMask = (value: string = "") => {
   const digits = stripCPF(value);
@@ -34,9 +36,9 @@ export const cpfMask = (value: string = "") => {
 };
 
 export const isValidCPF = (value: string = ""): boolean => {
-  const digits = stripCPF(value);
+  const digits = value.replace(/\D/g, "");
 
-  if (digits.length !== 11 || !/^\d+$/.test(digits)) {
+  if (digits.length !== 11) {
     return false;
   }
 
@@ -59,8 +61,7 @@ export const isValidCPF = (value: string = ""): boolean => {
   const secondDigit = remainder < 2 ? 0 : 11 - remainder;
 
   return (
-    parseInt(digits[9]) === firstDigit &&
-    parseInt(digits[10]) === secondDigit
+    parseInt(digits[9]) === firstDigit && parseInt(digits[10]) === secondDigit
   );
 };
 
@@ -93,18 +94,25 @@ export const parseCurrencyToNumber = (value: unknown): number => {
   }
 
   const sanitized = raw.replace(/\s/g, "").replace(/[^\d.,-]/g, "");
+  if (!/\d/.test(sanitized)) {
+    return Number.NaN;
+  }
+
   const hasComma = sanitized.includes(",");
   const hasDot = sanitized.includes(".");
 
   let normalized = sanitized;
 
   if (hasComma && hasDot) {
-    const commaIsDecimal = sanitized.lastIndexOf(",") > sanitized.lastIndexOf(".");
+    const commaIsDecimal =
+      sanitized.lastIndexOf(",") > sanitized.lastIndexOf(".");
     normalized = commaIsDecimal
       ? sanitized.replace(/\./g, "").replace(",", ".")
       : sanitized.replace(/,/g, "");
   } else if (hasComma) {
     normalized = sanitized.replace(",", ".");
+  } else if (hasDot && /^-?[1-9]\d{0,2}(\.\d{3})+$/.test(sanitized)) {
+    normalized = sanitized.replace(/\./g, "");
   }
 
   const parsed = Number(normalized);

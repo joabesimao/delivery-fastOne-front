@@ -119,6 +119,30 @@ describe("clientsListRepository", () => {
       });
     });
 
+    it("numberHouse 0 vira '0' e null/undefined viram string vazia", async () => {
+      vi.mocked(httpClient.get).mockResolvedValue({
+        data: [
+          {
+            id: 1,
+            name: "A",
+            phone: "1",
+            Register: { address: { numberHouse: 0 } },
+          },
+          {
+            id: 2,
+            name: "B",
+            phone: "2",
+            Register: { address: { numberHouse: null } },
+          },
+          { id: 3, name: "C", phone: "3", Register: { address: { id: 3 } } },
+        ],
+      });
+
+      const result = await clientsListRepository.list();
+
+      expect(result.map((c) => c.address?.numberHouse)).toEqual(["0", "", ""]);
+    });
+
     it("retorna lista vazia quando o payload não é array", async () => {
       vi.mocked(httpClient.get).mockResolvedValue({ data: null });
 
@@ -172,6 +196,38 @@ describe("clientsListRepository", () => {
       ).rejects.toThrow("falhou");
 
       expect(httpClient.put).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("update com falha no endereço", () => {
+    it("rejeita com mensagem explicando que só o cliente foi salvo", async () => {
+      const original = new Error("falha de rede");
+      vi.mocked(httpClient.put)
+        .mockResolvedValueOnce({ data: {} })
+        .mockRejectedValueOnce(original);
+
+      await expect(
+        clientsListRepository.update(1, 30, {
+          client: { name: "A", phone: "1" },
+          address: {
+            street: "",
+            neighborhood: "",
+            city: "",
+            numberHouse: 1,
+            reference: "",
+          },
+        }),
+      ).rejects.toMatchObject({
+        message:
+          "Os dados do cliente foram salvos, mas o endereço não. Tente salvar novamente.",
+        cause: original,
+      });
+
+      expect(httpClient.put).toHaveBeenCalledTimes(2);
+      expect(httpClient.put).toHaveBeenNthCalledWith(1, "/client/1", {
+        name: "A",
+        phone: "1",
+      });
     });
   });
 

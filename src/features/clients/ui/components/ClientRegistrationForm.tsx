@@ -160,6 +160,7 @@ const ClientRegistrationForm = ({
                       name="address.numberHouse"
                       label="Número *"
                       placeholder="Nº"
+                      slotProps={{ htmlInput: { inputMode: "numeric" } }}
                     />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 9 }}>
