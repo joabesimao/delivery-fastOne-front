@@ -68,7 +68,7 @@ describe("mutações de clientes", () => {
     expect(invalidate).toHaveBeenCalledWith({ queryKey: clientKeys.all });
   });
 
-  it("useUpdateClient atualiza com id, addressId e input", async () => {
+  it("useUpdateClient atualiza pelo registerId com o input", async () => {
     vi.mocked(clientsListRepository.update).mockResolvedValue(
       undefined as never,
     );
@@ -77,8 +77,10 @@ describe("mutações de clientes", () => {
     );
     const invalidate = vi.spyOn(queryClient, "invalidateQueries");
     const input = { name: "Bia" } as never;
-    await act(() => result.current.mutateAsync({ id: 1, addressId: 2, input }));
-    expect(clientsListRepository.update).toHaveBeenCalledWith(1, 2, input);
+    await act(() =>
+      result.current.mutateAsync({ id: 1, registerId: 2, input }),
+    );
+    expect(clientsListRepository.update).toHaveBeenCalledWith(2, input);
     expect(invalidate).toHaveBeenCalledWith({ queryKey: clientKeys.all });
   });
 
@@ -90,7 +92,7 @@ describe("mutações de clientes", () => {
     const invalidate = vi.spyOn(queryClient, "invalidateQueries");
     await act(() =>
       result.current
-        .mutateAsync({ id: 1, addressId: 2, input: {} as never })
+        .mutateAsync({ id: 1, registerId: 2, input: {} as never })
         .catch(() => undefined),
     );
     expect(invalidate).toHaveBeenCalledWith({ queryKey: clientKeys.all });

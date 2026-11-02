@@ -20,8 +20,8 @@ const makeClient = (overrides: Partial<Client> = {}): Client => ({
   cpf: null,
   phone: "81988887777",
   active: true,
+  registerId: 5,
   address: {
-    id: 10,
     street: "Rua das Flores",
     neighborhood: "Centro",
     numberHouse: "10",
@@ -81,8 +81,8 @@ describe("filterClients", () => {
       name: "João Souza",
       phone: "11977776666",
       active: false,
+      registerId: 6,
       address: {
-        id: 20,
         street: "Avenida Brasil",
         neighborhood: "Boa Vista",
         numberHouse: "5",

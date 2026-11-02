@@ -9,7 +9,6 @@ import {
 import { isValidHouseNumber } from "./houseNumber";
 
 export interface ClientAddress {
-  id: number | null;
   street: string;
   neighborhood: string;
   numberHouse: string;
@@ -23,6 +22,7 @@ export interface Client {
   cpf: string | null;
   phone: string;
   active: boolean;
+  registerId: number | null;
   address: ClientAddress | null;
 }
 
