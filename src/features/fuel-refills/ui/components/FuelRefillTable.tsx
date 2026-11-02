@@ -7,6 +7,7 @@ import IdChip from "@/shared/ui/data-table/IdChip";
 import RowActions from "@/shared/ui/data-table/RowActions";
 import { fuelConsumption, type FuelRefill } from "../../domain/fuelRefill";
 
+import { COLORS } from "@/shared/theme/colors";
 const CURRENCY_FORMATTER = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
@@ -52,7 +53,7 @@ const FuelRefillTable = ({
       render: vehicleLabelOf,
       cellSx: (theme) => ({
         fontWeight: 600,
-        color: `${theme.palette.mode === "dark" ? "#E2E4EC" : "#111827"} !important`,
+        color: `${theme.palette.mode === "dark" ? COLORS.inkOnDark : COLORS.ink} !important`,
       }),
     },
     { key: "deliveryman", header: "Entregador", render: deliverymanLabelOf },

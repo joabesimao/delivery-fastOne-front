@@ -30,6 +30,7 @@ import {
 import FinishStatusChip from "./FinishStatusChip";
 import { FINISH_STATUS_OPTIONS } from "./finishStatus";
 
+import { COLORS } from "@/shared/theme/colors";
 interface FinishableDeliveriesPanelProps {
   deliveries: Delivery[];
   loading: boolean;
@@ -143,7 +144,7 @@ const FinishableDeliveriesPanel = ({
       description="Clique em uma linha aberta ou em entrega para finalizar o pedido."
       loading={loading}
       error={error}
-      loaderColor="#4361EE"
+      loaderColor={COLORS.brand}
       filters={
         <>
           <SurfaceFilter label="Buscar pedido" minWidth={220}>

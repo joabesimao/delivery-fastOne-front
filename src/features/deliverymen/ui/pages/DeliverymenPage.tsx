@@ -24,6 +24,7 @@ import DeliverymanDetailsDialog from "../components/DeliverymanDetailsDialog";
 import DeliverymanEditDialog from "../components/DeliverymanEditDialog";
 import DeliverymenPanel from "../components/DeliverymenPanel";
 
+import { COLORS } from "@/shared/theme/colors";
 const DeliverymenPage = () => {
   const navigate = useNavigate();
   const locationState = useLocation().state as { search?: string } | null;
@@ -107,8 +108,8 @@ const DeliverymenPage = () => {
           startIcon={<PersonAddIcon />}
           onClick={() => navigate(ROUTES.registerDeliveryman)}
           sx={{
-            bgcolor: "#0ea5e9",
-            "&:hover": { bgcolor: "#0284c7" },
+            bgcolor: COLORS.info,
+            "&:hover": { bgcolor: COLORS.infoHover },
             textTransform: "none",
             borderRadius: 2,
             fontWeight: 600,

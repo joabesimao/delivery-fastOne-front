@@ -9,6 +9,7 @@ export type FormTextFieldProps = Omit<
 > & {
   name: string;
   label?: string;
+  labelPlacement?: "above" | "floating";
   mask?: (value: string) => string;
   touchOnChange?: (value: string) => boolean;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -17,6 +18,7 @@ export type FormTextFieldProps = Omit<
 const FormTextField = ({
   name,
   label,
+  labelPlacement = "above",
   mask,
   touchOnChange,
   onChange,
@@ -35,11 +37,12 @@ const FormTextField = ({
 
   return (
     <>
-      {label && <FieldLabel label={label} />}
+      {label && labelPlacement === "above" && <FieldLabel label={label} />}
       <TextField
         fullWidth
         size="small"
         {...props}
+        label={labelPlacement === "floating" ? label : undefined}
         name={name}
         value={field.value}
         onChange={handleChange}

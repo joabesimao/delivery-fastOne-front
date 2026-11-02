@@ -2,11 +2,12 @@ import { Chip } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import type { DeliveryStatus } from "../../domain/delivery";
 
+import { COLORS } from "@/shared/theme/colors";
 const STATUS_CONFIG: Record<DeliveryStatus, { label: string; color: string }> =
   {
-    actived: { label: "Aguardando aceite", color: "#F59E0B" },
-    delivered: { label: "Em Trânsito", color: "#0EA5E9" },
-    finished: { label: "Entregue", color: "#10B981" },
+    actived: { label: "Aguardando aceite", color: COLORS.warning },
+    delivered: { label: "Em Trânsito", color: COLORS.info },
+    finished: { label: "Entregue", color: COLORS.success },
   };
 
 const DeliveryStatusChip = ({ status }: { status: DeliveryStatus }) => {

@@ -7,6 +7,7 @@ import IdChip from "@/shared/ui/data-table/IdChip";
 import RowActions from "@/shared/ui/data-table/RowActions";
 import type { OilChange } from "../../domain/oilChange";
 
+import { COLORS } from "@/shared/theme/colors";
 interface OilChangeTableProps {
   oilChanges: OilChange[];
   loading: boolean;
@@ -40,7 +41,7 @@ const OilChangeTable = ({
       render: vehicleLabelOf,
       cellSx: (theme) => ({
         fontWeight: 600,
-        color: `${theme.palette.mode === "dark" ? "#E2E4EC" : "#111827"} !important`,
+        color: `${theme.palette.mode === "dark" ? COLORS.inkOnDark : COLORS.ink} !important`,
       }),
     },
     { key: "deliveryman", header: "Entregador", render: deliverymanLabelOf },

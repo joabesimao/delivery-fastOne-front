@@ -27,6 +27,7 @@ import DeliveryOrderForm from "./DeliveryOrderForm";
 import DeliverySheetDocument from "./DeliverySheetDocument";
 import DeliverySheetOptions from "./DeliverySheetOptions";
 
+import { COLORS } from "@/shared/theme/colors";
 interface CreateDeliveryOrderProps {
   embedded?: boolean;
   preloadedClient?: PreloadedDeliveryClient | null;
@@ -156,8 +157,8 @@ const CreateDeliveryOrder = ({
               startIcon={<PersonAddIcon />}
               onClick={goToRegisterClient}
               sx={{
-                bgcolor: "#0ea5e9",
-                "&:hover": { bgcolor: "#0284c7" },
+                bgcolor: COLORS.info,
+                "&:hover": { bgcolor: COLORS.infoHover },
                 textTransform: "none",
                 borderRadius: 2,
                 fontWeight: 600,

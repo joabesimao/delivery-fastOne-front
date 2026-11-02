@@ -5,3 +5,4 @@ export type {
 } from "./domain/clientRegister";
 export { clientKeys, useClientRegisters } from "./application/clientQueries";
 export { default as RegisterClientPage } from "./ui/pages/RegisterClientPage";
+export { default as ClientsPage } from "./ui/pages/ClientsPage";

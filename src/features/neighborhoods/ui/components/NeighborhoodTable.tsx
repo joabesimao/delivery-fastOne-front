@@ -5,6 +5,7 @@ import IdChip from "@/shared/ui/data-table/IdChip";
 import RowActions from "@/shared/ui/data-table/RowActions";
 import type { Neighborhood } from "../../domain/neighborhood";
 
+import { COLORS } from "@/shared/theme/colors";
 interface NeighborhoodTableProps {
   neighborhoods: Neighborhood[];
   loading: boolean;
@@ -30,7 +31,7 @@ const NeighborhoodTable = ({
       render: (n) => n.name,
       cellSx: (theme) => ({
         fontWeight: 600,
-        color: `${theme.palette.mode === "dark" ? "#E2E4EC" : "#111827"} !important`,
+        color: `${theme.palette.mode === "dark" ? COLORS.inkOnDark : COLORS.ink} !important`,
       }),
     },
     { key: "city", header: "Cidade", render: (n) => n.cityName ?? "—" },

@@ -1,5 +1,6 @@
 import { Box, Button, CircularProgress, Divider } from "@mui/material";
 
+import { COLORS } from "@/shared/theme/colors";
 interface FormActionsProps {
   submitting: boolean;
   submitLabel?: string;
@@ -56,8 +57,8 @@ const FormActions = ({
         disabled={submitting}
         sx={{
           textTransform: "none",
-          bgcolor: "#4361EE",
-          "&:hover": { bgcolor: "#3451D1" },
+          bgcolor: COLORS.brand,
+          "&:hover": { bgcolor: COLORS.brandHover },
           width: { xs: "100%", sm: "auto" },
         }}
         startIcon={

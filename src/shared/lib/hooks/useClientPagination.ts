@@ -1,4 +1,5 @@
 import { useMemo, useState, type ChangeEvent } from "react";
+import { useResettablePage } from "./useResettablePage";
 
 interface ClientPaginationOptions {
   initialRowsPerPage?: number;
@@ -10,9 +11,10 @@ export const useClientPagination = <T>(
   { initialRowsPerPage = 10, resetKey = "" }: ClientPaginationOptions = {},
 ) => {
   const [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage);
-  const [state, setState] = useState({ page: 0, resetKey });
+  const [requestedPage, setPage] = useResettablePage(
+    `${resetKey}|${rowsPerPage}`,
+  );
 
-  const requestedPage = state.resetKey === resetKey ? state.page : 0;
   const lastPage = Math.max(0, Math.ceil(items.length / rowsPerPage) - 1);
   const page = Math.min(requestedPage, lastPage);
 
@@ -27,12 +29,9 @@ export const useClientPagination = <T>(
       count: items.length,
       page,
       rowsPerPage,
-      onPageChange: (_: unknown, nextPage: number) =>
-        setState({ page: nextPage, resetKey }),
-      onRowsPerPageChange: (event: ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(Number(event.target.value));
-        setState({ page: 0, resetKey });
-      },
+      onPageChange: (_: unknown, nextPage: number) => setPage(nextPage),
+      onRowsPerPageChange: (event: ChangeEvent<HTMLInputElement>) =>
+        setRowsPerPage(Number(event.target.value)),
     },
   };
 };

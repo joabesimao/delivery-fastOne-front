@@ -1,5 +1,6 @@
 import { Chip, useTheme } from "@mui/material";
 
+import { COLORS } from "@/shared/theme/colors";
 const IdChip = ({ id }: { id: number | string }) => {
   const isDark = useTheme().palette.mode === "dark";
 
@@ -8,8 +9,8 @@ const IdChip = ({ id }: { id: number | string }) => {
       label={id}
       size="small"
       sx={{
-        backgroundColor: isDark ? "#003459" : "#dbeafe",
-        color: isDark ? "#fff" : "#1e40af",
+        backgroundColor: isDark ? COLORS.navy : "#dbeafe",
+        color: isDark ? COLORS.white : "#1e40af",
         fontWeight: 700,
         fontSize: 11,
         height: 22,

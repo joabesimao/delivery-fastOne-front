@@ -24,6 +24,17 @@ export const formatDateLocal = (
   return d.isValid() ? d.format(pattern) : "";
 };
 
+const isValidLocalDate = (
+  date: Date,
+  year: number,
+  month: number,
+  day: number,
+): boolean =>
+  !isNaN(date.getTime()) &&
+  date.getFullYear() === year &&
+  date.getMonth() === month - 1 &&
+  date.getDate() === day;
+
 export const formatDateWithoutTimezone = (
   value?: string | Date | null,
   pattern: string = "dd/MM/yyyy",
@@ -41,7 +52,7 @@ export const formatDateWithoutTimezone = (
 
   const date = new Date(year, month - 1, day);
 
-  return isNaN(date.getTime()) ? "" : format(date, pattern);
+  return isValidLocalDate(date, year, month, day) ? format(date, pattern) : "";
 };
 
 export const parseDateOnlyLocal = (
@@ -58,7 +69,7 @@ export const parseDateOnlyLocal = (
   if ([year, month, day].some((part) => !Number.isFinite(part))) return null;
 
   const date = new Date(year, month - 1, day, 0, 0, 0, 0);
-  return isNaN(date.getTime()) ? null : date;
+  return isValidLocalDate(date, year, month, day) ? date : null;
 };
 
 export const formatDateOnlyLocal = (value?: string | Date | null): string => {

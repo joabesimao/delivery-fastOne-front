@@ -18,6 +18,7 @@ import {
 import ClientSearchField from "./ClientSearchField";
 import SelectedClientCard from "./SelectedClientCard";
 
+import { COLORS } from "@/shared/theme/colors";
 interface DeliveryOrderFormProps {
   initialClient: DeliveryOrderClient | null;
   registers: ClientRegister[];
@@ -123,8 +124,8 @@ const DeliveryOrderForm = ({
             disabled={isSubmitting}
             sx={{
               textTransform: "none",
-              bgcolor: "#4361EE",
-              "&:hover": { bgcolor: "#3451D1" },
+              bgcolor: COLORS.brand,
+              "&:hover": { bgcolor: COLORS.brandHover },
             }}
             startIcon={
               isSubmitting ? (

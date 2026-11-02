@@ -1,5 +1,4 @@
-import type { ComponentProps } from "react";
-import { Box, TablePagination, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { cpfMask, phoneMask } from "@/shared/lib/masks";
 import {
   useSurfaceColors,
@@ -8,6 +7,9 @@ import {
 import type { DataTableColumn } from "@/shared/ui/data-table/DataTable";
 import RowActions from "@/shared/ui/data-table/RowActions";
 import SurfaceFilter from "@/shared/ui/data-table/SurfaceFilter";
+import SurfacePaginationFooter, {
+  type PaginationProps,
+} from "@/shared/ui/data-table/SurfacePaginationFooter";
 import SurfacePanel from "@/shared/ui/data-table/SurfacePanel";
 import SurfaceTable from "@/shared/ui/data-table/SurfaceTable";
 import SearchField from "@/shared/ui/form/SearchField";
@@ -17,6 +19,7 @@ import {
   type DeliverymanFilters,
 } from "../../domain/deliveryman";
 
+import { COLORS } from "@/shared/theme/colors";
 interface DeliverymenPanelProps {
   deliverymen: Deliveryman[];
   total: number;
@@ -24,10 +27,7 @@ interface DeliverymenPanelProps {
   error: string | null;
   filters: DeliverymanFilters;
   busyId: number | null;
-  paginationProps: Omit<
-    ComponentProps<typeof TablePagination>,
-    "component" | "rowsPerPageOptions"
-  >;
+  paginationProps: PaginationProps;
   onFiltersChange: (changes: Partial<DeliverymanFilters>) => void;
   onView: (deliveryman: Deliveryman) => void;
   onEdit: (deliveryman: Deliveryman) => void;
@@ -108,7 +108,7 @@ const DeliverymenPanel = ({
       title="Listagem de entregadores"
       loading={loading}
       error={error}
-      loaderColor="#0ea5e9"
+      loaderColor={COLORS.info}
       filters={
         <>
           <SurfaceFilter label="Buscar entregador" minWidth={200}>
@@ -142,35 +142,10 @@ const DeliverymenPanel = ({
             : "Nenhum entregador cadastrado."
         }
       />
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        px={3}
-        sx={{ borderTop: `1px solid ${colors.border}` }}
-      >
-        <Typography sx={{ fontSize: 13, color: colors.textSecondary }}>
-          Total: {total} registro{total !== 1 ? "s" : ""}
-        </Typography>
-        <TablePagination
-          component="div"
-          {...paginationProps}
-          rowsPerPageOptions={[5, 10, 25]}
-          labelRowsPerPage="Linhas por página"
-          labelDisplayedRows={({ from, to, count }) =>
-            `${from}–${to} de ${count}`
-          }
-          sx={{
-            "& .MuiTablePagination-toolbar": { minHeight: 48 },
-            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
-              {
-                fontSize: 12,
-                color: colors.textSecondary,
-              },
-            color: colors.textSecondary,
-          }}
-        />
-      </Box>
+      <SurfacePaginationFooter
+        total={total}
+        paginationProps={paginationProps}
+      />
     </SurfacePanel>
   );
 };

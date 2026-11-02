@@ -5,6 +5,7 @@ import IdChip from "@/shared/ui/data-table/IdChip";
 import RowActions from "@/shared/ui/data-table/RowActions";
 import type { City } from "../../domain/city";
 
+import { COLORS } from "@/shared/theme/colors";
 interface CityTableProps {
   cities: City[];
   loading: boolean;
@@ -30,7 +31,7 @@ const CityTable = ({
       render: (c) => c.name,
       cellSx: (theme) => ({
         fontWeight: 600,
-        color: `${theme.palette.mode === "dark" ? "#E2E4EC" : "#111827"} !important`,
+        color: `${theme.palette.mode === "dark" ? COLORS.inkOnDark : COLORS.ink} !important`,
       }),
     },
     {

@@ -1,5 +1,6 @@
 import type { DeliveryStatus } from "../../domain/delivery";
 
+import { COLORS } from "@/shared/theme/colors";
 export const FINISH_STATUS_LABEL: Record<DeliveryStatus, string> = {
   actived: "Ativo",
   delivered: "Em entrega",
@@ -11,16 +12,16 @@ export const FINISH_STATUS_COLOR: Record<
   { bg: string; darkBg: string; text: string; darkText: string; border: string }
 > = {
   actived: {
-    bg: "#E8ECFF",
+    bg: COLORS.brandSoft,
     darkBg: "rgba(67,97,238,0.15)",
-    text: "#4361EE",
+    text: COLORS.brand,
     darkText: "#818cf8",
     border: "#C7D2FE",
   },
   delivered: {
     bg: "#FFF7E6",
     darkBg: "rgba(217,119,6,0.15)",
-    text: "#D97706",
+    text: COLORS.warningHover,
     darkText: "#fbbf24",
     border: "#FDE68A",
   },

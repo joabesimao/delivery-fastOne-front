@@ -30,6 +30,7 @@ export const ROUTES = {
   fleetSettings: "/configuracoes/frota",
 
   chat: "/chat",
+  branches: "/filiais",
 } as const;
 
 export const HOME_ROUTE = ROUTES.dashboard;

@@ -79,3 +79,23 @@ export const toUserInput = (values: UserFormValues): UserInput => ({
     passwordConfirmation: values.passwordConfirmation,
   }),
 });
+
+export type UserRoleFilter = UserRole | "all";
+
+export interface UserListFilters {
+  search: string;
+  role: UserRoleFilter;
+}
+
+export const ROLE_FILTER_OPTIONS: { value: UserRoleFilter; label: string }[] = [
+  { value: "all", label: "Todos os papéis" },
+  ...ROLE_OPTIONS,
+];
+
+export const toUserListParams = ({
+  search,
+  role,
+}: UserListFilters): Record<string, string> => ({
+  ...(search ? { q: search } : {}),
+  ...(role !== "all" ? { role } : {}),
+});

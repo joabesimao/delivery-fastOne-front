@@ -1,5 +1,6 @@
 import { Button, CircularProgress, DialogActions } from "@mui/material";
 
+import { COLORS } from "@/shared/theme/colors";
 interface FormDialogActionsProps {
   submitting: boolean;
   onCancel: () => void;
@@ -15,7 +16,7 @@ const FormDialogActions = ({
     <Button onClick={onCancel}>Cancelar</Button>
     <Button type="submit" variant="contained" disabled={submitting}>
       {submitting ? (
-        <CircularProgress size={20} sx={{ color: "#fff" }} />
+        <CircularProgress size={20} sx={{ color: COLORS.white }} />
       ) : (
         submitLabel
       )}

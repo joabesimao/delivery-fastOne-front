@@ -24,6 +24,7 @@ import {
 import OilChangeEditDialog from "../components/OilChangeEditDialog";
 import OilChangeTable from "../components/OilChangeTable";
 
+import { COLORS } from "@/shared/theme/colors";
 const OilChangesPage = () => {
   const navigate = useNavigate();
   const runWithFeedback = useActionFeedback();
@@ -75,8 +76,8 @@ const OilChangesPage = () => {
             onClick={() => navigate(ROUTES.registerOilChange)}
             sx={{
               textTransform: "none",
-              bgcolor: "#4361EE",
-              "&:hover": { bgcolor: "#3451D1" },
+              bgcolor: COLORS.brand,
+              "&:hover": { bgcolor: COLORS.brandHover },
             }}
           >
             Lançar troca de óleo

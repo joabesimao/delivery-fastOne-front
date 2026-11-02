@@ -27,3 +27,6 @@ dist-ssr
 
 # Notas e docs pessoais, não versionadas
 /docs-local/
+
+# Cobertura de testes
+coverage
