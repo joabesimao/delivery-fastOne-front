@@ -35,8 +35,8 @@ export const useChatWidget = () => {
   const composer = useChatComposer({
     socket: channel.socket,
     selectedUnitId: channel.selectedUnitId,
-    sendError: "Nao foi possivel enviar a mensagem.",
-    imageError: "Nao foi possivel carregar a foto.",
+    sendError: "Não foi possível enviar a mensagem.",
+    imageError: "Não foi possível carregar a foto.",
     onError: channel.setError,
   });
 
@@ -44,14 +44,14 @@ export const useChatWidget = () => {
   const [clearedUnit, setClearedUnit] = useState<string | null>(null);
   if (viewingUnit !== clearedUnit) {
     setClearedUnit(viewingUnit);
-    if (viewingUnit) setUnreadByStore((current) => clearUnread(current, viewingUnit));
+    if (viewingUnit)
+      setUnreadByStore((current) => clearUnread(current, viewingUnit));
   }
 
   useEffect(() => {
     setChatWidgetOpen(open);
     return () => setChatWidgetOpen(false);
   }, [open, setChatWidgetOpen]);
-
 
   const changeStore = (unitId: string) => {
     channel.setSelectedUnitId(unitId);

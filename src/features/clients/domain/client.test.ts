@@ -215,6 +215,29 @@ describe("validateClientEditForm", () => {
     });
   });
 
+  it("numberHouse vazio pede o número", () => {
+    const errors = validateClientEditForm(
+      formValues({ address: { ...formValues().address, numberHouse: "" } }),
+    );
+    expect(errors.address?.numberHouse).toBe("Informe o número.");
+  });
+
+  it("numberHouse não numérico pede apenas números", () => {
+    const errors = validateClientEditForm(
+      formValues({ address: { ...formValues().address, numberHouse: "S/N" } }),
+    );
+    expect(errors.address?.numberHouse).toBe(
+      "Informe apenas números (ex.: 120).",
+    );
+  });
+
+  it("numberHouse numérico não gera erro", () => {
+    const errors = validateClientEditForm(
+      formValues({ address: { ...formValues().address, numberHouse: "120" } }),
+    );
+    expect(errors.address).toBeUndefined();
+  });
+
   it("referência não é obrigatória", () => {
     expect(validateClientEditForm(formValues()).address).toBeUndefined();
   });
@@ -230,6 +253,32 @@ describe("toClientUpdateInput", () => {
         city: "Recife",
         numberHouse: 10,
         reference: "",
+      },
+    });
+  });
+
+  it("aplica trim em todos os campos de texto", () => {
+    expect(
+      toClientUpdateInput(
+        formValues({
+          name: "  Maria  ",
+          address: {
+            street: "  Rua A ",
+            neighborhood: " Centro  ",
+            numberHouse: " 12 ",
+            reference: "  Perto ",
+            city: " Recife ",
+          },
+        }),
+      ),
+    ).toEqual({
+      client: { name: "Maria", cpf: undefined, phone: "81988887777" },
+      address: {
+        street: "Rua A",
+        neighborhood: "Centro",
+        city: "Recife",
+        numberHouse: 12,
+        reference: "Perto",
       },
     });
   });

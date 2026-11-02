@@ -85,7 +85,36 @@ describe("toSessionData", () => {
   });
 });
 
+describe("LOGIN_MESSAGES", () => {
+  it("usa textos acentuados", () => {
+    expect(LOGIN_MESSAGES.rejected).toBe(
+      "Não foi possível autenticar com as credenciais informadas.",
+    );
+    expect(LOGIN_MESSAGES.invalid).toBe("Login ou senha inválidos.");
+    expect(LOGIN_MESSAGES.unavailable).toBe(
+      "Não foi possível conectar ao servidor. Tente novamente.",
+    );
+  });
+});
+
 describe("loginErrorMessage", () => {
+  it("indisponível para status 500, com e sem corpo", () => {
+    expect(loginErrorMessage({ response: { status: 500 } })).toBe(
+      LOGIN_MESSAGES.unavailable,
+    );
+    expect(
+      loginErrorMessage({
+        response: { status: 500, data: { error: "Erro interno" } },
+      }),
+    ).toBe(LOGIN_MESSAGES.unavailable);
+  });
+
+  it("usa data.error em respostas 400", () => {
+    expect(
+      loginErrorMessage({ response: { status: 400, data: { error: "X" } } }),
+    ).toBe("X");
+  });
+
   it("prioriza data.error do backend", () => {
     expect(
       loginErrorMessage({
@@ -102,13 +131,16 @@ describe("loginErrorMessage", () => {
     ).toBe("Credenciais ruins");
   });
 
-  it("devolve mensagem padrão sem corpo de resposta (401 vazio ou rede)", () => {
+  it("devolve mensagem padrão com 401 sem corpo e indisponível sem resposta ou 5xx", () => {
     expect(loginErrorMessage({ response: { status: 401 } })).toBe(
       LOGIN_MESSAGES.invalid,
     );
     expect(loginErrorMessage(new Error("Network Error"))).toBe(
-      LOGIN_MESSAGES.invalid,
+      LOGIN_MESSAGES.unavailable,
     );
-    expect(loginErrorMessage(undefined)).toBe(LOGIN_MESSAGES.invalid);
+    expect(loginErrorMessage(undefined)).toBe(LOGIN_MESSAGES.unavailable);
+    expect(loginErrorMessage({ response: { status: 503 } })).toBe(
+      LOGIN_MESSAGES.unavailable,
+    );
   });
 });

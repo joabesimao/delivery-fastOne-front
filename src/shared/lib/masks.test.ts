@@ -24,6 +24,10 @@ describe("isValidCPF", () => {
     expect(isValidCPF("5299822472")).toBe(false);
     expect(isValidCPF("")).toBe(false);
   });
+
+  it("rejeita entrada com mais de 11 dígitos, mesmo com prefixo válido", () => {
+    expect(isValidCPF("529.982.247-25999")).toBe(false);
+  });
 });
 
 describe("phoneMask", () => {
@@ -94,6 +98,26 @@ describe("parseCurrencyToNumber", () => {
     expect(parseCurrencyToNumber("   ")).toBeNaN();
     expect(parseCurrencyToNumber(null)).toBeNaN();
     expect(parseCurrencyToNumber(undefined)).toBeNaN();
+  });
+
+  it("interpreta ponto como separador de milhar quando há grupos de 3 dígitos", () => {
+    expect(parseCurrencyToNumber("1.234")).toBe(1234);
+    expect(parseCurrencyToNumber("1.234.567")).toBe(1234567);
+    expect(parseCurrencyToNumber("-1.234")).toBe(-1234);
+  });
+
+  it("interpreta ponto como decimal quando não é agrupamento de milhar", () => {
+    expect(parseCurrencyToNumber("12.5")).toBe(12.5);
+    expect(parseCurrencyToNumber("0.5")).toBe(0.5);
+    expect(parseCurrencyToNumber("0.500")).toBe(0.5);
+    expect(parseCurrencyToNumber("0.125")).toBe(0.125);
+    expect(parseCurrencyToNumber("1234.5")).toBe(1234.5);
+  });
+
+  it("retorna NaN para texto sem dígitos", () => {
+    expect(parseCurrencyToNumber("abc")).toBeNaN();
+    expect(parseCurrencyToNumber("-")).toBeNaN();
+    expect(parseCurrencyToNumber(".")).toBeNaN();
   });
 
   it("repassa números finitos e retorna NaN para não finitos", () => {

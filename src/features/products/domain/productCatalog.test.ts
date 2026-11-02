@@ -86,6 +86,16 @@ describe("toProductListParams", () => {
       priceMin: 0,
     });
   });
+
+  it("não inclui preço mínimo ou máximo não numérico", () => {
+    const onlyMax = toProductListParams(query({ priceMax: "abc" }));
+    expect(onlyMax).toEqual({ limit: 10, offset: 0 });
+    expect(onlyMax).not.toHaveProperty("priceMax");
+
+    const onlyMin = toProductListParams(query({ priceMin: "abc" }));
+    expect(onlyMin).toEqual({ limit: 10, offset: 0 });
+    expect(onlyMin).not.toHaveProperty("priceMin");
+  });
 });
 
 describe("visibleProducts", () => {

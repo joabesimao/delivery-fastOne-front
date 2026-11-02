@@ -64,6 +64,12 @@ describe("formatDateWithoutTimezone", () => {
     expect(formatDateWithoutTimezone(new Date("x"))).toBe("");
     expect(formatDateWithoutTimezone("abc")).toBe("");
   });
+
+  it("retorna string vazia para data inexistente no calendário", () => {
+    expect(formatDateWithoutTimezone("2023-02-29")).toBe("");
+    expect(formatDateWithoutTimezone("2024-13-45")).toBe("");
+    expect(formatDateWithoutTimezone("2024-04-31T00:00:00Z")).toBe("");
+  });
 });
 
 describe("parseDateOnlyLocal", () => {
@@ -88,6 +94,21 @@ describe("parseDateOnlyLocal", () => {
     expect(parseDateOnlyLocal("2024-xx-10")).toBeNull();
     expect(parseDateOnlyLocal(new Date("x"))).toBeNull();
   });
+
+  it("retorna null para datas inexistentes no calendário", () => {
+    expect(parseDateOnlyLocal("2024-13-45")).toBeNull();
+    expect(parseDateOnlyLocal("2023-02-29")).toBeNull();
+    expect(parseDateOnlyLocal("2024-00-10")).toBeNull();
+    expect(parseDateOnlyLocal("2024-04-31")).toBeNull();
+  });
+
+  it("aceita 29 de fevereiro em ano bissexto", () => {
+    const date = parseDateOnlyLocal("2024-02-29");
+    expect(date).toBeInstanceOf(Date);
+    expect(date?.getFullYear()).toBe(2024);
+    expect(date?.getMonth()).toBe(1);
+    expect(date?.getDate()).toBe(29);
+  });
 });
 
 describe("formatDateOnlyLocal", () => {
@@ -99,6 +120,7 @@ describe("formatDateOnlyLocal", () => {
   it("retorna string vazia para entrada inválida", () => {
     expect(formatDateOnlyLocal(null)).toBe("");
     expect(formatDateOnlyLocal("abc")).toBe("");
+    expect(formatDateOnlyLocal("2023-02-29")).toBe("");
   });
 });
 

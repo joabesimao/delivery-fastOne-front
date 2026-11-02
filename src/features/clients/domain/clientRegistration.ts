@@ -6,6 +6,7 @@ import {
   stripCPF,
   stripPhone,
 } from "@/shared/lib/masks";
+import { isValidHouseNumber } from "./houseNumber";
 
 export interface AddressFormValues {
   street: string;
@@ -77,6 +78,8 @@ export const validateClientRegistrationForm = (
     addressErrors.neighborhood = "Informe o bairro.";
   if (!values.address.numberHouse.trim())
     addressErrors.numberHouse = "Informe o número.";
+  else if (!isValidHouseNumber(values.address.numberHouse))
+    addressErrors.numberHouse = "Informe apenas números (ex.: 120).";
   if (!values.address.city.trim()) addressErrors.city = "Informe a cidade.";
   if (Object.keys(addressErrors).length) errors.address = addressErrors;
 
@@ -93,10 +96,10 @@ export const toClientRegistrationInput = (
   },
   address: {
     street: values.address.street.trim(),
-    neighborhood: values.address.neighborhood,
-    numberHouse: Number(values.address.numberHouse),
+    neighborhood: values.address.neighborhood.trim(),
+    numberHouse: Number(values.address.numberHouse.trim()),
     reference: values.address.reference.trim(),
-    city: values.address.city,
+    city: values.address.city.trim(),
   },
 });
 
