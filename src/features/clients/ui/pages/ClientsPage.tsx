@@ -60,15 +60,15 @@ const ClientsPage = () => {
 
   const handleUpdate = async (input: ClientUpdateInput) => {
     if (!editing) return false;
-    const addressId = editing.address?.id;
-    if (!addressId) {
+    const { registerId } = editing;
+    if (!registerId) {
       toast.error(
-        "Não foi possível identificar o endereço do cliente para edição.",
+        "Não foi possível identificar o cadastro do cliente para edição.",
       );
       return false;
     }
     const succeeded = await runWithFeedback(
-      () => updateClient.mutateAsync({ id: editing.id, addressId, input }),
+      () => updateClient.mutateAsync({ id: editing.id, registerId, input }),
       {
         success: "Cliente atualizado com sucesso.",
         error: "Erro ao atualizar cliente. Tente novamente.",
