@@ -11,14 +11,9 @@ import {
   useDashboardSummary,
 } from "./dashboardQueries";
 
-vi.mock("@/features/deliveries", async () => ({
-  deliveryKeys: (
-    await import("@/features/deliveries/application/deliveryQueries")
-  ).deliveryKeys,
+vi.mock("@/features/deliveries", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/features/deliveries")>()),
   useDeliverymanRanking: vi.fn(),
-  useDeliveryRealtimeSync: (
-    await import("@/features/deliveries/application/useDeliveryRealtimeSync")
-  ).useDeliveryRealtimeSync,
 }));
 
 vi.mock("@/shared/realtime/useRealtimeSocket", () => ({ default: vi.fn() }));

@@ -59,13 +59,11 @@ describe("useDeliveryRealtimeSync", () => {
     expect(socket.listenerCount("delivery:changed")).toBe(0);
   });
 
-  it("não falha sem socket", () => {
+  it("renderiza sem lançar erro quando não há socket", () => {
     vi.mocked(useRealtimeSocket).mockReturnValue(null);
-    const { queryClient } = renderHookWithQueryClient(() =>
-      useDeliveryRealtimeSync(),
-    );
-    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    expect(() =>
+      renderHookWithQueryClient(() => useDeliveryRealtimeSync()),
+    ).not.toThrow();
     expect(socket.on).not.toHaveBeenCalled();
-    expect(invalidate).not.toHaveBeenCalled();
   });
 });

@@ -5,16 +5,13 @@ import { renderHookWithQueryClient } from "@/test/renderWithQueryClient";
 import type { FleetRecord } from "../domain/fleetRecord";
 import { useFleetOptions } from "./useFleetOptions";
 
-vi.mock("@/features/vehicles", async () => ({
-  vehicleLabel: (await import("@/features/vehicles/domain/vehicle"))
-    .vehicleLabel,
+vi.mock("@/features/vehicles", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/features/vehicles")>()),
   useVehicles: vi.fn(),
 }));
 
-vi.mock("@/features/deliverymen", async () => ({
-  deliverymanFullName: (
-    await import("@/features/deliverymen/domain/deliveryman")
-  ).deliverymanFullName,
+vi.mock("@/features/deliverymen", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/features/deliverymen")>()),
   useDeliverymen: vi.fn(),
 }));
 

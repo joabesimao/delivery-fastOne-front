@@ -29,6 +29,7 @@ export default mergeConfig(
           extends: true,
           test: {
             name: "jsdom",
+            setupFiles: ["src/test/setup.ts"],
             environment: "jsdom",
             include: hookTests,
           },
@@ -40,6 +41,9 @@ export default mergeConfig(
           "src/features/*/{domain,data}/**",
           "src/shared/lib/**",
           "src/features/*/application/{dashboardQueries,deliveryQueries,useDeliveryRealtimeSync,clientQueries,productQueries,userQueries,useFleetFilters,useFleetOptions,useGlobalSearch,useLogin,useLogout}.ts",
+          "src/features/chat/application/{useChatChannel,useChatComposer,useChatSearch,useChatTyping,useChatWidget,useDraggableWidget}.ts",
+          "src/features/notifications/application/{NotificationsContext,useNotifications,useBroadcastNotice}.ts",
+          "src/features/notifications/application/NotificationsProvider.tsx",
           "src/shared/api/createCrudRepository.ts",
         ],
         exclude: ["**/*.test.{ts,tsx}", "**/*.d.ts"],
