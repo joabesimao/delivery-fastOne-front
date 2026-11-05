@@ -1,18 +1,11 @@
 import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  Chip,
-  CircularProgress,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, Button, CircularProgress, Stack } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { ROUTES } from "@/shared/config/routes";
 import { useClientPagination } from "@/shared/lib/hooks/useClientPagination";
+import BorderedCard from "@/shared/ui/layout/BorderedCard";
+import ListPageHeader from "@/shared/ui/layout/ListPageHeader";
 import type { Delivery } from "../../domain/delivery";
 import {
   ALL,
@@ -112,38 +105,21 @@ const DeliveriesPage = () => {
 
   return (
     <Stack spacing={2.5}>
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
-        gap={1.5}
-      >
-        <Box>
-          <Stack direction="row" spacing={1.25} alignItems="center">
-            <Typography variant="h4" sx={{ fontWeight: 800 }}>
-              Pedidos de Entrega
-            </Typography>
-            <Chip
-              label={loading ? "..." : deliveries.length}
-              size="small"
-              color="primary"
-              sx={{ fontWeight: 800, "& .MuiChip-label": { px: 1.1 } }}
-            />
-          </Stack>
-          <Typography variant="body2" color="text.secondary">
-            Gerencie e acompanhe todos os pedidos ativos e finalizados
-          </Typography>
-        </Box>
-
-        <Button
-          variant="contained"
-          startIcon={<AddRoundedIcon />}
-          onClick={() => setCreateOpen(true)}
-          sx={{ borderRadius: 999, px: 2.5, whiteSpace: "nowrap" }}
-        >
-          Novo Pedido
-        </Button>
-      </Stack>
+      <ListPageHeader
+        title="Pedidos de Entrega"
+        badge={loading ? "..." : deliveries.length}
+        description="Gerencie e acompanhe todos os pedidos ativos e finalizados"
+        actions={
+          <Button
+            variant="contained"
+            startIcon={<AddRoundedIcon />}
+            onClick={() => setCreateOpen(true)}
+            sx={{ borderRadius: 999, px: 2.5, whiteSpace: "nowrap" }}
+          >
+            Novo Pedido
+          </Button>
+        }
+      />
 
       <DeliveryCountCards
         loading={loading}
@@ -151,7 +127,7 @@ const DeliveriesPage = () => {
         active={activeCount}
       />
 
-      <Card sx={{ borderRadius: 3, border: 1, borderColor: "divider" }}>
+      <BorderedCard>
         <Stack spacing={2} sx={{ p: 2.5 }}>
           <DeliveryListFilters
             filters={filters}
@@ -184,7 +160,7 @@ const DeliveriesPage = () => {
             />
           )}
         </Stack>
-      </Card>
+      </BorderedCard>
 
       <DeliveryDetailsDialog
         delivery={detailDelivery}

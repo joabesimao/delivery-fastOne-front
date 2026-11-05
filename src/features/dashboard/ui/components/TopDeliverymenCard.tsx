@@ -2,16 +2,16 @@ import {
   Avatar,
   Box,
   Button,
-  Card,
   Skeleton,
   Stack,
   Typography,
 } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import type { RankingItem } from "@/features/deliveries";
+import { COLORS } from "@/shared/theme/colors";
+import BorderedCard from "@/shared/ui/layout/BorderedCard";
 import { initialsOf } from "../../domain/dashboardMetrics";
 
-import { COLORS } from "@/shared/theme/colors";
 const MEDAL_COLORS = [COLORS.warning, COLORS.slate, "#B45309"];
 
 interface TopDeliverymenCardProps {
@@ -25,9 +25,7 @@ const TopDeliverymenCard = ({
   loading,
   onViewAll,
 }: TopDeliverymenCardProps) => (
-  <Card
-    sx={{ borderRadius: 3, border: 1, borderColor: "divider", height: "100%" }}
-  >
+  <BorderedCard sx={{ height: "100%" }}>
     <Stack spacing={1.75} sx={{ p: 2.5, height: "100%" }}>
       <Box>
         <Typography variant="h6" sx={{ fontWeight: 800 }}>
@@ -125,7 +123,7 @@ const TopDeliverymenCard = ({
         Ver classificação completa da frota
       </Button>
     </Stack>
-  </Card>
+  </BorderedCard>
 );
 
 export default TopDeliverymenCard;

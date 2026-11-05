@@ -3,7 +3,6 @@ import {
   Alert,
   Box,
   Button,
-  Card,
   CircularProgress,
   MenuItem,
   Stack,
@@ -17,6 +16,8 @@ import { useDebouncedValue } from "@/shared/lib/hooks/useDebouncedValue";
 import ConfirmDialog from "@/shared/ui/dialogs/ConfirmDialog";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
 import SearchField from "@/shared/ui/form/SearchField";
+import BorderedCard from "@/shared/ui/layout/BorderedCard";
+import ListPageHeader from "@/shared/ui/layout/ListPageHeader";
 import {
   ROLE_FILTER_OPTIONS,
   toUserListParams,
@@ -91,31 +92,22 @@ const UsersPage = () => {
 
   return (
     <Stack spacing={2.5}>
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
-        gap={1.5}
-      >
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800 }}>
-            Usuários
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Gerencie os usuários do sistema, seus papéis e permissões de acesso.
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddRoundedIcon />}
-          onClick={() => setForm({ open: true, user: null })}
-          sx={{ borderRadius: 999, whiteSpace: "nowrap" }}
-        >
-          Novo usuário
-        </Button>
-      </Stack>
+      <ListPageHeader
+        title="Usuários"
+        description="Gerencie os usuários do sistema, seus papéis e permissões de acesso."
+        actions={
+          <Button
+            variant="contained"
+            startIcon={<AddRoundedIcon />}
+            onClick={() => setForm({ open: true, user: null })}
+            sx={{ borderRadius: 999, whiteSpace: "nowrap" }}
+          >
+            Novo usuário
+          </Button>
+        }
+      />
 
-      <Card sx={{ borderRadius: 3, border: 1, borderColor: "divider" }}>
+      <BorderedCard>
         <Stack spacing={2} sx={{ p: 2.5 }}>
           <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
             <SearchField
@@ -196,7 +188,7 @@ const UsersPage = () => {
             />
           )}
         </Stack>
-      </Card>
+      </BorderedCard>
 
       <UserFormDialog
         open={form.open}

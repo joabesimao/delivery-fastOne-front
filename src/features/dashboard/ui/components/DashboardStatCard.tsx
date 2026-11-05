@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-import { Box, Card, Chip, Skeleton, Stack, Typography } from "@mui/material";
+import { Box, Chip, Skeleton, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
+import BorderedCard from "@/shared/ui/layout/BorderedCard";
 
 export interface DashboardStatItem {
   label: string;
@@ -19,9 +20,7 @@ const DashboardStatCard = ({
   item: DashboardStatItem;
   loading: boolean;
 }) => (
-  <Card
-    sx={{ borderRadius: 3, border: 1, borderColor: "divider", height: "100%" }}
-  >
+  <BorderedCard sx={{ height: "100%" }}>
     <Stack spacing={1.25} sx={{ p: 2.25 }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Typography
@@ -73,7 +72,7 @@ const DashboardStatCard = ({
         </Typography>
       </Stack>
     </Stack>
-  </Card>
+  </BorderedCard>
 );
 
 export default DashboardStatCard;
