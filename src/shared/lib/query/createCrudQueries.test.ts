@@ -163,4 +163,17 @@ describe("getBusyRowId", () => {
   it("ignora mutação pendente sem variáveis", () => {
     expect(getBusyRowId({ isPending: true }, idle)).toBeNull();
   });
+
+  it("usa a remoção quando a atualização pendente não tem variáveis", () => {
+    expect(
+      getBusyRowId({ isPending: true }, { isPending: true, variables: 8 }),
+    ).toBe(8);
+  });
+
+  it("aceita id 0 na atualização e na exclusão", () => {
+    expect(getBusyRowId({ isPending: true, variables: { id: 0 } }, idle)).toBe(
+      0,
+    );
+    expect(getBusyRowId(idle, { isPending: true, variables: 0 })).toBe(0);
+  });
 });
