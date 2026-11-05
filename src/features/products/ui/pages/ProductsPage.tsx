@@ -4,8 +4,6 @@ import {
   Alert,
   Box,
   Button,
-  Card,
-  Chip,
   CircularProgress,
   Stack,
   TablePagination,
@@ -19,6 +17,8 @@ import { useDebouncedValue } from "@/shared/lib/hooks/useDebouncedValue";
 import { useResettablePage } from "@/shared/lib/hooks/useResettablePage";
 import ConfirmDialog from "@/shared/ui/dialogs/ConfirmDialog";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
+import BorderedCard from "@/shared/ui/layout/BorderedCard";
+import ListPageHeader from "@/shared/ui/layout/ListPageHeader";
 import type { Product } from "../../domain/product";
 import {
   ALL_CATEGORIES,
@@ -154,50 +154,32 @@ const ProductsPage = () => {
 
   return (
     <Stack spacing={2.5}>
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
-        gap={1.5}
-      >
-        <Box>
-          <Stack direction="row" spacing={1.25} alignItems="center">
-            <Typography variant="h4" sx={{ fontWeight: 800 }}>
-              Produtos
-            </Typography>
-            <Chip
-              label={loading ? "..." : `${total} Itens Ativos`}
-              size="small"
-              color="primary"
-              sx={{ fontWeight: 800, "& .MuiChip-label": { px: 1.1 } }}
-            />
+      <ListPageHeader
+        title="Produtos"
+        badge={loading ? "..." : `${total} Itens Ativos`}
+        description="Gerencie itens disponíveis, categorias, preços e estoque da filial selecionada"
+        actions={
+          <Stack direction="row" spacing={1.25}>
+            <Button
+              variant="outlined"
+              startIcon={<DownloadRoundedIcon />}
+              onClick={handleExport}
+              disabled={visible.length === 0}
+              sx={{ borderRadius: 999 }}
+            >
+              Exportar Cardápio
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<AddRoundedIcon />}
+              onClick={() => navigate(ROUTES.registerProduct)}
+              sx={{ borderRadius: 999, whiteSpace: "nowrap" }}
+            >
+              Novo Produto
+            </Button>
           </Stack>
-          <Typography variant="body2" color="text.secondary">
-            Gerencie itens disponíveis, categorias, preços e estoque da filial
-            selecionada
-          </Typography>
-        </Box>
-
-        <Stack direction="row" spacing={1.25}>
-          <Button
-            variant="outlined"
-            startIcon={<DownloadRoundedIcon />}
-            onClick={handleExport}
-            disabled={visible.length === 0}
-            sx={{ borderRadius: 999 }}
-          >
-            Exportar Cardápio
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddRoundedIcon />}
-            onClick={() => navigate(ROUTES.registerProduct)}
-            sx={{ borderRadius: 999, whiteSpace: "nowrap" }}
-          >
-            Novo Produto
-          </Button>
-        </Stack>
-      </Stack>
+        }
+      />
 
       <ProductStatCards
         loading={loading}
@@ -207,7 +189,7 @@ const ProductsPage = () => {
         averagePrice={summary.averagePrice}
       />
 
-      <Card sx={{ borderRadius: 3, border: 1, borderColor: "divider" }}>
+      <BorderedCard>
         <Stack spacing={2} sx={{ p: 2.5 }}>
           <ProductFiltersBar
             filters={filters}
@@ -278,7 +260,7 @@ const ProductsPage = () => {
             />
           )}
         </Stack>
-      </Card>
+      </BorderedCard>
 
       <ProductEditDialog product={editing} onClose={() => setEditing(null)} />
 

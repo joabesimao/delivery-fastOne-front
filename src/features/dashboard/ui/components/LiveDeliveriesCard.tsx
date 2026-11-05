@@ -1,7 +1,6 @@
 import {
   Avatar,
   Box,
-  Card,
   Chip,
   IconButton,
   MenuItem,
@@ -23,6 +22,7 @@ import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import { deliveryDeliverymanName, type Delivery } from "@/features/deliveries";
 import { formatCurrency } from "@/shared/lib/format/currency";
+import BorderedCard from "@/shared/ui/layout/BorderedCard";
 import {
   LIVE_FEED_PAGE_SIZE,
   type DeliveryStatusFilter,
@@ -157,7 +157,7 @@ const LiveDeliveriesCard = ({
   const lastShown = Math.min(page * LIVE_FEED_PAGE_SIZE, total);
 
   return (
-    <Card sx={{ borderRadius: 3, border: 1, borderColor: "divider" }}>
+    <BorderedCard>
       <Stack spacing={2} sx={{ p: 2.5 }}>
         <Stack
           direction={{ xs: "column", sm: "row" }}
@@ -300,7 +300,7 @@ const LiveDeliveriesCard = ({
           </Stack>
         </Stack>
       </Stack>
-    </Card>
+    </BorderedCard>
   );
 };
 

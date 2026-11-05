@@ -1,6 +1,7 @@
-import { Card, CircularProgress, Grid, Typography } from "@mui/material";
-
+import { CircularProgress, Grid, Typography } from "@mui/material";
 import { COLORS } from "@/shared/theme/colors";
+import BorderedCard from "@/shared/ui/layout/BorderedCard";
+
 interface DeliveryCountCardsProps {
   loading: boolean;
   total: number;
@@ -31,9 +32,7 @@ const DeliveryCountCards = ({
     <Grid container spacing={2}>
       {cards.map((card) => (
         <Grid key={card.label} size={{ xs: 12, sm: 6 }}>
-          <Card
-            sx={{ borderRadius: 3, border: 1, borderColor: "divider", p: 2.25 }}
-          >
+          <BorderedCard sx={{ p: 2.25 }}>
             <Typography
               variant="body2"
               color="text.secondary"
@@ -50,7 +49,7 @@ const DeliveryCountCards = ({
             <Typography variant="caption" color="text.secondary">
               {card.caption}
             </Typography>
-          </Card>
+          </BorderedCard>
         </Grid>
       ))}
     </Grid>

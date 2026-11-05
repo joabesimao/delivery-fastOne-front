@@ -1,14 +1,15 @@
 import type { ReactNode } from "react";
-import { Box, Card, Grid, Skeleton, Stack, Typography } from "@mui/material";
+import { Box, Grid, Skeleton, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import TagIcon from "@mui/icons-material/Tag";
 import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
 import { formatCurrency } from "@/shared/lib/format/currency";
+import { COLORS } from "@/shared/theme/colors";
+import BorderedCard from "@/shared/ui/layout/BorderedCard";
 import type { DeliverySummary } from "../../domain/deliveryReport";
 
-import { COLORS } from "@/shared/theme/colors";
 interface ReportStatCardsProps {
   summary: DeliverySummary;
   loading: boolean;
@@ -58,7 +59,7 @@ const ReportStatCards = ({ summary, loading }: ReportStatCardsProps) => {
     <Grid container spacing={2}>
       {cards.map((card) => (
         <Grid key={card.label} size={{ xs: 12, sm: 6, lg: 3 }}>
-          <Card sx={{ borderRadius: 3, border: 1, borderColor: "divider" }}>
+          <BorderedCard>
             <Stack spacing={1} sx={{ p: 2.2 }}>
               <Box
                 sx={{
@@ -99,7 +100,7 @@ const ReportStatCards = ({ summary, loading }: ReportStatCardsProps) => {
                 {card.label}
               </Typography>
             </Stack>
-          </Card>
+          </BorderedCard>
         </Grid>
       ))}
     </Grid>
