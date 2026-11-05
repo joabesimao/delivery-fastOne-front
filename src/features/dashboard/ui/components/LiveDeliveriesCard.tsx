@@ -4,6 +4,7 @@ import {
   Chip,
   IconButton,
   MenuItem,
+  Pagination,
   Select,
   Skeleton,
   Stack,
@@ -17,7 +18,6 @@ import {
   Typography,
 } from "@mui/material";
 import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
-import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import { deliveryDeliverymanName, type Delivery } from "@/features/deliveries";
@@ -28,6 +28,22 @@ import {
   type DeliveryStatusFilter,
 } from "../../domain/dashboardMetrics";
 import { LIVE_STATUS } from "./liveDeliveryStatus";
+
+const PAGINATION_LABELS: Record<string, string> = {
+  first: "Primeira página",
+  last: "Última página",
+  next: "Próxima página",
+  previous: "Página anterior",
+};
+
+const paginationItemLabel = (
+  type: string,
+  pageNumber: number | null,
+  selected: boolean,
+) => {
+  if (type !== "page") return PAGINATION_LABELS[type] ?? "";
+  return selected ? `Página ${pageNumber}` : `Ir para a página ${pageNumber}`;
+};
 
 interface LiveDeliveriesCardProps {
   deliveries: Delivery[];
@@ -127,11 +143,6 @@ const DeliveryRow = ({
         <Tooltip title="Ver detalhes">
           <IconButton size="small" onClick={onViewDetails}>
             <RemoveRedEyeOutlinedIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Mais opções">
-          <IconButton size="small">
-            <MoreVertRoundedIcon fontSize="small" />
           </IconButton>
         </Tooltip>
       </TableCell>
@@ -281,23 +292,16 @@ const LiveDeliveriesCard = ({
           <Typography variant="caption" color="text.secondary">
             Mostrando {firstShown} a {lastShown} de {total} pedidos
           </Typography>
-          <Stack direction="row" spacing={0.5}>
-            {Array.from({ length: pageCount }).map((_, index) => {
-              const pageNumber = index + 1;
-              const selected = pageNumber === page;
-              return (
-                <Chip
-                  key={pageNumber}
-                  label={pageNumber}
-                  size="small"
-                  onClick={() => onPageChange(pageNumber)}
-                  color={selected ? "primary" : "default"}
-                  variant={selected ? "filled" : "outlined"}
-                  sx={{ fontWeight: 700, minWidth: 30, cursor: "pointer" }}
-                />
-              );
-            })}
-          </Stack>
+          <Pagination
+            count={pageCount}
+            page={page}
+            onChange={(_, pageNumber) => onPageChange(pageNumber)}
+            getItemAriaLabel={paginationItemLabel}
+            size="small"
+            color="primary"
+            variant="outlined"
+            sx={{ "& .MuiPaginationItem-root": { fontWeight: 700 } }}
+          />
         </Stack>
       </Stack>
     </BorderedCard>
