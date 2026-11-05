@@ -63,7 +63,8 @@ export const createCrudQueries = <TEntity, TInput>(
 export const getBusyRowId = (
   update: PendingMutation<{ id: number }>,
   remove: PendingMutation<number>,
-): number | null =>
-  (update.isPending && update.variables?.id) ||
-  (remove.isPending && remove.variables) ||
-  null;
+): number | null => {
+  const updatingId = update.isPending ? update.variables?.id : undefined;
+  const removingId = remove.isPending ? remove.variables : undefined;
+  return updatingId ?? removingId ?? null;
+};
