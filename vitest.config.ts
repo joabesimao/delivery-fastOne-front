@@ -3,19 +3,43 @@ import viteConfig from "./vite.config";
 
 process.env.TZ = "America/Sao_Paulo";
 
+const hookTests = [
+  "src/features/*/application/**/*.test.{ts,tsx}",
+  "src/shared/lib/hooks/**/*.test.{ts,tsx}",
+  "src/shared/lib/query/**/*.test.{ts,tsx}",
+];
+
 export default mergeConfig(
   viteConfig,
   defineConfig({
     test: {
-      environment: "node",
-      include: ["src/**/*.test.{ts,tsx}"],
       restoreMocks: true,
       clearMocks: true,
+      projects: [
+        {
+          extends: true,
+          test: {
+            name: "node",
+            environment: "node",
+            include: ["src/**/*.test.{ts,tsx}"],
+            exclude: hookTests,
+          },
+        },
+        {
+          extends: true,
+          test: {
+            name: "jsdom",
+            environment: "jsdom",
+            include: hookTests,
+          },
+        },
+      ],
       coverage: {
         provider: "v8",
         include: [
           "src/features/*/{domain,data}/**",
           "src/shared/lib/**",
+          "src/features/*/application/{dashboardQueries,deliveryQueries,useDeliveryRealtimeSync,clientQueries,productQueries,userQueries,useFleetFilters,useFleetOptions,useGlobalSearch,useLogin,useLogout}.ts",
           "src/shared/api/createCrudRepository.ts",
         ],
         exclude: ["**/*.test.{ts,tsx}", "**/*.d.ts"],
