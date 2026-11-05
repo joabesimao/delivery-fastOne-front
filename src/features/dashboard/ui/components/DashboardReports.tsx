@@ -59,11 +59,13 @@ const DashboardReports = () => {
         title="Relatórios de entregas"
         description="Distribuição percentual das entregas por bairro, cidade e situação geral em uma visualização moderna."
         actions={
-          <Stack direction="row" spacing={1}>
-            <Button variant="outlined" onClick={() => window.location.reload()}>
-              Recarregar
-            </Button>
-          </Stack>
+          <Button
+            variant="outlined"
+            onClick={() => void deliveriesQuery.refetch()}
+            disabled={deliveriesQuery.isFetching}
+          >
+            Recarregar
+          </Button>
         }
         icon={<AssignmentTurnedInOutlinedIcon />}
       />
