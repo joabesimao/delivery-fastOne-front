@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Alert, Box, Button, Grid, Stack, Typography } from "@mui/material";
-import ListPageHeader from "@/shared/ui/layout/ListPageHeader";
+import PageHeader from "@/shared/ui/layout/PageHeader";
 import {
   countByNeighborhood,
   countByStatus,
@@ -38,7 +38,7 @@ const DeliveryReportsPage = () => {
 
   return (
     <Stack spacing={2.2}>
-      <ListPageHeader
+      <PageHeader
         title="Relatórios de entregas"
         description="Análise de desempenho por entregador, bairro e cidade"
       />

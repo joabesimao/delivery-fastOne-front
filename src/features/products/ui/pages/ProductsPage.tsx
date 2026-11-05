@@ -18,7 +18,7 @@ import { useResettablePage } from "@/shared/lib/hooks/useResettablePage";
 import ConfirmDialog from "@/shared/ui/dialogs/ConfirmDialog";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
 import BorderedCard from "@/shared/ui/layout/BorderedCard";
-import ListPageHeader from "@/shared/ui/layout/ListPageHeader";
+import PageHeader from "@/shared/ui/layout/PageHeader";
 import type { Product } from "../../domain/product";
 import {
   ALL_CATEGORIES,
@@ -154,7 +154,7 @@ const ProductsPage = () => {
 
   return (
     <Stack spacing={2.5}>
-      <ListPageHeader
+      <PageHeader
         title="Produtos"
         badge={loading ? "..." : `${total} Itens Ativos`}
         description="Gerencie itens disponíveis, categorias, preços e estoque da filial selecionada"

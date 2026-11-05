@@ -6,7 +6,7 @@ import PendingActionsOutlinedIcon from "@mui/icons-material/PendingActionsOutlin
 import PublicOutlinedIcon from "@mui/icons-material/PublicOutlined";
 import { useDeliveries } from "@/features/deliveries";
 import EmptyState from "@/shared/ui/EmptyState";
-import PageHeader from "@/shared/ui/PageHeader";
+import PageHeader from "@/shared/ui/layout/PageHeader";
 import StatCard from "@/shared/ui/StatCard";
 import {
   sumValues,
