@@ -12,7 +12,6 @@ import LocalGasStationOutlinedIcon from "@mui/icons-material/LocalGasStationOutl
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import SpeedOutlinedIcon from "@mui/icons-material/SpeedOutlined";
-import StoreOutlinedIcon from "@mui/icons-material/StoreOutlined";
 import TwoWheelerOutlinedIcon from "@mui/icons-material/TwoWheelerOutlined";
 import { ROUTES } from "@/shared/config/routes";
 
@@ -88,11 +87,6 @@ export const buildNavItems = (
     path: ROUTES.chat,
     icon: <ChatOutlinedIcon fontSize="small" />,
     badge: chatUnreadCount,
-  },
-  {
-    label: "Filiais",
-    path: ROUTES.branches,
-    icon: <StoreOutlinedIcon fontSize="small" />,
   },
   {
     label: "Configurações",
