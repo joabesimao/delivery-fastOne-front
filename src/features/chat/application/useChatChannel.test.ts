@@ -1,5 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { getRealtimeSession } from "@/shared/realtime/realtimeSocket";
 import { session as authSession } from "@/shared/session/session";
 import useRealtimeSocket from "@/shared/realtime/useRealtimeSocket";
 import { makeChatMessage, makeChatSession } from "@/test/chatFixtures";
@@ -8,6 +9,9 @@ import { chatGateway } from "../data/chatGateway";
 import { useChatChannel } from "./useChatChannel";
 
 vi.mock("@/shared/realtime/useRealtimeSocket", () => ({ default: vi.fn() }));
+vi.mock("@/shared/realtime/realtimeSocket", () => ({
+  getRealtimeSession: vi.fn(),
+}));
 vi.mock("@/shared/session/session", () => ({
   session: { isAuthenticated: vi.fn() },
 }));
@@ -27,6 +31,7 @@ describe("useChatChannel", () => {
     socket = createFakeSocket();
     vi.mocked(useRealtimeSocket).mockReturnValue(socket as never);
     vi.mocked(authSession.isAuthenticated).mockReturnValue(true);
+    vi.mocked(getRealtimeSession).mockReturnValue(null);
   });
 
   it("começa carregando, sem mensagens e sem sessão", () => {
@@ -188,6 +193,33 @@ describe("useChatChannel", () => {
       "chat:message-deleted",
       "connect",
     ].forEach((event) => expect(socket.listenerCount(event)).toBe(0));
+  });
+
+  describe("montando depois que o socket já conectou", () => {
+    it("usa a sessão já recebida e seleciona a loja da conta", () => {
+      const stored = makeChatSession({ unitStoreId: 30 });
+      vi.mocked(getRealtimeSession).mockReturnValue(stored);
+      const { result } = renderHook(() => useChatChannel(baseOptions));
+      expect(result.current.session).toBe(stored);
+      expect(result.current.selectedUnitId).toBe("30");
+    });
+
+    it("pede o histórico, que o servidor só envia na conexão", () => {
+      const connected = Object.assign(createFakeSocket(), { connected: true });
+      vi.mocked(useRealtimeSocket).mockReturnValue(connected as never);
+      const { result } = renderHook(() => useChatChannel(baseOptions));
+      expect(chatGateway.fetchHistory).toHaveBeenCalledTimes(1);
+      expect(chatGateway.fetchHistory).toHaveBeenCalledWith(connected);
+      expect(result.current.loading).toBe(true);
+      act(() => connected.emit("chat:history", [makeChatMessage({ id: 9 })]));
+      expect(result.current.messages.map((m) => m.id)).toEqual([9]);
+      expect(result.current.loading).toBe(false);
+    });
+
+    it("não pede o histórico enquanto o socket ainda está conectando", () => {
+      renderHook(() => useChatChannel(baseOptions));
+      expect(chatGateway.fetchHistory).not.toHaveBeenCalled();
+    });
   });
 
   describe("sem socket", () => {
