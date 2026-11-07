@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Box, Button, Typography } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { ROUTES } from "@/shared/config/routes";
 import { useClientPagination } from "@/shared/lib/hooks/useClientPagination";
+import { useFiltersFromNavigation } from "@/shared/lib/hooks/useFiltersFromNavigation";
 import { useSurfaceColors } from "@/shared/theme/useSurfaceColors";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
 import { useToast } from "@/shared/ui/feedback/useToast";
@@ -27,7 +28,6 @@ import ClientsPanel from "../components/ClientsPanel";
 import { COLORS } from "@/shared/theme/colors";
 const ClientsPage = () => {
   const navigate = useNavigate();
-  const locationState = useLocation().state as { search?: string } | null;
   const colors = useSurfaceColors();
   const toast = useToast();
   const runWithFeedback = useActionFeedback();
@@ -36,9 +36,8 @@ const ClientsPage = () => {
   const updateClient = useUpdateClient();
   const setClientActive = useSetClientActive();
 
-  const [filters, setFilters] = useState<ClientFilters>(() =>
-    emptyClientFilters(locationState?.search ?? ""),
-  );
+  const [filters, setFilters] =
+    useFiltersFromNavigation<ClientFilters>(emptyClientFilters);
   const [viewing, setViewing] = useState<Client | null>(null);
   const [editing, setEditing] = useState<Client | null>(null);
 

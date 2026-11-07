@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Box, Button, Typography } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { ROUTES } from "@/shared/config/routes";
 import { useClientPagination } from "@/shared/lib/hooks/useClientPagination";
+import { useFiltersFromNavigation } from "@/shared/lib/hooks/useFiltersFromNavigation";
 import { getBusyRowId } from "@/shared/lib/query/createCrudQueries";
 import { useSurfaceColors } from "@/shared/theme/useSurfaceColors";
 import ConfirmDialog from "@/shared/ui/dialogs/ConfirmDialog";
@@ -27,7 +28,6 @@ import DeliverymenPanel from "../components/DeliverymenPanel";
 import { COLORS } from "@/shared/theme/colors";
 const DeliverymenPage = () => {
   const navigate = useNavigate();
-  const locationState = useLocation().state as { search?: string } | null;
   const colors = useSurfaceColors();
   const runWithFeedback = useActionFeedback();
 
@@ -35,10 +35,9 @@ const DeliverymenPage = () => {
   const updateDeliveryman = useUpdateDeliveryman();
   const deleteDeliveryman = useDeleteDeliveryman();
 
-  const [filters, setFilters] = useState<DeliverymanFilters>(() => ({
-    name: locationState?.search ?? "",
-    phone: "",
-  }));
+  const [filters, setFilters] = useFiltersFromNavigation<DeliverymanFilters>(
+    (search) => ({ name: search, phone: "" }),
+  );
   const [viewing, setViewing] = useState<Deliveryman | null>(null);
   const [editing, setEditing] = useState<Deliveryman | null>(null);
   const [deleting, setDeleting] = useState<Deliveryman | null>(null);

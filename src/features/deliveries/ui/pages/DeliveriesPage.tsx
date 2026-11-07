@@ -4,6 +4,7 @@ import { Alert, Box, Button, CircularProgress, Stack } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { ROUTES } from "@/shared/config/routes";
 import { useClientPagination } from "@/shared/lib/hooks/useClientPagination";
+import { useFiltersFromNavigation } from "@/shared/lib/hooks/useFiltersFromNavigation";
 import BorderedCard from "@/shared/ui/layout/BorderedCard";
 import PageHeader from "@/shared/ui/layout/PageHeader";
 import type { Delivery } from "../../domain/delivery";
@@ -26,7 +27,6 @@ import DeliveryListFilters from "../components/DeliveryListFilters";
 import NewOrderDrawer from "../components/NewOrderDrawer";
 
 interface DeliveriesLocationState {
-  search?: string;
   openCreate?: boolean;
   clientData?: PreloadedDeliveryClient;
 }
@@ -37,8 +37,8 @@ const DeliveriesPage = () => {
   const deliveriesQuery = useDeliveries();
   useDeliveryRealtimeSync();
 
-  const [filters, setFilters] = useState<Filters>(() => ({
-    search: locationState?.search ?? "",
+  const [filters, setFilters] = useFiltersFromNavigation<Filters>((search) => ({
+    search,
     progress: ALL,
     deliverymanId: ALL,
     city: ALL,
