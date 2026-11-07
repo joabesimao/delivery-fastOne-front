@@ -14,14 +14,14 @@ import { useClientRegisters } from "@/features/clients";
 import { deliverymanFullName, useDeliverymen } from "@/features/deliverymen";
 import { ROUTES } from "@/shared/config/routes";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
+import { useToast } from "@/shared/ui/feedback/useToast";
 import {
-  toCreateDeliveryInput,
   toPreloadedOrderClient,
   type DeliveryOrderClient,
   type DeliveryOrderFormValues,
   type PreloadedDeliveryClient,
 } from "../../domain/deliveryOrder";
-import { useCreateDelivery } from "../../application/deliveryQueries";
+import { useCreateDeliveryOrder } from "../../application/useCreateDeliveryOrder";
 import { useDeliverySheetPrinter } from "../../application/useDeliverySheetPrinter";
 import DeliveryOrderForm from "./DeliveryOrderForm";
 import DeliverySheetDocument from "./DeliverySheetDocument";
@@ -41,9 +41,9 @@ const CreateDeliveryOrder = ({
 }: CreateDeliveryOrderProps) => {
   const navigate = useNavigate();
   const runWithFeedback = useActionFeedback();
+  const toast = useToast();
   const registersQuery = useClientRegisters();
   const deliverymen = useDeliverymen().data;
-  const createDelivery = useCreateDelivery();
   const {
     sheetRef,
     sheet,
@@ -53,6 +53,14 @@ const CreateDeliveryOrder = ({
     setSkipPreview,
     print,
   } = useDeliverySheetPrinter();
+  const createOrder = useCreateDeliveryOrder({
+    print,
+    onPrintError: () =>
+      toast.show(
+        "Pedido criado, mas não foi possível gerar a folha de entrega.",
+        "warning",
+      ),
+  });
 
   const initialClient = useMemo(
     () => toPreloadedOrderClient(preloadedClient),
@@ -71,23 +79,10 @@ const CreateDeliveryOrder = ({
     values: DeliveryOrderFormValues,
     client: DeliveryOrderClient,
   ) =>
-    runWithFeedback(
-      async () => {
-        const input = toCreateDeliveryInput(values, client.registerId);
-        const { id } = await createDelivery.mutateAsync(input);
-        await print({
-          orderId: id,
-          createdAt: new Date().toISOString(),
-          client,
-          quantity: input.quantity,
-          amount: input.amount,
-        });
-      },
-      {
-        success: "Pedido criado com sucesso!",
-        error: "Erro ao criar pedido. Tente novamente.",
-      },
-    );
+    runWithFeedback(() => createOrder(values, client), {
+      success: "Pedido criado com sucesso!",
+      error: "Erro ao criar pedido. Tente novamente.",
+    });
 
   const goToRegisterClient = () => navigate(ROUTES.registerClient);
 
