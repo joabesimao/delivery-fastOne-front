@@ -132,5 +132,8 @@ export const closeRealtimeSocket = (): void => {
   notifySocketChange(null);
 };
 
+export const getRealtimeSession = (): RealtimeSessionReady | null =>
+  lastSessionReady;
+
 export const getRealtimeSessionUnits = (): RealtimeSessionReady["units"] =>
   lastSessionReady?.units ?? [];

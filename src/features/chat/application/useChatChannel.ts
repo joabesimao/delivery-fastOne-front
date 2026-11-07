@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getRealtimeSession } from "@/shared/realtime/realtimeSocket";
 import useRealtimeSocket from "@/shared/realtime/useRealtimeSocket";
 import { session as authSession } from "@/shared/session/session";
 import {
@@ -20,11 +21,16 @@ interface ChatChannelOptions {
 
 export const useChatChannel = (options: ChatChannelOptions) => {
   const socket = useRealtimeSocket();
-  const [session, setSession] = useState<ChatSession | null>(null);
+  const [session, setSession] = useState<ChatSession | null>(
+    getRealtimeSession,
+  );
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedUnitId, setSelectedUnitId] = useState("");
+  const [selectedUnitId, setSelectedUnitId] = useState(() => {
+    const current = getRealtimeSession();
+    return current ? defaultUnitIdOf(current) : "";
+  });
 
   const optionsRef = useRef(options);
   const sessionRef = useRef(session);
@@ -70,6 +76,7 @@ export const useChatChannel = (options: ChatChannelOptions) => {
     socket.on("connect_error", onConnectError);
     if (syncDeletes) socket.on("chat:message-deleted", onDeleted);
     if (clearErrorOnConnect) socket.on("connect", onConnect);
+    if (socket.connected) chatGateway.fetchHistory(socket);
 
     return () => {
       socket.off("session:ready", onSessionReady);
