@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Alert, Box, CircularProgress, Typography } from "@mui/material";
+import { Alert, Box, CircularProgress } from "@mui/material";
 import { downloadTextFile } from "@/shared/lib/downloadFile";
+import PageHeader from "@/shared/ui/layout/PageHeader";
 import {
   defaultRankingFilters,
   hasRankingPeriod,
@@ -60,12 +61,12 @@ const DeliverymanRankingPage = () => {
 
   return (
     <Box sx={{ maxWidth: 960, mx: "auto", px: { xs: 1, sm: 2 } }}>
-      <Typography variant="h4" fontWeight={700} gutterBottom>
-        Relatório de ranking de entregadores
-      </Typography>
-      <Typography variant="body2" color="text.secondary" mb={3}>
-        Entregadores com mais entregas finalizadas por período.
-      </Typography>
+      <Box sx={{ mb: 3 }}>
+        <PageHeader
+          title="Relatório de ranking de entregadores"
+          description="Entregadores com mais entregas finalizadas por período."
+        />
+      </Box>
 
       <RankingFiltersCard
         filters={filters}

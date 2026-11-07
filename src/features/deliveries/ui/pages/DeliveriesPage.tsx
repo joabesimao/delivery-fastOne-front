@@ -5,7 +5,7 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { ROUTES } from "@/shared/config/routes";
 import { useClientPagination } from "@/shared/lib/hooks/useClientPagination";
 import BorderedCard from "@/shared/ui/layout/BorderedCard";
-import ListPageHeader from "@/shared/ui/layout/ListPageHeader";
+import PageHeader from "@/shared/ui/layout/PageHeader";
 import type { Delivery } from "../../domain/delivery";
 import {
   ALL,
@@ -105,7 +105,7 @@ const DeliveriesPage = () => {
 
   return (
     <Stack spacing={2.5}>
-      <ListPageHeader
+      <PageHeader
         title="Pedidos de Entrega"
         badge={loading ? "..." : deliveries.length}
         description="Gerencie e acompanhe todos os pedidos ativos e finalizados"

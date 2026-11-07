@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Alert, Box, Button, Grid, Stack, Typography } from "@mui/material";
+import PageHeader from "@/shared/ui/layout/PageHeader";
 import {
   countByNeighborhood,
   countByStatus,
@@ -37,14 +38,10 @@ const DeliveryReportsPage = () => {
 
   return (
     <Stack spacing={2.2}>
-      <Box>
-        <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5 }}>
-          Relatorios de entregas
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Analise de desempenho por entregador, bairro e cidade
-        </Typography>
-      </Box>
+      <PageHeader
+        title="Relatórios de entregas"
+        description="Análise de desempenho por entregador, bairro e cidade"
+      />
 
       <Stack
         direction={{ xs: "column", sm: "row" }}
@@ -62,7 +59,7 @@ const DeliveryReportsPage = () => {
       </Stack>
 
       {deliveriesQuery.isError && (
-        <Alert severity="error">Erro ao carregar relatorio de entregas.</Alert>
+        <Alert severity="error">Erro ao carregar relatório de entregas.</Alert>
       )}
 
       <ReportStatCards summary={report.summary} loading={loading} />

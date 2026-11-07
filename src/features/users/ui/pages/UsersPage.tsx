@@ -17,7 +17,7 @@ import ConfirmDialog from "@/shared/ui/dialogs/ConfirmDialog";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
 import SearchField from "@/shared/ui/form/SearchField";
 import BorderedCard from "@/shared/ui/layout/BorderedCard";
-import ListPageHeader from "@/shared/ui/layout/ListPageHeader";
+import PageHeader from "@/shared/ui/layout/PageHeader";
 import {
   ROLE_FILTER_OPTIONS,
   toUserListParams,
@@ -92,7 +92,7 @@ const UsersPage = () => {
 
   return (
     <Stack spacing={2.5}>
-      <ListPageHeader
+      <PageHeader
         title="Usuários"
         description="Gerencie os usuários do sistema, seus papéis e permissões de acesso."
         actions={
