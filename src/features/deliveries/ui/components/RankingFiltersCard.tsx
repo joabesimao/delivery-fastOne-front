@@ -16,6 +16,7 @@ import {
 interface RankingFiltersCardProps {
   filters: RankingFilters;
   canSubmit: boolean;
+  canExport: boolean;
   loading: boolean;
   exporting: boolean;
   onChange: (changes: Partial<RankingFilters>) => void;
@@ -28,6 +29,7 @@ const BUTTON_SX = { textTransform: "none", height: 40 };
 const RankingFiltersCard = ({
   filters,
   canSubmit,
+  canExport,
   loading,
   exporting,
   onChange,
@@ -109,7 +111,7 @@ const RankingFiltersCard = ({
             fullWidth
             variant="outlined"
             onClick={onExport}
-            disabled={exporting || loading || !canSubmit}
+            disabled={exporting || loading || !canExport}
             sx={BUTTON_SX}
           >
             {exporting ? "Exportando..." : "Exportar CSV"}
