@@ -88,7 +88,6 @@ const FinishDeliveryPage = () => {
           border: "1px solid",
           borderColor: "divider",
           borderRadius: 2,
-          mr: 40,
         }}
       >
         <Box
@@ -97,7 +96,6 @@ const FinishDeliveryPage = () => {
             alignItems: "center",
             justifyContent: "space-between",
             mb: 3,
-            mr: 40,
           }}
         >
           <IconButton size="small" onClick={() => setSelectedId(null)}>

@@ -20,10 +20,12 @@ export const useDashboardSummary = (range: DashboardRange) => {
   const overview = useQuery({
     queryKey: dashboardKeys.overview(range),
     queryFn: () => dashboardRepository.overview(range),
+    refetchOnMount: "always",
   });
   const performance = useQuery({
     queryKey: dashboardKeys.performance(range),
     queryFn: () => dashboardRepository.performance(range),
+    refetchOnMount: "always",
   });
   const ranking = useDeliverymanRanking({
     ...range,

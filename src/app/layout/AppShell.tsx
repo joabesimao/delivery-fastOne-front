@@ -21,6 +21,7 @@ import { FloatingChatWidget } from "@/features/chat";
 import { NotificationBell, useNotifications } from "@/features/notifications";
 import { GlobalSearch } from "@/features/search";
 import { ROUTES } from "@/shared/config/routes";
+import { useRefreshActiveQueries } from "@/shared/lib/query/useRefreshActiveQueries";
 import { session } from "@/shared/session/session";
 import useThemeMode from "@/shared/theme/useThemeMode";
 import { buildNavItems } from "./navigation/navItems";
@@ -37,6 +38,7 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sessionUser] = useState(session.getUser);
   const { chatUnreadCount } = useNotifications();
+  const { refresh, refreshing } = useRefreshActiveQueries();
 
   const navItems = useMemo(
     () => buildNavItems(sessionUser.role, chatUnreadCount),
@@ -81,9 +83,15 @@ const AppShell = ({ children }: { children?: ReactNode }) => {
 
           <Stack direction="row" spacing={0.25} alignItems="center">
             <Tooltip title="Atualizar">
-              <IconButton>
-                <RefreshRoundedIcon />
-              </IconButton>
+              <span>
+                <IconButton
+                  aria-label="Atualizar"
+                  onClick={() => void refresh()}
+                  disabled={refreshing}
+                >
+                  <RefreshRoundedIcon />
+                </IconButton>
+              </span>
             </Tooltip>
             <NotificationBell canSendNotice={sessionUser.role === "admin"} />
             <Tooltip title="Configurações">
