@@ -8,7 +8,6 @@ export const ROUTES = {
   products: "/dashboard/produtos",
   users: "/dashboard/usuarios",
 
-  newDelivery: "/realizar-entrega",
   finishDelivery: "/finalizar-entrega",
   deliveryReports: "/relatorios-entregas",
   deliverymanReports: "/relatorios-entregas/entregadores",

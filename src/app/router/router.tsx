@@ -1,7 +1,9 @@
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
+import { FLEET_MANAGER_ROLES } from "@/features/fleet";
 import { HOME_ROUTE, ROUTES } from "@/shared/config/routes";
 import PageLoader from "@/shared/ui/PageLoader";
+import LocationsLayout from "../layout/LocationsLayout";
 import ProtectedLayout from "../layout/ProtectedLayout";
 import { PublicOnlyRoute, RequireAuth, RequireRole } from "./guards";
 
@@ -22,9 +24,6 @@ const UsersPage = lazy(() =>
 );
 const DeliveriesPage = lazy(() =>
   import("@/features/deliveries").then((m) => ({ default: m.DeliveriesPage })),
-);
-const NewDeliveryPage = lazy(() =>
-  import("@/features/deliveries").then((m) => ({ default: m.NewDeliveryPage })),
 );
 const FinishDeliveryPage = lazy(() =>
   import("@/features/deliveries").then((m) => ({
@@ -128,7 +127,6 @@ export const router = createBrowserRouter([
             element: <RequireRole roles={ADMIN_ONLY} />,
             children: [{ path: ROUTES.users, element: <UsersPage /> }],
           },
-          { path: ROUTES.newDelivery, element: <NewDeliveryPage /> },
           { path: ROUTES.finishDelivery, element: <FinishDeliveryPage /> },
           { path: ROUTES.deliveryReports, element: <DeliveryReportsPage /> },
           {
@@ -144,10 +142,15 @@ export const router = createBrowserRouter([
             element: <RegisterDeliverymanPage />,
           },
           {
-            path: ROUTES.registerNeighborhoods,
-            element: <NeighborhoodsPage />,
+            element: <LocationsLayout />,
+            children: [
+              { path: ROUTES.registerCities, element: <CitiesPage /> },
+              {
+                path: ROUTES.registerNeighborhoods,
+                element: <NeighborhoodsPage />,
+              },
+            ],
           },
-          { path: ROUTES.registerCities, element: <CitiesPage /> },
           { path: ROUTES.registerVehicle, element: <VehiclesPage /> },
           {
             path: ROUTES.registerOilChange,
@@ -160,7 +163,12 @@ export const router = createBrowserRouter([
           { path: ROUTES.oilChanges, element: <OilChangesPage /> },
           { path: ROUTES.fuelRefills, element: <FuelRefillsPage /> },
           { path: ROUTES.visualSettings, element: <VisualSettingsPage /> },
-          { path: ROUTES.fleetSettings, element: <FleetSettingsPage /> },
+          {
+            element: <RequireRole roles={FLEET_MANAGER_ROLES} />,
+            children: [
+              { path: ROUTES.fleetSettings, element: <FleetSettingsPage /> },
+            ],
+          },
           { path: ROUTES.chat, element: <ChatPage /> },
         ],
       },
