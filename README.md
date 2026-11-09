@@ -114,20 +114,23 @@ npm run preview
 - `/dashboard/usuarios` - Gestão de usuários **(exclusivo para o papel `admin`)**
 
 ### Entregas
-- `/realizar-entrega` - Criar novo pedido de entrega
+- `/listagem-entregas` - Listar entregas e criar novo pedido (drawer "Novo pedido")
 - `/finalizar-entrega` - Marcar entrega como completa
-- `/listagem-entregas` - Listar todas as entregas
+- `/relatorios-entregas` - Relatórios de desempenho por entregador, bairro e situação
+- `/relatorios-entregas/entregadores` - Ranking de entregadores
 - `/listagem-entregadores` - Listar entregadores
 
 ### Cadastros
-- `/cadastros/cidades` - Gerenciar cidades e bairros
+- `/cadastros/cidades` - Gerenciar cidades (aba Cidades de Localidades)
+- `/cadastros/bairros` - Gerenciar bairros (aba Bairros de Localidades)
 
 ### Outros
 - `/configuracoes/visuais` - Personalizar tema e aparência
+- `/configuracoes/frota` - Configurações de frota **(papéis `admin` e `gerente_estoque`)**
 - `/chat` - Chat em tempo real entre filiais
 - `/filiais` - Gestão de filiais
 
-> Rotas marcadas por papel usam o componente `RequireAuth` com a prop `roles`, que redireciona para `/dashboard` quem não tiver a permissão necessária.
+> Rotas marcadas por papel usam o componente `RequireRole` com a prop `roles`, que redireciona para `/dashboard` quem não tiver a permissão necessária.
 
 ---
 

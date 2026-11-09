@@ -6,6 +6,7 @@ process.env.TZ = "America/Sao_Paulo";
 const hookTests = [
   "src/features/*/application/**/*.test.{ts,tsx}",
   "src/shared/lib/hooks/**/*.test.{ts,tsx}",
+  "src/shared/ui/**/*.test.{ts,tsx}",
   "src/shared/lib/query/**/*.test.{ts,tsx}",
 ];
 

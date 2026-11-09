@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
+import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import BuildOutlinedIcon from "@mui/icons-material/BuildOutlined";
 import ChatOutlinedIcon from "@mui/icons-material/ChatOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -13,6 +14,7 @@ import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import SpeedOutlinedIcon from "@mui/icons-material/SpeedOutlined";
 import TwoWheelerOutlinedIcon from "@mui/icons-material/TwoWheelerOutlined";
+import { FLEET_MANAGER_ROLES } from "@/features/fleet";
 import { ROUTES } from "@/shared/config/routes";
 
 export interface NavItem {
@@ -22,8 +24,6 @@ export interface NavItem {
   badge?: number;
   activePaths?: string[];
 }
-
-const FLEET_SETTINGS_ROLES = ["admin", "gerente_estoque"];
 
 export const buildNavItems = (
   role: string | null,
@@ -56,6 +56,12 @@ export const buildNavItems = (
     icon: <TwoWheelerOutlinedIcon fontSize="small" />,
   },
   {
+    label: "Relatórios",
+    path: ROUTES.deliveryReports,
+    icon: <AssessmentOutlinedIcon fontSize="small" />,
+    activePaths: [ROUTES.deliverymanReports],
+  },
+  {
     label: "Veículos",
     path: ROUTES.registerVehicle,
     icon: <DirectionsCarOutlinedIcon fontSize="small" />,
@@ -81,6 +87,7 @@ export const buildNavItems = (
     label: "Localidades",
     path: ROUTES.registerCities,
     icon: <PlaceOutlinedIcon fontSize="small" />,
+    activePaths: [ROUTES.registerNeighborhoods],
   },
   {
     label: "Chat",
@@ -93,7 +100,7 @@ export const buildNavItems = (
     path: ROUTES.visualSettings,
     icon: <SettingsOutlinedIcon fontSize="small" />,
   },
-  ...(role && FLEET_SETTINGS_ROLES.includes(role)
+  ...(role && (FLEET_MANAGER_ROLES as readonly string[]).includes(role)
     ? [
         {
           label: "Configurações de Frota",
