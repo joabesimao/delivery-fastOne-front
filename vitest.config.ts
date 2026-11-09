@@ -3,8 +3,9 @@ import viteConfig from "./vite.config";
 
 process.env.TZ = "America/Sao_Paulo";
 
-const hookTests = [
+const domTests = [
   "src/features/*/application/**/*.test.{ts,tsx}",
+  "src/features/*/ui/**/*.test.{ts,tsx}",
   "src/shared/lib/hooks/**/*.test.{ts,tsx}",
   "src/shared/lib/query/**/*.test.{ts,tsx}",
 ];
@@ -22,7 +23,7 @@ export default mergeConfig(
             name: "node",
             environment: "node",
             include: ["src/**/*.test.{ts,tsx}"],
-            exclude: hookTests,
+            exclude: domTests,
           },
         },
         {
@@ -31,7 +32,7 @@ export default mergeConfig(
             name: "jsdom",
             setupFiles: ["src/test/setup.ts"],
             environment: "jsdom",
-            include: hookTests,
+            include: domTests,
           },
         },
       ],

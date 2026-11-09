@@ -35,16 +35,16 @@ const DeliverymanRankingPage = () => {
     setQuery({ ...filters, page });
   };
 
-  useDeliveryRealtimeSync(() => applyFilters(1));
+  useDeliveryRealtimeSync();
 
   const exportCsv = async () => {
     setExporting(true);
     setExportError(null);
     try {
-      const items = await fetchFullRanking(filters);
+      const items = await fetchFullRanking(query);
       downloadTextFile(
         toRankingCsv(items),
-        rankingCsvFileName(filters),
+        rankingCsvFileName(query),
         "text/csv;charset=utf-8;",
       );
     } catch {
@@ -71,6 +71,7 @@ const DeliverymanRankingPage = () => {
       <RankingFiltersCard
         filters={filters}
         canSubmit={hasRankingPeriod(filters)}
+        canExport={hasRankingPeriod(query)}
         loading={loading}
         exporting={exporting}
         onChange={(changes) =>
