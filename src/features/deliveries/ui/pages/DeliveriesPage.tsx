@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Alert, Box, Button, CircularProgress, Stack } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { ROUTES } from "@/shared/config/routes";
 import { useClientPagination } from "@/shared/lib/hooks/useClientPagination";
+import { useConsumedLocationState } from "@/shared/lib/hooks/useConsumedLocationState";
 import { useFiltersFromNavigation } from "@/shared/lib/hooks/useFiltersFromNavigation";
 import BorderedCard from "@/shared/ui/layout/BorderedCard";
 import PageHeader from "@/shared/ui/layout/PageHeader";
@@ -33,7 +34,7 @@ interface DeliveriesLocationState {
 
 const DeliveriesPage = () => {
   const navigate = useNavigate();
-  const locationState = useLocation().state as DeliveriesLocationState | null;
+  const locationState = useConsumedLocationState<DeliveriesLocationState>();
   const deliveriesQuery = useDeliveries();
   useDeliveryRealtimeSync();
 

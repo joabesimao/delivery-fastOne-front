@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
 import { Box, Divider, IconButton, Paper, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { deliverymanFullName, useDeliverymen } from "@/features/deliverymen";
 import { useClientPagination } from "@/shared/lib/hooks/useClientPagination";
+import { useConsumedLocationState } from "@/shared/lib/hooks/useConsumedLocationState";
 import { useSurfaceColors } from "@/shared/theme/useSurfaceColors";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
 import FormSectionTitle from "@/shared/ui/form/FormSectionTitle";
@@ -23,7 +23,7 @@ import FinishDeliveryForm from "../components/FinishDeliveryForm";
 import FinishableDeliveriesPanel from "../components/FinishableDeliveriesPanel";
 
 const FinishDeliveryPage = () => {
-  const locationState = useLocation().state as { orderId?: number } | null;
+  const locationState = useConsumedLocationState<{ orderId?: number }>();
   const colors = useSurfaceColors();
   const runWithFeedback = useActionFeedback();
   const deliveriesQuery = useDeliveries();
