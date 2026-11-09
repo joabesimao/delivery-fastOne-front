@@ -1,9 +1,14 @@
-import { waitFor } from "@testing-library/react";
+import { createElement, type ReactNode } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { deliveryKeys, useDeliverymanRanking } from "@/features/deliveries";
 import useRealtimeSocket from "@/shared/realtime/useRealtimeSocket";
 import { createFakeSocket } from "@/test/fakeSocket";
-import { renderHookWithQueryClient } from "@/test/renderWithQueryClient";
+import {
+  createTestQueryClient,
+  renderHookWithQueryClient,
+} from "@/test/renderWithQueryClient";
 import { dashboardRepository } from "../data/dashboardRepository";
 import {
   dashboardKeys,
@@ -78,6 +83,23 @@ describe("useDashboardSummary", () => {
     expect(result.current.error).toBe(false);
     expect(dashboardRepository.overview).toHaveBeenCalledWith(range);
     expect(dashboardRepository.performance).toHaveBeenCalledWith(range);
+  });
+
+  it("recarrega o resumo ao voltar para a tela mesmo com cache recente", async () => {
+    const queryClient = createTestQueryClient();
+    queryClient.setDefaultOptions({ queries: { staleTime: 30_000 } });
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      createElement(QueryClientProvider, { client: queryClient }, children);
+
+    const first = renderHook(() => useDashboardSummary(range), { wrapper });
+    await waitFor(() => expect(first.result.current.loading).toBe(false));
+    first.unmount();
+
+    renderHook(() => useDashboardSummary(range), { wrapper });
+    await waitFor(() =>
+      expect(dashboardRepository.overview).toHaveBeenCalledTimes(2),
+    );
+    expect(dashboardRepository.performance).toHaveBeenCalledTimes(2);
   });
 
   it("pede o top 3 do ranking sem filtro de status", () => {
