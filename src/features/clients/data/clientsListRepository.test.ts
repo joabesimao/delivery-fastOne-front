@@ -22,9 +22,8 @@ describe("clientsListRepository", () => {
             phone: "81988887777",
             status: true,
             Register: {
-              addressId: 30,
+              id: 40,
               address: {
-                id: 99,
                 street: "Rua A",
                 neighborhood: "Centro",
                 numberHouse: 12,
@@ -46,8 +45,8 @@ describe("clientsListRepository", () => {
           cpf: "52998224725",
           phone: "81988887777",
           active: true,
+          registerId: 40,
           address: {
-            id: 30,
             street: "Rua A",
             neighborhood: "Centro",
             numberHouse: "12",
@@ -98,19 +97,19 @@ describe("clientsListRepository", () => {
       expect(result.map((c) => c.address)).toEqual([null, null]);
     });
 
-    it("usa address.id quando não há addressId e null quando nenhum existe", async () => {
+    it("registerId é null sem Register e endereço vazio vira campos vazios", async () => {
       vi.mocked(httpClient.get).mockResolvedValue({
         data: [
-          { id: 1, name: "A", phone: "1", Register: { address: { id: 7 } } },
-          { id: 2, name: "B", phone: "2", Register: { address: {} } },
+          { id: 1, name: "A", phone: "1" },
+          { id: 2, name: "B", phone: "2", Register: { id: 9, address: {} } },
         ],
       });
 
       const result = await clientsListRepository.list();
 
-      expect(result[0].address?.id).toBe(7);
+      expect(result[0].registerId).toBeNull();
+      expect(result[1].registerId).toBe(9);
       expect(result[1].address).toEqual({
-        id: null,
         street: "",
         neighborhood: "",
         numberHouse: "",
@@ -134,7 +133,7 @@ describe("clientsListRepository", () => {
             phone: "2",
             Register: { address: { numberHouse: null } },
           },
-          { id: 3, name: "C", phone: "3", Register: { address: { id: 3 } } },
+          { id: 3, name: "C", phone: "3", Register: { address: {} } },
         ],
       });
 
@@ -151,83 +150,31 @@ describe("clientsListRepository", () => {
   });
 
   describe("update", () => {
-    it("faz PUT do cliente e depois PUT do endereço, nessa ordem", async () => {
+    const input = {
+      client: { name: "Maria", phone: "81988887777" },
+      address: {
+        street: "Rua A",
+        neighborhood: "Centro",
+        city: "Recife",
+        numberHouse: 10,
+        reference: "",
+      },
+    };
+
+    it("faz um único PUT /register/:id com cliente e endereço", async () => {
       vi.mocked(httpClient.put).mockResolvedValue({ data: {} });
-      const input = {
-        client: { name: "Maria", phone: "81988887777" },
-        address: {
-          street: "Rua A",
-          neighborhood: "Centro",
-          city: "Recife",
-          numberHouse: 10,
-          reference: "",
-        },
-      };
 
-      await clientsListRepository.update(1, 30, input);
-
-      expect(httpClient.put).toHaveBeenNthCalledWith(
-        1,
-        "/client/1",
-        input.client,
-      );
-      expect(httpClient.put).toHaveBeenNthCalledWith(
-        2,
-        "/address/30",
-        input.address,
-      );
-      expect(httpClient.put).toHaveBeenCalledTimes(2);
-    });
-
-    it("não atualiza o endereço se a atualização do cliente falhar", async () => {
-      vi.mocked(httpClient.put).mockRejectedValueOnce(new Error("falhou"));
-
-      await expect(
-        clientsListRepository.update(1, 30, {
-          client: { name: "A", phone: "1" },
-          address: {
-            street: "",
-            neighborhood: "",
-            city: "",
-            numberHouse: 1,
-            reference: "",
-          },
-        }),
-      ).rejects.toThrow("falhou");
+      await clientsListRepository.update(40, input);
 
       expect(httpClient.put).toHaveBeenCalledTimes(1);
+      expect(httpClient.put).toHaveBeenCalledWith("/register/40", input);
     });
-  });
 
-  describe("update com falha no endereço", () => {
-    it("rejeita com mensagem explicando que só o cliente foi salvo", async () => {
-      const original = new Error("falha de rede");
-      vi.mocked(httpClient.put)
-        .mockResolvedValueOnce({ data: {} })
-        .mockRejectedValueOnce(original);
+    it("propaga o erro da API", async () => {
+      const error = new Error("CPF já cadastrado no sistema.");
+      vi.mocked(httpClient.put).mockRejectedValueOnce(error);
 
-      await expect(
-        clientsListRepository.update(1, 30, {
-          client: { name: "A", phone: "1" },
-          address: {
-            street: "",
-            neighborhood: "",
-            city: "",
-            numberHouse: 1,
-            reference: "",
-          },
-        }),
-      ).rejects.toMatchObject({
-        message:
-          "Os dados do cliente foram salvos, mas o endereço não. Tente salvar novamente.",
-        cause: original,
-      });
-
-      expect(httpClient.put).toHaveBeenCalledTimes(2);
-      expect(httpClient.put).toHaveBeenNthCalledWith(1, "/client/1", {
-        name: "A",
-        phone: "1",
-      });
+      await expect(clientsListRepository.update(40, input)).rejects.toBe(error);
     });
   });
 

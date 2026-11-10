@@ -40,14 +40,13 @@ export const useUpdateClient = () => {
   const invalidate = useInvalidateClients();
   return useMutation({
     mutationFn: ({
-      id,
-      addressId,
+      registerId,
       input,
     }: {
       id: number;
-      addressId: number;
+      registerId: number;
       input: ClientUpdateInput;
-    }) => clientsListRepository.update(id, addressId, input),
+    }) => clientsListRepository.update(registerId, input),
     onSettled: invalidate,
   });
 };

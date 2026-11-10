@@ -8,9 +8,8 @@ interface ClientDto {
   phone: string;
   status?: boolean;
   Register?: {
-    addressId?: number;
+    id?: number;
     address?: {
-      id?: number;
       street?: string;
       neighborhood?: string;
       numberHouse?: number | string;
@@ -28,9 +27,9 @@ const toClient = (dto: ClientDto): Client => {
     cpf: dto.cpf || null,
     phone: dto.phone,
     active: dto.status !== false,
+    registerId: dto.Register?.id ?? null,
     address: address
       ? {
-          id: dto.Register?.addressId ?? address.id ?? null,
           street: address.street ?? "",
           neighborhood: address.neighborhood ?? "",
           numberHouse:
@@ -48,20 +47,8 @@ export const clientsListRepository = {
     return Array.isArray(data) ? data.map(toClient) : [];
   },
 
-  async update(
-    clientId: number,
-    addressId: number,
-    input: ClientUpdateInput,
-  ): Promise<void> {
-    await httpClient.put(`/client/${clientId}`, input.client);
-    try {
-      await httpClient.put(`/address/${addressId}`, input.address);
-    } catch (cause) {
-      throw new Error(
-        "Os dados do cliente foram salvos, mas o endereço não. Tente salvar novamente.",
-        { cause },
-      );
-    }
+  async update(registerId: number, input: ClientUpdateInput): Promise<void> {
+    await httpClient.put(`/register/${registerId}`, input);
   },
 
   async setActive(clientId: number, active: boolean): Promise<void> {
