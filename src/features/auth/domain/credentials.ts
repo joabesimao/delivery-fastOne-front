@@ -21,17 +21,31 @@ export const DEFAULT_CREDENTIALS: LoginCredentials = {
 };
 
 export const LOGIN_MESSAGES = {
-  required: "Informe login e senha.",
-  rejected: "Não foi possível autenticar com as credenciais informadas.",
-  invalid: "Login ou senha inválidos.",
-  unavailable: "Não foi possível conectar ao servidor. Tente novamente.",
+  required: "Informe seu e-mail e senha para entrar.",
+  invalidEmail: "Digite um e-mail válido, por exemplo: nome@empresa.com.",
+  invalid: "E-mail ou senha incorretos. Confira os dados e tente novamente.",
+  tooManyAttempts:
+    "Muitas tentativas de acesso. Por segurança, aguarde alguns minutos e tente novamente.",
+  offline:
+    "Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.",
+  unavailable:
+    "O sistema está instável no momento. Tente novamente em alguns instantes.",
+  rejected: "Não foi possível entrar. Tente novamente.",
 } as const;
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const validateCredentials = ({
   login,
   password,
-}: LoginCredentials): string | null =>
-  !login.trim() || !password ? LOGIN_MESSAGES.required : null;
+}: LoginCredentials): string | null => {
+  const trimmed = login.trim();
+  if (!trimmed || !password) return LOGIN_MESSAGES.required;
+  const isAdmin = trimmed.toLowerCase() === ADMIN_LOGIN;
+  if (!isAdmin && !EMAIL_PATTERN.test(trimmed))
+    return LOGIN_MESSAGES.invalidEmail;
+  return null;
+};
 
 export const toLoginEmail = (login: string): string => {
   const trimmed = login.trim();
@@ -68,18 +82,16 @@ export const toSessionData = (
   };
 };
 
+const MESSAGES_BY_STATUS: Record<number, string> = {
+  400: LOGIN_MESSAGES.invalidEmail,
+  401: LOGIN_MESSAGES.invalid,
+  429: LOGIN_MESSAGES.tooManyAttempts,
+};
+
 export const loginErrorMessage = (error: unknown): string => {
-  const response = (
-    error as {
-      response?: {
-        status?: number;
-        data?: { error?: string; message?: string };
-      };
-    }
-  )?.response;
-  if (!response || (response.status ?? 0) >= 500) {
-    return LOGIN_MESSAGES.unavailable;
-  }
-  const data = response.data;
-  return data?.error ?? data?.message ?? LOGIN_MESSAGES.invalid;
+  const status = (error as { response?: { status?: number } })?.response
+    ?.status;
+  if (!status) return LOGIN_MESSAGES.offline;
+  if (status >= 500) return LOGIN_MESSAGES.unavailable;
+  return MESSAGES_BY_STATUS[status] ?? LOGIN_MESSAGES.rejected;
 };
