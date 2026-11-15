@@ -1,4 +1,5 @@
 import { useMemo, useState, type ChangeEvent } from "react";
+import { DEFAULT_ROWS_PER_PAGE } from "../pagination";
 import { useResettablePage } from "./useResettablePage";
 
 interface ClientPaginationOptions {
@@ -8,7 +9,10 @@ interface ClientPaginationOptions {
 
 export const useClientPagination = <T>(
   items: T[],
-  { initialRowsPerPage = 10, resetKey = "" }: ClientPaginationOptions = {},
+  {
+    initialRowsPerPage = DEFAULT_ROWS_PER_PAGE,
+    resetKey = "",
+  }: ClientPaginationOptions = {},
 ) => {
   const [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage);
   const [requestedPage, setPage] = useResettablePage(

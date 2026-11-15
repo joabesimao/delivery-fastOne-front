@@ -2,6 +2,10 @@ import {
   formatCurrencyFromNumber,
   parseCurrencyToNumber,
 } from "@/shared/lib/masks";
+import {
+  DEFAULT_ROWS_PER_PAGE,
+  ROWS_PER_PAGE_OPTIONS,
+} from "@/shared/lib/pagination";
 import type { Product } from "./product";
 
 export type ProductViewMode = "cards" | "tabela";
@@ -41,14 +45,14 @@ export interface CategoryCount {
 }
 
 export const ROWS_PER_PAGE_BY_VIEW: Record<ProductViewMode, number> = {
-  cards: 9,
-  tabela: 10,
+  cards: DEFAULT_ROWS_PER_PAGE,
+  tabela: DEFAULT_ROWS_PER_PAGE,
 };
 
 export const ROWS_PER_PAGE_OPTIONS_BY_VIEW: Record<ProductViewMode, number[]> =
   {
-    cards: [9, 18, 30],
-    tabela: [10, 25, 50],
+    cards: [9, 18, 30, DEFAULT_ROWS_PER_PAGE],
+    tabela: ROWS_PER_PAGE_OPTIONS,
   };
 
 export const STOCK_OPTIONS: { value: StockFilter; label: string }[] = [

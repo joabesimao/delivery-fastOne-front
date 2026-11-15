@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { useClientPagination } from "@/shared/lib/hooks/useClientPagination";
+import { ROWS_PER_PAGE_OPTIONS } from "@/shared/lib/pagination";
 import { useDebouncedValue } from "@/shared/lib/hooks/useDebouncedValue";
 import ConfirmDialog from "@/shared/ui/dialogs/ConfirmDialog";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
@@ -56,7 +57,6 @@ const UsersPage = () => {
 
   const users = useMemo(() => usersQuery.data ?? [], [usersQuery.data]);
   const { pageItems, paginationProps } = useClientPagination(users, {
-    initialRowsPerPage: 10,
     resetKey: JSON.stringify(params),
   });
 
@@ -180,7 +180,7 @@ const UsersPage = () => {
             <TablePagination
               component="div"
               {...paginationProps}
-              rowsPerPageOptions={[10, 25, 50]}
+              rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
               labelRowsPerPage="Por página"
               labelDisplayedRows={({ from, to, count }) =>
                 `Mostrando ${from} a ${to} de ${count} usuários`

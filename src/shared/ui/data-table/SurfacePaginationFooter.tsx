@@ -1,5 +1,6 @@
 import type { ComponentProps } from "react";
 import { Box, TablePagination, Typography } from "@mui/material";
+import { ROWS_PER_PAGE_OPTIONS } from "@/shared/lib/pagination";
 import { useSurfaceColors } from "@/shared/theme/useSurfaceColors";
 
 export type PaginationProps = Omit<
@@ -32,7 +33,7 @@ const SurfacePaginationFooter = ({
       <TablePagination
         component="div"
         {...paginationProps}
-        rowsPerPageOptions={[5, 10, 25]}
+        rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
         labelRowsPerPage="Linhas por página"
         labelDisplayedRows={({ from, to, count }) =>
           `${from}–${to} de ${count}`

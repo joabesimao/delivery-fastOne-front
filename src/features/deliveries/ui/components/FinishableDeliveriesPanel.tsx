@@ -31,6 +31,7 @@ import FinishStatusChip from "./FinishStatusChip";
 import { FINISH_STATUS_OPTIONS } from "./finishStatus";
 
 import { COLORS } from "@/shared/theme/colors";
+import { ROWS_PER_PAGE_OPTIONS } from "@/shared/lib/pagination";
 interface FinishableDeliveriesPanelProps {
   deliveries: Delivery[];
   loading: boolean;
@@ -215,7 +216,7 @@ const FinishableDeliveriesPanel = ({
       <TablePagination
         component="div"
         {...paginationProps}
-        rowsPerPageOptions={[5, 10, 25]}
+        rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
         labelRowsPerPage="Linhas por página:"
         labelDisplayedRows={({ from, to, count }) =>
           `${from}–${to} de ${count}`

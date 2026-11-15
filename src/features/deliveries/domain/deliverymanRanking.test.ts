@@ -28,7 +28,7 @@ describe("defaultRankingFilters", () => {
       startDate: "2026-02-13",
       endDate: "2026-03-15",
       status: "all",
-      pageSize: 10,
+      pageSize: 50,
     });
   });
 
