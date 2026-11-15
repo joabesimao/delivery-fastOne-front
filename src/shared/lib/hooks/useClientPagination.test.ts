@@ -8,14 +8,16 @@ const numbers = (total: number) => Array.from({ length: total }, (_, i) => i);
 const rowsEvent = (value: string) =>
   ({ target: { value } }) as ChangeEvent<HTMLInputElement>;
 
+const tenPerPage = { initialRowsPerPage: 10 };
+
 describe("useClientPagination", () => {
-  it("retorna a primeira página com 10 itens por padrão", () => {
-    const { result } = renderHook(() => useClientPagination(numbers(25)));
-    expect(result.current.pageItems).toEqual(numbers(10));
+  it("retorna a primeira página com 50 itens por padrão", () => {
+    const { result } = renderHook(() => useClientPagination(numbers(120)));
+    expect(result.current.pageItems).toEqual(numbers(50));
     expect(result.current.paginationProps).toMatchObject({
-      count: 25,
+      count: 120,
       page: 0,
-      rowsPerPage: 10,
+      rowsPerPage: 50,
     });
   });
 
@@ -27,14 +29,18 @@ describe("useClientPagination", () => {
   });
 
   it("navega entre páginas", () => {
-    const { result } = renderHook(() => useClientPagination(numbers(25)));
+    const { result } = renderHook(() =>
+      useClientPagination(numbers(25), tenPerPage),
+    );
     act(() => result.current.paginationProps.onPageChange(null, 2));
     expect(result.current.pageItems).toEqual([20, 21, 22, 23, 24]);
     expect(result.current.paginationProps.page).toBe(2);
   });
 
   it("trocar linhas por página volta para a primeira página", () => {
-    const { result } = renderHook(() => useClientPagination(numbers(25)));
+    const { result } = renderHook(() =>
+      useClientPagination(numbers(25), tenPerPage),
+    );
     act(() => result.current.paginationProps.onPageChange(null, 2));
     act(() =>
       result.current.paginationProps.onRowsPerPageChange(rowsEvent("5")),
@@ -46,7 +52,8 @@ describe("useClientPagination", () => {
 
   it("volta para a primeira página quando resetKey muda", () => {
     const { result, rerender } = renderHook(
-      ({ resetKey }) => useClientPagination(numbers(25), { resetKey }),
+      ({ resetKey }) =>
+        useClientPagination(numbers(25), { ...tenPerPage, resetKey }),
       { initialProps: { resetKey: "a" } },
     );
     act(() => result.current.paginationProps.onPageChange(null, 2));
@@ -56,7 +63,7 @@ describe("useClientPagination", () => {
 
   it("limita a página à última quando a lista encolhe", () => {
     const { result, rerender } = renderHook(
-      ({ items }) => useClientPagination(items),
+      ({ items }) => useClientPagination(items, tenPerPage),
       { initialProps: { items: numbers(25) } },
     );
     act(() => result.current.paginationProps.onPageChange(null, 2));

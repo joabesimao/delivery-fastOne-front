@@ -24,6 +24,7 @@ import {
   type DeliveryDeliveryman,
 } from "../../domain/delivery";
 import DeliveryStatusChip from "./DeliveryStatusChip";
+import { ROWS_PER_PAGE_OPTIONS } from "@/shared/lib/pagination";
 
 interface DeliveriesTableProps {
   deliveries: Delivery[];
@@ -172,7 +173,7 @@ const DeliveriesTable = ({
     <TablePagination
       component="div"
       {...paginationProps}
-      rowsPerPageOptions={[10, 25, 50]}
+      rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
       labelRowsPerPage="Linhas por página"
       labelDisplayedRows={({ from, to, count }) =>
         `Mostrando ${from} a ${to} de ${count} pedidos`

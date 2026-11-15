@@ -51,7 +51,6 @@ const DeliverymenPage = () => {
     [deliverymen, filters],
   );
   const { pageItems, paginationProps } = useClientPagination(filtered, {
-    initialRowsPerPage: 5,
     resetKey: JSON.stringify(filters),
   });
   const registeredDocuments = useMemo(

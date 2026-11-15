@@ -48,7 +48,6 @@ const ClientsPage = () => {
     [clients, filters],
   );
   const { pageItems, paginationProps } = useClientPagination(filtered, {
-    initialRowsPerPage: 5,
     resetKey: JSON.stringify(filters),
   });
 

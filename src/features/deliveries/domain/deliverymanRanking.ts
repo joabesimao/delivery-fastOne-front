@@ -1,4 +1,8 @@
 import { escapeCsvValue } from "@/shared/lib/downloadFile";
+import {
+  DEFAULT_ROWS_PER_PAGE,
+  ROWS_PER_PAGE_OPTIONS,
+} from "@/shared/lib/pagination";
 
 export type RankingStatusFilter = "all" | "delivered" | "finished";
 
@@ -33,9 +37,10 @@ export const RANKING_STATUS_OPTIONS = [
   { value: "finished", label: "Finalizadas" },
 ];
 
-export const RANKING_PAGE_SIZE_OPTIONS = ["5", "10", "20", "50"].map(
-  (value) => ({ value, label: value }),
-);
+export const RANKING_PAGE_SIZE_OPTIONS = ROWS_PER_PAGE_OPTIONS.map((size) => ({
+  value: String(size),
+  label: String(size),
+}));
 
 export const RANKING_EXPORT_PAGE_SIZE = 100;
 
@@ -54,7 +59,7 @@ export const defaultRankingFilters = (): RankingFilters => {
     startDate: toLocalIsoDate(start),
     endDate: toLocalIsoDate(new Date()),
     status: "all",
-    pageSize: 10,
+    pageSize: DEFAULT_ROWS_PER_PAGE,
   };
 };
 
