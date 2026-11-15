@@ -70,18 +70,34 @@ describe("useLogin", () => {
     expect(result.current.loading).toBe(false);
   });
 
-  it("mostra a mensagem do servidor em erro 4xx", async () => {
+  it("rejeita login que não é e-mail sem chamar a API", async () => {
+    const { result } = setup();
+    await act(() => result.current.login({ login: "joao", password: "1" }));
+    expect(result.current.error).toBe(LOGIN_MESSAGES.invalidEmail);
+    expect(authRepository.login).not.toHaveBeenCalled();
+  });
+
+  it("mostra mensagem amigável em credenciais incorretas", async () => {
     vi.mocked(authRepository.login).mockRejectedValue({
-      response: { status: 401, data: { message: "Senha incorreta" } },
+      response: { status: 401, data: { error: "E-mail ou senha incorretos." } },
     });
     const { result } = setup();
     await act(() => result.current.login({ login: "a@b.c", password: "1" }));
-    expect(result.current.error).toBe("Senha incorreta");
+    expect(result.current.error).toBe(LOGIN_MESSAGES.invalid);
     expect(result.current.loading).toBe(false);
   });
 
-  it("mostra indisponibilidade em erro de rede ou 5xx", async () => {
+  it("mostra falta de conexão em erro de rede", async () => {
     vi.mocked(authRepository.login).mockRejectedValue(new Error("network"));
+    const { result } = setup();
+    await act(() => result.current.login({ login: "a@b.c", password: "1" }));
+    expect(result.current.error).toBe(LOGIN_MESSAGES.offline);
+  });
+
+  it("mostra instabilidade em erro 5xx", async () => {
+    vi.mocked(authRepository.login).mockRejectedValue({
+      response: { status: 502 },
+    });
     const { result } = setup();
     await act(() => result.current.login({ login: "a@b.c", password: "1" }));
     expect(result.current.error).toBe(LOGIN_MESSAGES.unavailable);

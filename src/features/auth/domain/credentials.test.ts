@@ -15,13 +15,27 @@ describe("validateCredentials", () => {
     expect(validateCredentials({ login: "   ", password: "x" })).toBe(
       LOGIN_MESSAGES.required,
     );
-    expect(validateCredentials({ login: "a", password: "" })).toBe(
+    expect(validateCredentials({ login: "a@b.com", password: "" })).toBe(
       LOGIN_MESSAGES.required,
     );
   });
 
-  it("aceita credenciais preenchidas", () => {
-    expect(validateCredentials({ login: "a", password: "x" })).toBeNull();
+  it("rejeita login que não é e-mail", () => {
+    for (const login of ["joao", "joao@", "joao@empresa", "jo ao@x.com"]) {
+      expect(validateCredentials({ login, password: "x" })).toBe(
+        LOGIN_MESSAGES.invalidEmail,
+      );
+    }
+  });
+
+  it("aceita e-mail válido, com espaços nas pontas", () => {
+    expect(
+      validateCredentials({ login: " maria@empresa.com ", password: "x" }),
+    ).toBeNull();
+  });
+
+  it("aceita o login admin em qualquer caixa", () => {
+    expect(validateCredentials({ login: " Admin ", password: "x" })).toBeNull();
   });
 });
 
@@ -87,60 +101,62 @@ describe("toSessionData", () => {
 
 describe("LOGIN_MESSAGES", () => {
   it("usa textos acentuados", () => {
-    expect(LOGIN_MESSAGES.rejected).toBe(
-      "Não foi possível autenticar com as credenciais informadas.",
+    expect(LOGIN_MESSAGES.invalid).toBe(
+      "E-mail ou senha incorretos. Confira os dados e tente novamente.",
     );
-    expect(LOGIN_MESSAGES.invalid).toBe("Login ou senha inválidos.");
-    expect(LOGIN_MESSAGES.unavailable).toBe(
-      "Não foi possível conectar ao servidor. Tente novamente.",
+    expect(LOGIN_MESSAGES.rejected).toBe(
+      "Não foi possível entrar. Tente novamente.",
     );
   });
 });
 
 describe("loginErrorMessage", () => {
-  it("indisponível para status 500, com e sem corpo", () => {
-    expect(loginErrorMessage({ response: { status: 500 } })).toBe(
-      LOGIN_MESSAGES.unavailable,
+  const withStatus = (status: number, data?: unknown) => ({
+    response: { status, data },
+  });
+
+  it("credenciais incorretas em 401", () => {
+    expect(loginErrorMessage(withStatus(401))).toBe(LOGIN_MESSAGES.invalid);
+  });
+
+  it("e-mail inválido em 400", () => {
+    expect(loginErrorMessage(withStatus(400))).toBe(
+      LOGIN_MESSAGES.invalidEmail,
     );
-    expect(
-      loginErrorMessage({
-        response: { status: 500, data: { error: "Erro interno" } },
-      }),
-    ).toBe(LOGIN_MESSAGES.unavailable);
   });
 
-  it("usa data.error em respostas 400", () => {
-    expect(
-      loginErrorMessage({ response: { status: 400, data: { error: "X" } } }),
-    ).toBe("X");
+  it("muitas tentativas em 429", () => {
+    expect(loginErrorMessage(withStatus(429))).toBe(
+      LOGIN_MESSAGES.tooManyAttempts,
+    );
   });
 
-  it("prioriza data.error do backend", () => {
-    expect(
-      loginErrorMessage({
-        response: { data: { error: "Bloqueado", message: "outra" } },
-      }),
-    ).toBe("Bloqueado");
+  it("instabilidade em qualquer 5xx", () => {
+    expect(loginErrorMessage(withStatus(500))).toBe(LOGIN_MESSAGES.unavailable);
+    expect(loginErrorMessage(withStatus(503))).toBe(LOGIN_MESSAGES.unavailable);
   });
 
-  it("usa data.message quando não há error", () => {
-    expect(
-      loginErrorMessage({
-        response: { data: { message: "Credenciais ruins" } },
-      }),
-    ).toBe("Credenciais ruins");
+  it("sem conexão quando não há resposta do servidor", () => {
+    expect(loginErrorMessage(new Error("Network Error"))).toBe(
+      LOGIN_MESSAGES.offline,
+    );
+    expect(loginErrorMessage(undefined)).toBe(LOGIN_MESSAGES.offline);
   });
 
-  it("devolve mensagem padrão com 401 sem corpo e indisponível sem resposta ou 5xx", () => {
-    expect(loginErrorMessage({ response: { status: 401 } })).toBe(
+  it("mensagem genérica para status não mapeado", () => {
+    expect(loginErrorMessage(withStatus(403))).toBe(LOGIN_MESSAGES.rejected);
+    expect(loginErrorMessage(withStatus(404))).toBe(LOGIN_MESSAGES.rejected);
+  });
+
+  it("nunca repassa o texto técnico do backend", () => {
+    expect(loginErrorMessage(withStatus(401, { error: "Unauthorized" }))).toBe(
       LOGIN_MESSAGES.invalid,
     );
-    expect(loginErrorMessage(new Error("Network Error"))).toBe(
-      LOGIN_MESSAGES.unavailable,
-    );
-    expect(loginErrorMessage(undefined)).toBe(LOGIN_MESSAGES.unavailable);
-    expect(loginErrorMessage({ response: { status: 503 } })).toBe(
-      LOGIN_MESSAGES.unavailable,
-    );
+    expect(
+      loginErrorMessage(withStatus(400, { error: "Invalid param: email" })),
+    ).toBe(LOGIN_MESSAGES.invalidEmail);
+    expect(
+      loginErrorMessage(withStatus(500, { error: "Internal server error" })),
+    ).toBe(LOGIN_MESSAGES.unavailable);
   });
 });
