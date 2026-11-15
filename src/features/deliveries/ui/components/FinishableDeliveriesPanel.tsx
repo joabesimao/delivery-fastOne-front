@@ -8,6 +8,8 @@ import {
 } from "@mui/material";
 import type { SelectOption } from "@/shared/ui/form/FormSelectField";
 import SearchField from "@/shared/ui/form/SearchField";
+import SortOrderSelect from "@/shared/ui/form/SortOrderSelect";
+import type { SortOrder } from "@/shared/lib/sortOrder";
 import type { DataTableColumn } from "@/shared/ui/data-table/DataTable";
 import SurfaceFilter from "@/shared/ui/data-table/SurfaceFilter";
 import SurfacePanel from "@/shared/ui/data-table/SurfacePanel";
@@ -37,6 +39,8 @@ interface FinishableDeliveriesPanelProps {
   loading: boolean;
   error: string | null;
   filters: FinishableDeliveryFilters;
+  sortOrder: SortOrder;
+  onSortOrderChange: (sortOrder: SortOrder) => void;
   deliverymanOptions: SelectOption[];
   paginationProps: Omit<
     ComponentProps<typeof TablePagination>,
@@ -58,6 +62,8 @@ const FinishableDeliveriesPanel = ({
   loading,
   error,
   filters,
+  sortOrder,
+  onSortOrderChange,
   deliverymanOptions,
   paginationProps,
   onFiltersChange,
@@ -197,6 +203,14 @@ const FinishableDeliveriesPanel = ({
                 ))}
               </Select>
             </FormControl>
+          </SurfaceFilter>
+          <SurfaceFilter label="Ordenar" minWidth={160}>
+            <SortOrderSelect
+              value={sortOrder}
+              onChange={onSortOrderChange}
+              fullWidth
+              inputSx={selectSx}
+            />
           </SurfaceFilter>
         </>
       }

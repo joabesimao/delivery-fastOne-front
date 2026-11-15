@@ -5,6 +5,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { ROUTES } from "@/shared/config/routes";
 import { useClientPagination } from "@/shared/lib/hooks/useClientPagination";
 import { useFiltersFromNavigation } from "@/shared/lib/hooks/useFiltersFromNavigation";
+import { useRecencySort } from "@/shared/lib/hooks/useRecencySort";
 import { getBusyRowId } from "@/shared/lib/query/createCrudQueries";
 import { useSurfaceColors } from "@/shared/theme/useSurfaceColors";
 import ConfirmDialog from "@/shared/ui/dialogs/ConfirmDialog";
@@ -50,8 +51,9 @@ const DeliverymenPage = () => {
     () => filterDeliverymen(deliverymen, filters),
     [deliverymen, filters],
   );
-  const { pageItems, paginationProps } = useClientPagination(filtered, {
-    resetKey: JSON.stringify(filters),
+  const { sorted, sortOrder, setSortOrder } = useRecencySort(filtered);
+  const { pageItems, paginationProps } = useClientPagination(sorted, {
+    resetKey: JSON.stringify({ filters, sortOrder }),
   });
   const registeredDocuments = useMemo(
     () => collectRegisteredDocuments(deliverymen, editing?.id),
@@ -128,6 +130,8 @@ const DeliverymenPage = () => {
             : null
         }
         filters={filters}
+        sortOrder={sortOrder}
+        onSortOrderChange={setSortOrder}
         busyId={getBusyRowId(updateDeliveryman, deleteDeliveryman)}
         paginationProps={paginationProps}
         onFiltersChange={(changes) =>

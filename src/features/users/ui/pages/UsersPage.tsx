@@ -14,6 +14,8 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { useClientPagination } from "@/shared/lib/hooks/useClientPagination";
 import { ROWS_PER_PAGE_OPTIONS } from "@/shared/lib/pagination";
 import { useDebouncedValue } from "@/shared/lib/hooks/useDebouncedValue";
+import { useRecencySort } from "@/shared/lib/hooks/useRecencySort";
+import SortOrderSelect from "@/shared/ui/form/SortOrderSelect";
 import ConfirmDialog from "@/shared/ui/dialogs/ConfirmDialog";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
 import SearchField from "@/shared/ui/form/SearchField";
@@ -56,8 +58,9 @@ const UsersPage = () => {
   const deleteUser = useDeleteUser();
 
   const users = useMemo(() => usersQuery.data ?? [], [usersQuery.data]);
-  const { pageItems, paginationProps } = useClientPagination(users, {
-    resetKey: JSON.stringify(params),
+  const { sorted, sortOrder, setSortOrder } = useRecencySort(users);
+  const { pageItems, paginationProps } = useClientPagination(sorted, {
+    resetKey: JSON.stringify({ params, sortOrder }),
   });
 
   const loading = usersQuery.isPending;
@@ -132,6 +135,12 @@ const UsersPage = () => {
                 </MenuItem>
               ))}
             </TextField>
+            <SortOrderSelect
+              label="Ordenar"
+              value={sortOrder}
+              onChange={setSortOrder}
+              sx={{ minWidth: 180 }}
+            />
             {hasActiveFilters && (
               <Button
                 size="small"

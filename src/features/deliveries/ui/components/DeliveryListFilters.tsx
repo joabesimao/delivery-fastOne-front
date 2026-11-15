@@ -1,5 +1,7 @@
 import { Chip, Grid, Stack } from "@mui/material";
 import SearchField from "@/shared/ui/form/SearchField";
+import SortOrderSelect from "@/shared/ui/form/SortOrderSelect";
+import type { SortOrder } from "@/shared/lib/sortOrder";
 import type {
   DeliveryListFilters as Filters,
   DeliveryProgressFilter,
@@ -14,8 +16,12 @@ interface DeliveryListFiltersProps {
   deliverymen: NamedOption[];
   cities: string[];
   neighborhoods: string[];
+  sortOrder: SortOrder;
   onChange: (changes: Partial<Filters>) => void;
+  onSortOrderChange: (sortOrder: SortOrder) => void;
 }
+
+const GRID_ITEM_SIZE = { xs: 12, sm: 6, md: 3 };
 
 const PROGRESS_CHIPS: { value: DeliveryProgressFilter; label: string }[] = [
   { value: "all", label: "Todos" },
@@ -33,7 +39,9 @@ const DeliveryListFilters = ({
   deliverymen,
   cities,
   neighborhoods,
+  sortOrder,
   onChange,
+  onSortOrderChange,
 }: DeliveryListFiltersProps) => (
   <>
     <Stack
@@ -65,7 +73,7 @@ const DeliveryListFilters = ({
     </Stack>
 
     <Grid container spacing={1.5}>
-      <Grid size={{ xs: 12, sm: 4 }}>
+      <Grid size={GRID_ITEM_SIZE}>
         <FilterSelect
           label="Entregador"
           allLabel="Todos os entregadores"
@@ -77,7 +85,7 @@ const DeliveryListFilters = ({
           onChange={(deliverymanId) => onChange({ deliverymanId })}
         />
       </Grid>
-      <Grid size={{ xs: 12, sm: 4 }}>
+      <Grid size={GRID_ITEM_SIZE}>
         <FilterSelect
           label="Cidade"
           allLabel="Todas as cidades"
@@ -86,13 +94,21 @@ const DeliveryListFilters = ({
           onChange={(city) => onChange({ city })}
         />
       </Grid>
-      <Grid size={{ xs: 12, sm: 4 }}>
+      <Grid size={GRID_ITEM_SIZE}>
         <FilterSelect
           label="Bairro"
           allLabel="Todos os bairros"
           value={filters.neighborhood}
           options={toOptions(neighborhoods)}
           onChange={(neighborhood) => onChange({ neighborhood })}
+        />
+      </Grid>
+      <Grid size={GRID_ITEM_SIZE}>
+        <SortOrderSelect
+          label="Ordenar"
+          value={sortOrder}
+          onChange={onSortOrderChange}
+          fullWidth
         />
       </Grid>
     </Grid>

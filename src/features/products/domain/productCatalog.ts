@@ -10,7 +10,8 @@ import type { Product } from "./product";
 
 export type ProductViewMode = "cards" | "tabela";
 export type StockFilter = "all" | "in" | "low";
-export type ProductSortOption = "recent" | "name" | "priceAsc" | "priceDesc";
+export type ProductSortOption =
+  "recent" | "oldest" | "name" | "priceAsc" | "priceDesc";
 
 export const ALL_CATEGORIES = "all";
 export const CATALOG_SAMPLE_LIMIT = 100;
@@ -63,6 +64,7 @@ export const STOCK_OPTIONS: { value: StockFilter; label: string }[] = [
 
 export const SORT_OPTIONS: { value: ProductSortOption; label: string }[] = [
   { value: "recent", label: "Mais Recentes" },
+  { value: "oldest", label: "Mais Antigos" },
   { value: "name", label: "Nome (A-Z)" },
   { value: "priceAsc", label: "Menor Preço" },
   { value: "priceDesc", label: "Maior Preço" },
@@ -104,6 +106,7 @@ export const toProductListParams = ({
 
 const SORTERS: Record<ProductSortOption, (a: Product, b: Product) => number> = {
   recent: (a, b) => b.id - a.id,
+  oldest: (a, b) => a.id - b.id,
   name: (a, b) => a.name.localeCompare(b.name),
   priceAsc: (a, b) => Number(a.price) - Number(b.price),
   priceDesc: (a, b) => Number(b.price) - Number(a.price),

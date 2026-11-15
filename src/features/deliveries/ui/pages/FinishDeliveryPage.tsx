@@ -4,6 +4,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { deliverymanFullName, useDeliverymen } from "@/features/deliverymen";
 import { useClientPagination } from "@/shared/lib/hooks/useClientPagination";
 import { useConsumedLocationState } from "@/shared/lib/hooks/useConsumedLocationState";
+import { useRecencySort } from "@/shared/lib/hooks/useRecencySort";
 import { useSurfaceColors } from "@/shared/theme/useSurfaceColors";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
 import FormSectionTitle from "@/shared/ui/form/FormSectionTitle";
@@ -48,8 +49,9 @@ const FinishDeliveryPage = () => {
     () => filterFinishableDeliveries(deliveries, filters),
     [deliveries, filters],
   );
-  const { pageItems, paginationProps } = useClientPagination(filtered, {
-    resetKey: JSON.stringify(filters),
+  const { sorted, sortOrder, setSortOrder } = useRecencySort(filtered);
+  const { pageItems, paginationProps } = useClientPagination(sorted, {
+    resetKey: JSON.stringify({ filters, sortOrder }),
   });
   const deliverymanOptions = useMemo(
     () =>
@@ -156,6 +158,8 @@ const FinishDeliveryPage = () => {
             : null
         }
         filters={filters}
+        sortOrder={sortOrder}
+        onSortOrderChange={setSortOrder}
         deliverymanOptions={deliverymanOptions}
         paginationProps={paginationProps}
         onFiltersChange={(changes) =>

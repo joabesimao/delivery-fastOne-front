@@ -15,6 +15,8 @@ import SurfacePaginationFooter, {
 import SurfacePanel from "@/shared/ui/data-table/SurfacePanel";
 import SurfaceTable from "@/shared/ui/data-table/SurfaceTable";
 import SearchField from "@/shared/ui/form/SearchField";
+import SortOrderSelect from "@/shared/ui/form/SortOrderSelect";
+import type { SortOrder } from "@/shared/lib/sortOrder";
 import {
   ALL_CLIENTS,
   hasClientFilters,
@@ -32,9 +34,11 @@ interface ClientsPanelProps {
   loading: boolean;
   error: string | null;
   filters: ClientFilters;
+  sortOrder: SortOrder;
   busyId: number | null;
   paginationProps: PaginationProps;
   onFiltersChange: (changes: Partial<ClientFilters>) => void;
+  onSortOrderChange: (sortOrder: SortOrder) => void;
   onView: (client: Client) => void;
   onEdit: (client: Client) => void;
   onToggleActive: (client: Client) => void;
@@ -47,9 +51,11 @@ const ClientsPanel = ({
   loading,
   error,
   filters,
+  sortOrder,
   busyId,
   paginationProps,
   onFiltersChange,
+  onSortOrderChange,
   onView,
   onEdit,
   onToggleActive,
@@ -204,6 +210,14 @@ const ClientsPanel = ({
                 <MenuItem value="inactive">Inativo</MenuItem>
               </Select>
             </FormControl>
+          </SurfaceFilter>
+          <SurfaceFilter label="Ordenar" minWidth={160}>
+            <SortOrderSelect
+              value={sortOrder}
+              onChange={onSortOrderChange}
+              fullWidth
+              inputSx={selectSx}
+            />
           </SurfaceFilter>
         </>
       }
