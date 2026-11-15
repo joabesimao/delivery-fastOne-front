@@ -5,6 +5,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { ROUTES } from "@/shared/config/routes";
 import { useClientPagination } from "@/shared/lib/hooks/useClientPagination";
 import { useFiltersFromNavigation } from "@/shared/lib/hooks/useFiltersFromNavigation";
+import { useRecencySort } from "@/shared/lib/hooks/useRecencySort";
 import { useSurfaceColors } from "@/shared/theme/useSurfaceColors";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
 import { useToast } from "@/shared/ui/feedback/useToast";
@@ -47,8 +48,9 @@ const ClientsPage = () => {
     () => filterClients(clients, filters),
     [clients, filters],
   );
-  const { pageItems, paginationProps } = useClientPagination(filtered, {
-    resetKey: JSON.stringify(filters),
+  const { sorted, sortOrder, setSortOrder } = useRecencySort(filtered);
+  const { pageItems, paginationProps } = useClientPagination(sorted, {
+    resetKey: JSON.stringify({ filters, sortOrder }),
   });
 
   const busyId =
@@ -132,6 +134,8 @@ const ClientsPage = () => {
           clientsQuery.isError ? "Erro ao carregar a lista de clientes." : null
         }
         filters={filters}
+        sortOrder={sortOrder}
+        onSortOrderChange={setSortOrder}
         busyId={busyId}
         paginationProps={paginationProps}
         onFiltersChange={(changes) =>

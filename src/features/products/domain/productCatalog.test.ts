@@ -111,6 +111,12 @@ describe("visibleProducts", () => {
     ]);
   });
 
+  it("oldest ordena por id crescente", () => {
+    expect(visibleProducts(list, "all", "oldest").map((p) => p.id)).toEqual([
+      1, 5, 10,
+    ]);
+  });
+
   it("name ordena alfabeticamente", () => {
     expect(visibleProducts(list, "all", "name").map((p) => p.name)).toEqual([
       "Alface",

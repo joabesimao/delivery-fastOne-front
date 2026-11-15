@@ -4,6 +4,7 @@ import { Alert, Box, Button, CircularProgress, Stack } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { ROUTES } from "@/shared/config/routes";
 import { useClientPagination } from "@/shared/lib/hooks/useClientPagination";
+import { useRecencySort } from "@/shared/lib/hooks/useRecencySort";
 import { useConsumedLocationState } from "@/shared/lib/hooks/useConsumedLocationState";
 import { useFiltersFromNavigation } from "@/shared/lib/hooks/useFiltersFromNavigation";
 import BorderedCard from "@/shared/ui/layout/BorderedCard";
@@ -75,8 +76,9 @@ const DeliveriesPage = () => {
   );
   const activeCount = countActiveDeliveries(deliveries);
 
-  const { pageItems, paginationProps } = useClientPagination(filtered, {
-    resetKey: JSON.stringify(filters),
+  const { sorted, sortOrder, setSortOrder } = useRecencySort(filtered);
+  const { pageItems, paginationProps } = useClientPagination(sorted, {
+    resetKey: JSON.stringify({ filters, sortOrder }),
   });
 
   const detailDelivery = deliveries.find((d) => d.id === detailId) ?? null;
@@ -141,7 +143,9 @@ const DeliveriesPage = () => {
             deliverymen={deliverymen}
             cities={cities}
             neighborhoods={neighborhoods}
+            sortOrder={sortOrder}
             onChange={changeFilters}
+            onSortOrderChange={setSortOrder}
           />
 
           {deliveriesQuery.isError && (

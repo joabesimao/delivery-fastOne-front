@@ -13,6 +13,8 @@ import SurfacePaginationFooter, {
 import SurfacePanel from "@/shared/ui/data-table/SurfacePanel";
 import SurfaceTable from "@/shared/ui/data-table/SurfaceTable";
 import SearchField from "@/shared/ui/form/SearchField";
+import SortOrderSelect from "@/shared/ui/form/SortOrderSelect";
+import type { SortOrder } from "@/shared/lib/sortOrder";
 import {
   deliverymanFullName,
   type Deliveryman,
@@ -26,9 +28,11 @@ interface DeliverymenPanelProps {
   loading: boolean;
   error: string | null;
   filters: DeliverymanFilters;
+  sortOrder: SortOrder;
   busyId: number | null;
   paginationProps: PaginationProps;
   onFiltersChange: (changes: Partial<DeliverymanFilters>) => void;
+  onSortOrderChange: (sortOrder: SortOrder) => void;
   onView: (deliveryman: Deliveryman) => void;
   onEdit: (deliveryman: Deliveryman) => void;
   onDelete: (deliveryman: Deliveryman) => void;
@@ -40,9 +44,11 @@ const DeliverymenPanel = ({
   loading,
   error,
   filters,
+  sortOrder,
   busyId,
   paginationProps,
   onFiltersChange,
+  onSortOrderChange,
   onView,
   onEdit,
   onDelete,
@@ -127,6 +133,18 @@ const DeliverymenPanel = ({
               onChange={(phone) => onFiltersChange({ phone })}
               clearable
               sx={inputSx}
+            />
+          </SurfaceFilter>
+          <SurfaceFilter label="Ordenar" minWidth={160}>
+            <SortOrderSelect
+              value={sortOrder}
+              onChange={onSortOrderChange}
+              fullWidth
+              inputSx={{
+                borderRadius: 2,
+                bgcolor: colors.inputBg,
+                fontSize: 13,
+              }}
             />
           </SurfaceFilter>
         </>
