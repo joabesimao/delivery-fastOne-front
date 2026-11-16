@@ -3,8 +3,8 @@ import { API_BASE_URL } from "../config/env";
 import { session } from "../session/session";
 
 const TOKEN_HEADER = "x-access-token";
-const REFRESH_ENDPOINTS = ["/refresh-token", "/refreshToken", "/refresh"];
-const AUTH_ROUTE_PATTERN = /\/login|\/refresh-token|\/refreshToken|\/refresh$/;
+const REFRESH_ENDPOINT = "/refresh-token";
+const AUTH_ROUTE_PATTERN = /\/login|\/refresh-token/;
 const PUBLIC_PATHS = ["/", "/login"];
 
 const httpClient = axios.create({ baseURL: API_BASE_URL });
@@ -26,23 +26,17 @@ const requestNewAccessToken = async (): Promise<string | null> => {
   const refreshToken = session.getRefreshToken();
   if (!refreshToken) return null;
 
-  for (const endpoint of REFRESH_ENDPOINTS) {
-    try {
-      const { data } = await axios.post<{
-        accessToken?: string;
-        refreshToken?: string;
-      }>(`${API_BASE_URL}${endpoint}`, { refreshToken });
-
-      if (data?.accessToken) {
-        session.updateTokens(data.accessToken, data.refreshToken);
-        return data.accessToken;
-      }
-    } catch {
-      continue;
-    }
+  try {
+    const { data } = await axios.post<{
+      accessToken?: string;
+      refreshToken?: string;
+    }>(`${API_BASE_URL}${REFRESH_ENDPOINT}`, { refreshToken });
+    if (!data?.accessToken) return null;
+    session.updateTokens(data.accessToken, data.refreshToken);
+    return data.accessToken;
+  } catch {
+    return null;
   }
-
-  return null;
 };
 
 const isDemoToken = (): boolean => {
@@ -66,14 +60,15 @@ httpClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config as
-      | (InternalAxiosRequestConfig & { _retry?: boolean })
-      | undefined;
+      (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
     const status = error?.response?.status;
-    const isAuthRoute = AUTH_ROUTE_PATTERN.test(String(originalRequest?.url ?? ""));
+    const isAuthRoute = AUTH_ROUTE_PATTERN.test(
+      String(originalRequest?.url ?? ""),
+    );
 
     if (
       !originalRequest ||
-      (status !== 401 && status !== 403) ||
+      status !== 401 ||
       originalRequest._retry ||
       isAuthRoute ||
       isDemoToken()
