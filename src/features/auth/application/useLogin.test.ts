@@ -70,6 +70,23 @@ describe("useLogin", () => {
     expect(result.current.loading).toBe(false);
   });
 
+  it("bloqueia o entregador no web sem iniciar a sessão", async () => {
+    vi.mocked(authRepository.login).mockResolvedValue({
+      accessToken: "tok",
+      refreshToken: "ref",
+      name: "João",
+      role: "entregador",
+    });
+    const { result } = setup();
+    await act(() =>
+      result.current.login({ login: "joao@x.com", password: "1" }),
+    );
+    expect(result.current.error).toBe(LOGIN_MESSAGES.deliverymanUseApp);
+    expect(session.start).not.toHaveBeenCalled();
+    expect(onAuthenticated).not.toHaveBeenCalled();
+    expect(result.current.loading).toBe(false);
+  });
+
   it("rejeita login que não é e-mail sem chamar a API", async () => {
     const { result } = setup();
     await act(() => result.current.login({ login: "joao", password: "1" }));

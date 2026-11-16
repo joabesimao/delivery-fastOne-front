@@ -2,6 +2,7 @@ import { useState } from "react";
 import { session } from "@/shared/session/session";
 import {
   LOGIN_MESSAGES,
+  isDeliveryman,
   loginErrorMessage,
   toLoginEmail,
   toSessionData,
@@ -30,6 +31,10 @@ export const useLogin = (onAuthenticated: () => void) => {
       );
       if (!result.accessToken) {
         setError(LOGIN_MESSAGES.rejected);
+        return;
+      }
+      if (isDeliveryman(result.role)) {
+        setError(LOGIN_MESSAGES.deliverymanUseApp);
         return;
       }
       session.start(
