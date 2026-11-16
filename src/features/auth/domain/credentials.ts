@@ -14,6 +14,7 @@ export interface LoginResult {
 
 const ADMIN_LOGIN = "admin";
 const ADMIN_TECH_EMAIL = "admin@fastone.local";
+const DELIVERYMAN_ROLE = "entregador";
 
 export const DEFAULT_CREDENTIALS: LoginCredentials = {
   login: import.meta.env.VITE_DEFAULT_LOGIN ?? ADMIN_LOGIN,
@@ -31,6 +32,8 @@ export const LOGIN_MESSAGES = {
   unavailable:
     "O sistema está instável no momento. Tente novamente em alguns instantes.",
   rejected: "Não foi possível entrar. Tente novamente.",
+  deliverymanUseApp:
+    "O acesso de entregadores é feito pelo aplicativo FastOne no celular.",
 } as const;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -95,3 +98,6 @@ export const loginErrorMessage = (error: unknown): string => {
   if (status >= 500) return LOGIN_MESSAGES.unavailable;
   return MESSAGES_BY_STATUS[status] ?? LOGIN_MESSAGES.rejected;
 };
+
+export const isDeliveryman = (role?: string): boolean =>
+  role === DELIVERYMAN_ROLE;

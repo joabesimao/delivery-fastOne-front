@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   LOGIN_MESSAGES,
+  isDeliveryman,
   loginErrorMessage,
   toLoginEmail,
   toSessionData,
@@ -96,6 +97,18 @@ describe("toSessionData", () => {
     expect(session.refreshToken).toBe(
       `static-refresh-${Date.parse("2024-05-10T12:00:00Z")}`,
     );
+  });
+});
+
+describe("isDeliveryman", () => {
+  it("identifica o perfil entregador", () => {
+    expect(isDeliveryman("entregador")).toBe(true);
+  });
+
+  it("não bloqueia os demais perfis nem papel ausente", () => {
+    for (const role of ["admin", "gerente_estoque", "user", undefined]) {
+      expect(isDeliveryman(role)).toBe(false);
+    }
   });
 });
 
