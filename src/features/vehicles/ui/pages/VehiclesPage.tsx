@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useDeliverymen } from "@/features/deliverymen";
 import { ROUTES } from "@/shared/config/routes";
 import { getBusyRowId } from "@/shared/lib/query/createCrudQueries";
+import { MANAGER_ROLES } from "@/shared/session/roles";
+import { session } from "@/shared/session/session";
 import SectionHeader from "@/shared/ui/SectionHeader";
 import ConfirmDialog from "@/shared/ui/dialogs/ConfirmDialog";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
@@ -29,6 +31,7 @@ import VehicleTable from "../components/VehicleTable";
 const VehiclesPage = () => {
   const navigate = useNavigate();
   const runWithFeedback = useActionFeedback();
+  const canDelete = session.hasRole(MANAGER_ROLES);
 
   const vehiclesQuery = useVehicles();
   const deliverymen = useDeliverymen().data ?? [];
@@ -107,7 +110,7 @@ const VehiclesPage = () => {
           }
           busyVehicleId={busyVehicleId}
           onEdit={setEditing}
-          onDelete={setDeleting}
+          onDelete={canDelete ? setDeleting : undefined}
         />
       </Box>
 

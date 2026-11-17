@@ -15,6 +15,8 @@ import { ROUTES } from "@/shared/config/routes";
 import { downloadTextFile } from "@/shared/lib/downloadFile";
 import { useDebouncedValue } from "@/shared/lib/hooks/useDebouncedValue";
 import { useResettablePage } from "@/shared/lib/hooks/useResettablePage";
+import { ADMIN_ROLES } from "@/shared/session/roles";
+import { session } from "@/shared/session/session";
 import ConfirmDialog from "@/shared/ui/dialogs/ConfirmDialog";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
 import BorderedCard from "@/shared/ui/layout/BorderedCard";
@@ -57,6 +59,7 @@ const EMPTY_FILTERS: ProductFilters = {
 const ProductsPage = () => {
   const navigate = useNavigate();
   const runWithFeedback = useActionFeedback();
+  const canDelete = session.hasRole(ADMIN_ROLES);
 
   const [filters, setFilters] = useState<ProductFilters>(EMPTY_FILTERS);
   const [stock, setStock] = useState<StockFilter>("all");
@@ -235,7 +238,7 @@ const ProductsPage = () => {
               products={visible}
               busyId={busyId}
               onEdit={setEditing}
-              onDelete={setDeleting}
+              onDelete={canDelete ? setDeleting : undefined}
             />
           )}
 

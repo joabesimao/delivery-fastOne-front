@@ -1,4 +1,6 @@
-export const FLEET_MANAGER_ROLES = ["admin", "gerente_estoque"] as const;
+import { MANAGER_ROLES } from "@/shared/session/roles";
+
+export const FLEET_MANAGER_ROLES = MANAGER_ROLES;
 
 export interface VehicleRef {
   plate: string;

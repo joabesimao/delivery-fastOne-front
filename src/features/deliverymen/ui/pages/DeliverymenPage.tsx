@@ -7,6 +7,8 @@ import { useClientPagination } from "@/shared/lib/hooks/useClientPagination";
 import { useFiltersFromNavigation } from "@/shared/lib/hooks/useFiltersFromNavigation";
 import { useRecencySort } from "@/shared/lib/hooks/useRecencySort";
 import { getBusyRowId } from "@/shared/lib/query/createCrudQueries";
+import { ADMIN_ROLES } from "@/shared/session/roles";
+import { session } from "@/shared/session/session";
 import { useSurfaceColors } from "@/shared/theme/useSurfaceColors";
 import ConfirmDialog from "@/shared/ui/dialogs/ConfirmDialog";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
@@ -31,6 +33,7 @@ const DeliverymenPage = () => {
   const navigate = useNavigate();
   const colors = useSurfaceColors();
   const runWithFeedback = useActionFeedback();
+  const canManage = session.hasRole(ADMIN_ROLES);
 
   const deliverymenQuery = useDeliverymen();
   const updateDeliveryman = useUpdateDeliveryman();
@@ -103,21 +106,23 @@ const DeliverymenPage = () => {
         >
           Gerenciar entregadores
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<PersonAddIcon />}
-          onClick={() => navigate(ROUTES.registerDeliveryman)}
-          sx={{
-            bgcolor: COLORS.info,
-            "&:hover": { bgcolor: COLORS.infoHover },
-            textTransform: "none",
-            borderRadius: 2,
-            fontWeight: 600,
-            fontSize: 13,
-          }}
-        >
-          Cadastrar entregador
-        </Button>
+        {canManage && (
+          <Button
+            variant="contained"
+            startIcon={<PersonAddIcon />}
+            onClick={() => navigate(ROUTES.registerDeliveryman)}
+            sx={{
+              bgcolor: COLORS.info,
+              "&:hover": { bgcolor: COLORS.infoHover },
+              textTransform: "none",
+              borderRadius: 2,
+              fontWeight: 600,
+              fontSize: 13,
+            }}
+          >
+            Cadastrar entregador
+          </Button>
+        )}
       </Box>
 
       <DeliverymenPanel
@@ -138,8 +143,8 @@ const DeliverymenPage = () => {
           setFilters((current) => ({ ...current, ...changes }))
         }
         onView={setViewing}
-        onEdit={setEditing}
-        onDelete={setDeleting}
+        onEdit={canManage ? setEditing : undefined}
+        onDelete={canManage ? setDeleting : undefined}
       />
 
       <DeliverymanDetailsDialog

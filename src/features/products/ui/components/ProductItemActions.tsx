@@ -5,7 +5,7 @@ import EditRoundedIcon from "@mui/icons-material/EditRounded";
 interface ProductItemActionsProps {
   busy: boolean;
   onEdit: () => void;
-  onDelete: () => void;
+  onDelete?: () => void;
 }
 
 const ProductItemActions = ({
@@ -19,15 +19,17 @@ const ProductItemActions = ({
         <EditRoundedIcon fontSize="small" />
       </IconButton>
     </Tooltip>
-    <Tooltip title="Excluir">
-      <IconButton size="small" onClick={onDelete} disabled={busy}>
-        {busy ? (
-          <CircularProgress size={16} />
-        ) : (
-          <DeleteRoundedIcon fontSize="small" color="error" />
-        )}
-      </IconButton>
-    </Tooltip>
+    {onDelete && (
+      <Tooltip title="Excluir">
+        <IconButton size="small" onClick={onDelete} disabled={busy}>
+          {busy ? (
+            <CircularProgress size={16} />
+          ) : (
+            <DeleteRoundedIcon fontSize="small" color="error" />
+          )}
+        </IconButton>
+      </Tooltip>
+    )}
   </>
 );
 

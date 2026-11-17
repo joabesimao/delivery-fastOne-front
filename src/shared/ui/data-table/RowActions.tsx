@@ -7,7 +7,7 @@ import ActionIconButton from "./ActionIconButton";
 
 import { COLORS } from "@/shared/theme/colors";
 interface RowActionsProps {
-  onEdit: () => void;
+  onEdit?: () => void;
   onDelete?: () => void;
   onView?: () => void;
   disabled?: boolean;
@@ -41,14 +41,16 @@ const RowActions = ({
           }
         />
       )}
-      <ActionIconButton
-        title="Editar"
-        disabled={disabled}
-        onClick={onEdit}
-        color={COLORS.warning}
-        hoverColor={COLORS.warningHover}
-        icon={<EditIcon sx={WHITE_ICON} />}
-      />
+      {onEdit && (
+        <ActionIconButton
+          title="Editar"
+          disabled={disabled}
+          onClick={onEdit}
+          color={COLORS.warning}
+          hoverColor={COLORS.warningHover}
+          icon={<EditIcon sx={WHITE_ICON} />}
+        />
+      )}
       {onDelete && (
         <ActionIconButton
           title="Deletar"

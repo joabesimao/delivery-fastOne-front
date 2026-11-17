@@ -34,8 +34,8 @@ interface DeliverymenPanelProps {
   onFiltersChange: (changes: Partial<DeliverymanFilters>) => void;
   onSortOrderChange: (sortOrder: SortOrder) => void;
   onView: (deliveryman: Deliveryman) => void;
-  onEdit: (deliveryman: Deliveryman) => void;
-  onDelete: (deliveryman: Deliveryman) => void;
+  onEdit?: (deliveryman: Deliveryman) => void;
+  onDelete?: (deliveryman: Deliveryman) => void;
 }
 
 const DeliverymenPanel = ({
@@ -100,8 +100,8 @@ const DeliverymenPanel = ({
         <RowActions
           disabled={busyId === d.id}
           onView={() => onView(d)}
-          onEdit={() => onEdit(d)}
-          onDelete={() => onDelete(d)}
+          onEdit={onEdit && (() => onEdit(d))}
+          onDelete={onDelete && (() => onDelete(d))}
         />
       ),
     },

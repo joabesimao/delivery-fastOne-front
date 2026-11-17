@@ -60,7 +60,7 @@ const ProductTable = ({
               <ProductItemActions
                 busy={busyId === product.id}
                 onEdit={() => onEdit(product)}
-                onDelete={() => onDelete(product)}
+                onDelete={onDelete && (() => onDelete(product))}
               />
             </TableCell>
           </TableRow>

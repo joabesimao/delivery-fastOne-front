@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { FLEET_MANAGER_ROLES } from "@/features/fleet";
 import { HOME_ROUTE, ROUTES } from "@/shared/config/routes";
+import { ADMIN_ROLES } from "@/shared/session/roles";
 import PageLoader from "@/shared/ui/PageLoader";
 import LocationsLayout from "../layout/LocationsLayout";
 import ProtectedLayout from "../layout/ProtectedLayout";
@@ -99,8 +100,6 @@ const ChatPage = lazy(() =>
   import("@/features/chat").then((m) => ({ default: m.ChatPage })),
 );
 
-const ADMIN_ONLY = ["admin"] as const;
-
 export const router = createBrowserRouter([
   {
     element: <PublicOnlyRoute />,
@@ -124,7 +123,7 @@ export const router = createBrowserRouter([
           { path: ROUTES.clients, element: <ClientsPage /> },
           { path: ROUTES.products, element: <ProductsPage /> },
           {
-            element: <RequireRole roles={ADMIN_ONLY} />,
+            element: <RequireRole roles={ADMIN_ROLES} />,
             children: [{ path: ROUTES.users, element: <UsersPage /> }],
           },
           { path: ROUTES.finishDelivery, element: <FinishDeliveryPage /> },
@@ -138,8 +137,13 @@ export const router = createBrowserRouter([
           { path: ROUTES.registerClient, element: <RegisterClientPage /> },
           { path: ROUTES.registerProduct, element: <RegisterProductPage /> },
           {
-            path: ROUTES.registerDeliveryman,
-            element: <RegisterDeliverymanPage />,
+            element: <RequireRole roles={ADMIN_ROLES} />,
+            children: [
+              {
+                path: ROUTES.registerDeliveryman,
+                element: <RegisterDeliverymanPage />,
+              },
+            ],
           },
           {
             element: <LocationsLayout />,
