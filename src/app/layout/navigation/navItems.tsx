@@ -7,7 +7,6 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import DirectionsCarOutlinedIcon from "@mui/icons-material/DirectionsCarOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
-import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import LocalGasStationOutlinedIcon from "@mui/icons-material/LocalGasStationOutlined";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
@@ -77,11 +76,6 @@ export const buildNavItems = (
     path: ROUTES.fuelRefills,
     icon: <LocalGasStationOutlinedIcon fontSize="small" />,
     activePaths: [ROUTES.registerFuelRefill],
-  },
-  {
-    label: "Produtos",
-    path: ROUTES.products,
-    icon: <Inventory2OutlinedIcon fontSize="small" />,
   },
   {
     label: "Localidades",

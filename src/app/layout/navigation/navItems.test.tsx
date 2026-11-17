@@ -24,6 +24,14 @@ describe("buildNavItems", () => {
     },
   );
 
+  it.each(["admin", "gerente_estoque", "user", null])(
+    "não mostra Produtos para %s",
+    (role) => {
+      const items = buildNavItems(role, 0);
+      expect(items.some((item) => item.path === ROUTES.products)).toBe(false);
+    },
+  );
+
   it.each(["entregador", "user", null])(
     "esconde Configurações de Frota para %s",
     (role) => {
