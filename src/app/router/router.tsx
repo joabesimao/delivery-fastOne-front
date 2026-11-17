@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { FLEET_MANAGER_ROLES } from "@/features/fleet";
 import { HOME_ROUTE, ROUTES } from "@/shared/config/routes";
 import { ADMIN_ROLES } from "@/shared/session/roles";
+import MaintenancePage from "@/shared/ui/MaintenancePage";
 import PageLoader from "@/shared/ui/PageLoader";
 import LocationsLayout from "../layout/LocationsLayout";
 import ProtectedLayout from "../layout/ProtectedLayout";
@@ -16,9 +17,6 @@ const DashboardPage = lazy(() =>
 );
 const ClientsPage = lazy(() =>
   import("@/features/clients").then((m) => ({ default: m.ClientsPage })),
-);
-const ProductsPage = lazy(() =>
-  import("@/features/products").then((m) => ({ default: m.ProductsPage })),
 );
 const UsersPage = lazy(() =>
   import("@/features/users").then((m) => ({ default: m.UsersPage })),
@@ -48,11 +46,6 @@ const DeliverymenPage = lazy(() =>
 );
 const RegisterClientPage = lazy(() =>
   import("@/features/clients").then((m) => ({ default: m.RegisterClientPage })),
-);
-const RegisterProductPage = lazy(() =>
-  import("@/features/products").then((m) => ({
-    default: m.RegisterProductPage,
-  })),
 );
 const RegisterDeliverymanPage = lazy(() =>
   import("@/features/deliverymen").then((m) => ({
@@ -121,7 +114,10 @@ export const router = createBrowserRouter([
           { path: ROUTES.dashboard, element: <DashboardPage /> },
           { path: ROUTES.dashboardReports, element: <DashboardPage /> },
           { path: ROUTES.clients, element: <ClientsPage /> },
-          { path: ROUTES.products, element: <ProductsPage /> },
+          {
+            path: ROUTES.products,
+            element: <MaintenancePage moduleName="Produtos" />,
+          },
           {
             element: <RequireRole roles={ADMIN_ROLES} />,
             children: [{ path: ROUTES.users, element: <UsersPage /> }],
@@ -135,7 +131,10 @@ export const router = createBrowserRouter([
           { path: ROUTES.deliveries, element: <DeliveriesPage /> },
           { path: ROUTES.deliverymen, element: <DeliverymenPage /> },
           { path: ROUTES.registerClient, element: <RegisterClientPage /> },
-          { path: ROUTES.registerProduct, element: <RegisterProductPage /> },
+          {
+            path: ROUTES.registerProduct,
+            element: <MaintenancePage moduleName="Produtos" />,
+          },
           {
             element: <RequireRole roles={ADMIN_ROLES} />,
             children: [
