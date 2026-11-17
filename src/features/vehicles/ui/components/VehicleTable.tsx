@@ -18,7 +18,7 @@ interface VehicleTableProps {
   error: string | null;
   busyVehicleId: number | null;
   onEdit: (vehicle: Vehicle) => void;
-  onDelete: (vehicle: Vehicle) => void;
+  onDelete?: (vehicle: Vehicle) => void;
 }
 
 const VehicleTable = ({
@@ -61,7 +61,7 @@ const VehicleTable = ({
         <RowActions
           disabled={busyVehicleId === v.id}
           onEdit={() => onEdit(v)}
-          onDelete={() => onDelete(v)}
+          onDelete={onDelete && (() => onDelete(v))}
         />
       ),
     },

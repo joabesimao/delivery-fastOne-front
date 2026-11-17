@@ -3,6 +3,8 @@ import { Box } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { useCities } from "@/features/cities";
 import { getBusyRowId } from "@/shared/lib/query/createCrudQueries";
+import { ADMIN_ROLES } from "@/shared/session/roles";
+import { session } from "@/shared/session/session";
 import SectionHeader from "@/shared/ui/SectionHeader";
 import ConfirmDialog from "@/shared/ui/dialogs/ConfirmDialog";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
@@ -26,6 +28,7 @@ import NeighborhoodTable from "../components/NeighborhoodTable";
 
 const NeighborhoodsPage = () => {
   const runWithFeedback = useActionFeedback();
+  const canDelete = session.hasRole(ADMIN_ROLES);
 
   const neighborhoodsQuery = useNeighborhoods();
   const cities = useCities().data ?? [];
@@ -104,7 +107,7 @@ const NeighborhoodsPage = () => {
             deleteNeighborhood,
           )}
           onEdit={setEditing}
-          onDelete={setDeleting}
+          onDelete={canDelete ? setDeleting : undefined}
         />
       </Box>
 

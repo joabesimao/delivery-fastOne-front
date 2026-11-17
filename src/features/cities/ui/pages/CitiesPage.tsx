@@ -4,6 +4,8 @@ import LocationCityIcon from "@mui/icons-material/LocationCity";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/shared/config/routes";
 import { getBusyRowId } from "@/shared/lib/query/createCrudQueries";
+import { ADMIN_ROLES } from "@/shared/session/roles";
+import { session } from "@/shared/session/session";
 import SectionHeader from "@/shared/ui/SectionHeader";
 import ConfirmDialog from "@/shared/ui/dialogs/ConfirmDialog";
 import { useActionFeedback } from "@/shared/ui/feedback/useActionFeedback";
@@ -24,6 +26,7 @@ import CityTable from "../components/CityTable";
 const CitiesPage = () => {
   const navigate = useNavigate();
   const runWithFeedback = useActionFeedback();
+  const canDelete = session.hasRole(ADMIN_ROLES);
 
   const citiesQuery = useCities();
   const createCity = useCreateCity();
@@ -99,7 +102,7 @@ const CitiesPage = () => {
           }
           busyCityId={getBusyRowId(updateCity, deleteCity)}
           onEdit={setEditing}
-          onDelete={setDeleting}
+          onDelete={canDelete ? setDeleting : undefined}
         />
       </Box>
 

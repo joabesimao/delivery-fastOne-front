@@ -12,7 +12,7 @@ interface NeighborhoodTableProps {
   error: string | null;
   busyNeighborhoodId: number | null;
   onEdit: (neighborhood: Neighborhood) => void;
-  onDelete: (neighborhood: Neighborhood) => void;
+  onDelete?: (neighborhood: Neighborhood) => void;
 }
 
 const NeighborhoodTable = ({
@@ -42,7 +42,7 @@ const NeighborhoodTable = ({
         <RowActions
           disabled={busyNeighborhoodId === n.id}
           onEdit={() => onEdit(n)}
-          onDelete={() => onDelete(n)}
+          onDelete={onDelete && (() => onDelete(n))}
         />
       ),
     },

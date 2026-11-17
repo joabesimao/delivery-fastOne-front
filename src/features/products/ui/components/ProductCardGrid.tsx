@@ -19,7 +19,7 @@ interface ProductListViewProps {
   products: Product[];
   busyId: number | null;
   onEdit: (product: Product) => void;
-  onDelete: (product: Product) => void;
+  onDelete?: (product: Product) => void;
 }
 
 const ProductCard = ({
@@ -31,7 +31,7 @@ const ProductCard = ({
   product: Product;
   busy: boolean;
   onEdit: () => void;
-  onDelete: () => void;
+  onDelete?: () => void;
 }) => {
   const { color, icon: Icon } = categoryStyleOf(product.category);
   const imageSrc = toProductImageSrc(
@@ -145,7 +145,7 @@ const ProductCardGrid = ({
           product={product}
           busy={busyId === product.id}
           onEdit={() => onEdit(product)}
-          onDelete={() => onDelete(product)}
+          onDelete={onDelete && (() => onDelete(product))}
         />
       </Grid>
     ))}

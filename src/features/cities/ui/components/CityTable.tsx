@@ -12,7 +12,7 @@ interface CityTableProps {
   error: string | null;
   busyCityId: number | null;
   onEdit: (city: City) => void;
-  onDelete: (city: City) => void;
+  onDelete?: (city: City) => void;
 }
 
 const CityTable = ({
@@ -41,7 +41,7 @@ const CityTable = ({
         <RowActions
           disabled={busyCityId === c.id}
           onEdit={() => onEdit(c)}
-          onDelete={() => onDelete(c)}
+          onDelete={onDelete && (() => onDelete(c))}
         />
       ),
     },
