@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { DELIVERIES_SCOPE } from "@/shared/lib/query/queryScopes";
 import type { CreateDeliveryInput } from "../domain/deliveryOrder";
 import {
   RANKING_EXPORT_PAGE_SIZE,
@@ -10,7 +11,7 @@ import type { FinishDeliveryInput } from "../domain/finishDelivery";
 import { deliveriesRepository } from "../data/deliveriesRepository";
 
 export const deliveryKeys = {
-  all: ["deliveries"] as const,
+  all: [DELIVERIES_SCOPE] as const,
   list: () => [...deliveryKeys.all, "list"] as const,
   ranking: (query: RankingQuery) =>
     [...deliveryKeys.all, "ranking", query] as const,

@@ -9,9 +9,14 @@ interface PendingMutation<TVariables> {
   variables?: TVariables;
 }
 
+interface CrudQueriesOptions {
+  dependentScopes?: readonly string[];
+}
+
 export const createCrudQueries = <TEntity, TInput>(
   scope: string,
   repository: CrudRepository<TEntity, TInput>,
+  { dependentScopes = [] }: CrudQueriesOptions = {},
 ) => {
   const keys = {
     all: [scope] as const,
@@ -23,7 +28,12 @@ export const createCrudQueries = <TEntity, TInput>(
 
   const useInvalidate = () => {
     const queryClient = useQueryClient();
-    return () => queryClient.invalidateQueries({ queryKey: keys.all });
+    return () =>
+      Promise.all(
+        [scope, ...dependentScopes].map((s) =>
+          queryClient.invalidateQueries({ queryKey: [s] }),
+        ),
+      );
   };
 
   const useList = (filters?: QueryFilters) =>

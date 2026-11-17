@@ -106,6 +106,22 @@ describe("createCrudQueries", () => {
       expect(invalidate).toHaveBeenCalledWith({ queryKey: keys.all });
     });
 
+    it("invalida também os escopos dependentes", async () => {
+      const repository = makeRepository();
+      const { useUpdate, keys } = createCrudQueries("items", repository, {
+        dependentScopes: ["orders"],
+      });
+      const { result, queryClient } = renderHookWithQueryClient(() =>
+        useUpdate(),
+      );
+      const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+      await act(() =>
+        result.current.mutateAsync({ id: 7, input: { name: "C" } }),
+      );
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: keys.all });
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: ["orders"] });
+    });
+
     it("não invalida quando a mutação falha", async () => {
       const repository = makeRepository();
       vi.mocked(repository.create).mockRejectedValue(new Error("falhou"));
