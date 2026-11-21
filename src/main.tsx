@@ -3,6 +3,9 @@ import { RouterProvider } from "react-router-dom";
 import "./index.css";
 import AppProviders from "./app/providers/AppProviders";
 import { router } from "./app/router/router";
+import { endDeliverymanWebSession } from "./features/auth";
+
+endDeliverymanWebSession();
 
 createRoot(document.getElementById("root")!).render(
   <AppProviders>
