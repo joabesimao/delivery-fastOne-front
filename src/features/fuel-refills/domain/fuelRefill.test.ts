@@ -154,7 +154,7 @@ describe("validateFuelRefillForm", () => {
 });
 
 describe("toFuelRefillInput", () => {
-  it("converte strings em números e data simples em ISO UTC", () => {
+  it("converte strings em números e mantém a data civil", () => {
     expect(toFuelRefillInput(form())).toEqual({
       vehicleId: 2,
       deliverymanId: 3,
@@ -162,7 +162,7 @@ describe("toFuelRefillInput", () => {
       liters: 40,
       pricePerLiter: 5.5,
       totalValue: 220,
-      refillDate: "2025-03-10T00:00:00.000Z",
+      refillDate: "2025-03-10",
     });
   });
 });

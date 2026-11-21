@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  dateOnlyToIso,
+  formatDateOnly,
   formatUtcDate,
   isoToDateOnly,
+  shiftDateOnly,
   todayIsoDate,
 } from "./dateOnly";
 
@@ -37,12 +38,19 @@ describe("dateOnly", () => {
     expect(isoToDateOnly("2025-03-10")).toBe("2025-03-10");
   });
 
-  it("dateOnlyToIso converte para meia-noite UTC", () => {
-    expect(dateOnlyToIso("2025-03-10")).toBe("2025-03-10T00:00:00.000Z");
+  it("todayIsoDate usa o dia de São Paulo, não o UTC", () => {
+    expect(todayIsoDate(new Date("2025-06-16T02:30:00Z"))).toBe("2025-06-15");
   });
 
-  it("dateOnlyToIso e isoToDateOnly são inversas", () => {
-    expect(isoToDateOnly(dateOnlyToIso("2024-12-31"))).toBe("2024-12-31");
+  it("shiftDateOnly anda dias atravessando mês e ano", () => {
+    expect(shiftDateOnly("2025-03-01", -1)).toBe("2025-02-28");
+    expect(shiftDateOnly("2024-12-31", 1)).toBe("2025-01-01");
+    expect(shiftDateOnly("2025-03-15", -29)).toBe("2025-02-14");
+  });
+
+  it("formatDateOnly formata a data civil sem fuso", () => {
+    expect(formatDateOnly("2024-05-10")).toBe("10/05/2024");
+    expect(formatDateOnly("2024-05-10T00:00:00.000Z")).toBe("10/05/2024");
   });
 
   describe("formatUtcDate", () => {

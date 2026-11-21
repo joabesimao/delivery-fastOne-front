@@ -3,7 +3,6 @@ import {
   PERIOD_OPTIONS,
   rangeForPeriod,
   todayInputRange,
-  toInputDate,
 } from "./dashboardPeriod";
 
 const NOW = new Date("2025-03-15T15:00:00.000Z");
@@ -12,18 +11,6 @@ const emptyCustom = { start: "", end: "" };
 describe("dashboardPeriod", () => {
   afterEach(() => {
     vi.useRealTimers();
-  });
-
-  describe("toInputDate", () => {
-    it("formata a data local com zero à esquerda", () => {
-      expect(toInputDate(new Date(2025, 0, 5, 10))).toBe("2025-01-05");
-    });
-
-    it("usa o fuso local, não UTC", () => {
-      expect(toInputDate(new Date("2025-03-16T01:30:00.000Z"))).toBe(
-        "2025-03-15",
-      );
-    });
   });
 
   describe("todayInputRange", () => {
@@ -39,28 +26,38 @@ describe("dashboardPeriod", () => {
   });
 
   describe("rangeForPeriod", () => {
-    it("today cobre de 00:00 a 23:59:59.999 do dia", () => {
+    it("usa o dia de São Paulo mesmo depois da meia-noite UTC", () => {
+      expect(
+        rangeForPeriod(
+          "today",
+          emptyCustom,
+          new Date("2025-03-16T01:00:00.000Z"),
+        ),
+      ).toEqual({ startDate: "2025-03-15", endDate: "2025-03-15" });
+    });
+
+    it("today envia o dia atual como início e fim", () => {
       expect(rangeForPeriod("today", emptyCustom, NOW)).toEqual({
-        startDate: "2025-03-15T03:00:00.000Z",
-        endDate: "2025-03-16T02:59:59.999Z",
+        startDate: "2025-03-15",
+        endDate: "2025-03-15",
       });
     });
 
     it("7days inclui hoje e os 6 dias anteriores", () => {
       expect(rangeForPeriod("7days", emptyCustom, NOW)).toEqual({
-        startDate: "2025-03-09T03:00:00.000Z",
-        endDate: "2025-03-16T02:59:59.999Z",
+        startDate: "2025-03-09",
+        endDate: "2025-03-15",
       });
     });
 
     it("30days inclui hoje e os 29 dias anteriores", () => {
       expect(rangeForPeriod("30days", emptyCustom, NOW)).toEqual({
-        startDate: "2025-02-14T03:00:00.000Z",
-        endDate: "2025-03-16T02:59:59.999Z",
+        startDate: "2025-02-14",
+        endDate: "2025-03-15",
       });
     });
 
-    it("custom usa o intervalo informado em horário local", () => {
+    it("custom envia o intervalo informado", () => {
       expect(
         rangeForPeriod(
           "custom",
@@ -68,15 +65,15 @@ describe("dashboardPeriod", () => {
           NOW,
         ),
       ).toEqual({
-        startDate: "2025-03-01T03:00:00.000Z",
-        endDate: "2025-03-11T02:59:59.999Z",
+        startDate: "2025-03-01",
+        endDate: "2025-03-10",
       });
     });
 
     it("custom vazio cai para o dia atual", () => {
       expect(rangeForPeriod("custom", emptyCustom, NOW)).toEqual({
-        startDate: "2025-03-15T03:00:00.000Z",
-        endDate: "2025-03-16T02:59:59.999Z",
+        startDate: "2025-03-15",
+        endDate: "2025-03-15",
       });
     });
 
@@ -84,8 +81,8 @@ describe("dashboardPeriod", () => {
       expect(
         rangeForPeriod("custom", { start: "2025-03-10", end: "" }, NOW),
       ).toEqual({
-        startDate: "2025-03-10T03:00:00.000Z",
-        endDate: "2025-03-16T02:59:59.999Z",
+        startDate: "2025-03-10",
+        endDate: "2025-03-15",
       });
     });
 
@@ -93,9 +90,7 @@ describe("dashboardPeriod", () => {
       vi.useFakeTimers();
       vi.setSystemTime(NOW);
 
-      expect(rangeForPeriod("today", emptyCustom).startDate).toBe(
-        "2025-03-15T03:00:00.000Z",
-      );
+      expect(rangeForPeriod("today", emptyCustom).startDate).toBe("2025-03-15");
     });
   });
 

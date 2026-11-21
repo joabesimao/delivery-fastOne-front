@@ -76,7 +76,7 @@ describe("formatMessageTime", () => {
 });
 
 describe("groupMessagesByDate", () => {
-  it("agrupa por dia local preservando a ordem", () => {
+  it("agrupa pelo dia de São Paulo preservando a ordem", () => {
     const a = msg(1, new Date(2024, 4, 9, 10, 0).toISOString());
     const b = msg(2, new Date(2024, 4, 9, 23, 0).toISOString());
     const c = msg(3, new Date(2024, 4, 10, 0, 30).toISOString());
@@ -84,8 +84,8 @@ describe("groupMessagesByDate", () => {
     const groups = groupMessagesByDate([a, b, c]);
 
     expect(groups).toEqual([
-      { date: "09/05/2024", messages: [a, b] },
-      { date: "10/05/2024", messages: [c] },
+      { date: "2024-05-09", messages: [a, b] },
+      { date: "2024-05-10", messages: [c] },
     ]);
   });
 
@@ -98,19 +98,19 @@ describe("formatDateHeader", () => {
   const now = new Date(2024, 4, 10, 12, 0);
 
   it("retorna Hoje, Ontem ou a própria data", () => {
-    expect(formatDateHeader("10/05/2024", now)).toBe("Hoje");
-    expect(formatDateHeader("09/05/2024", now)).toBe("Ontem");
-    expect(formatDateHeader("08/05/2024", now)).toBe("08/05/2024");
+    expect(formatDateHeader("2024-05-10", now)).toBe("Hoje");
+    expect(formatDateHeader("2024-05-09", now)).toBe("Ontem");
+    expect(formatDateHeader("2024-05-08", now)).toBe("08/05/2024");
   });
 
   it("Ontem funciona na virada de mês", () => {
-    expect(formatDateHeader("30/04/2024", new Date(2024, 4, 1))).toBe("Ontem");
+    expect(formatDateHeader("2024-04-30", new Date(2024, 4, 1))).toBe("Ontem");
   });
 
   it("usa a data atual do sistema por padrão", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2024, 4, 10, 12, 0));
-    expect(formatDateHeader("10/05/2024")).toBe("Hoje");
+    expect(formatDateHeader("2024-05-10")).toBe("Hoje");
   });
 });
 

@@ -1,9 +1,5 @@
 import type { FleetRecord } from "@/features/fleet";
-import {
-  dateOnlyToIso,
-  isoToDateOnly,
-  todayIsoDate,
-} from "@/shared/lib/date/dateOnly";
+import { isoToDateOnly, todayIsoDate } from "@/shared/lib/date/dateOnly";
 
 export interface FuelRefill extends FleetRecord {
   id: number;
@@ -106,5 +102,5 @@ export const toFuelRefillInput = (
   liters: Number(values.liters),
   pricePerLiter: Number(values.pricePerLiter),
   totalValue: Number(values.totalValue),
-  refillDate: dateOnlyToIso(values.refillDate),
+  refillDate: values.refillDate,
 });

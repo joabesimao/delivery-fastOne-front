@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Box, Chip, Grid, Typography } from "@mui/material";
 import { phoneMask } from "@/shared/lib/masks";
+import { formatDateTime } from "@/shared/lib/date/formatDate";
 import { deliveryStreetLine, type Delivery } from "../../domain/delivery";
 import FinishStatusChip from "./FinishStatusChip";
 
@@ -71,13 +72,7 @@ const DeliverySummaryCards = ({ delivery }: { delivery: Delivery }) => {
         />
         <FinishStatusChip status={delivery.status} />
         <Typography variant="caption" color="text.secondary">
-          {new Date(delivery.createdAt).toLocaleDateString("pt-BR", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          {formatDateTime(delivery.createdAt)}
         </Typography>
       </Box>
 

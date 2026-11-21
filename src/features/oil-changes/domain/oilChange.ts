@@ -1,9 +1,5 @@
 import type { FleetRecord } from "@/features/fleet";
-import {
-  dateOnlyToIso,
-  isoToDateOnly,
-  todayIsoDate,
-} from "@/shared/lib/date/dateOnly";
+import { isoToDateOnly, todayIsoDate } from "@/shared/lib/date/dateOnly";
 
 export interface OilChange extends FleetRecord {
   id: number;
@@ -63,7 +59,7 @@ export const toOilChangeInput = (
   vehicleId: Number(values.vehicleId),
   deliverymanId: Number(values.deliverymanId),
   km: Number(values.km),
-  changeDate: dateOnlyToIso(values.changeDate),
+  changeDate: values.changeDate,
 });
 
 export const oilChangeInterval = (oilChange: OilChange): number =>
