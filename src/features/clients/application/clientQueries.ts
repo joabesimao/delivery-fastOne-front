@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { DELIVERIES_SCOPE } from "@/shared/lib/query/queryScopes";
 import type { ClientUpdateInput } from "../domain/client";
 import type { ClientRegistrationInput } from "../domain/clientRegistration";
 import { clientsListRepository } from "../data/clientsListRepository";
@@ -10,9 +11,14 @@ export const clientKeys = {
   registers: () => [...clientKeys.all, "registers"] as const,
 };
 
-const useInvalidateClients = () => {
+const useInvalidateClients = (dependentScopes: readonly string[] = []) => {
   const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ queryKey: clientKeys.all });
+  return () =>
+    Promise.all(
+      [clientKeys.all, ...dependentScopes.map((scope) => [scope])].map(
+        (queryKey) => queryClient.invalidateQueries({ queryKey }),
+      ),
+    );
 };
 
 export const useClients = () =>
@@ -37,7 +43,7 @@ export const useRegisterClient = () => {
 };
 
 export const useUpdateClient = () => {
-  const invalidate = useInvalidateClients();
+  const invalidate = useInvalidateClients([DELIVERIES_SCOPE]);
   return useMutation({
     mutationFn: ({
       registerId,
