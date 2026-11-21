@@ -99,5 +99,5 @@ export const loginErrorMessage = (error: unknown): string => {
   return MESSAGES_BY_STATUS[status] ?? LOGIN_MESSAGES.rejected;
 };
 
-export const isDeliveryman = (role?: string): boolean =>
+export const isDeliveryman = (role?: string | null): boolean =>
   role === DELIVERYMAN_ROLE;
