@@ -1,5 +1,6 @@
 import { act, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { DELIVERIES_SCOPE } from "@/shared/lib/query/queryScopes";
 import { renderHookWithQueryClient } from "@/test/renderWithQueryClient";
 import { clientsListRepository } from "../data/clientsListRepository";
 import { clientsRepository } from "../data/clientsRepository";
@@ -82,6 +83,19 @@ describe("mutações de clientes", () => {
     );
     expect(clientsListRepository.update).toHaveBeenCalledWith(2, input);
     expect(invalidate).toHaveBeenCalledWith({ queryKey: clientKeys.all });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: [DELIVERIES_SCOPE] });
+  });
+
+  it("useSetClientActive não invalida os pedidos", async () => {
+    vi.mocked(clientsListRepository.setActive).mockResolvedValue(
+      undefined as never,
+    );
+    const { result, queryClient } = renderHookWithQueryClient(() =>
+      useSetClientActive(),
+    );
+    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    await act(() => result.current.mutateAsync({ id: 5, active: true }));
+    expect(invalidate).toHaveBeenCalledTimes(1);
   });
 
   it("useUpdateClient invalida também quando a atualização falha", async () => {
