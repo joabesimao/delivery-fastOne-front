@@ -16,6 +16,7 @@ import SurfacePanel from "@/shared/ui/data-table/SurfacePanel";
 import SurfaceTable from "@/shared/ui/data-table/SurfaceTable";
 import { formatCurrency } from "@/shared/lib/format/currency";
 import { phoneMask } from "@/shared/lib/masks";
+import { formatDate } from "@/shared/lib/date/formatDate";
 import {
   useSurfaceColors,
   useSurfaceInputSx,
@@ -49,13 +50,6 @@ interface FinishableDeliveriesPanelProps {
   onFiltersChange: (changes: Partial<FinishableDeliveryFilters>) => void;
   onSelect: (delivery: Delivery) => void;
 }
-
-const formatDate = (value: string) =>
-  new Date(value).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
 
 const FinishableDeliveriesPanel = ({
   deliveries,

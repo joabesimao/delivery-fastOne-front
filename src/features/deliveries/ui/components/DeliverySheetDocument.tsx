@@ -1,6 +1,7 @@
 import type { Ref } from "react";
 import { Box, Grid, Typography } from "@mui/material";
 import { formatCurrency } from "@/shared/lib/format/currency";
+import { formatDateTime } from "@/shared/lib/date/formatDate";
 import type {
   DeliverySheet,
   DeliverySheetFormat,
@@ -89,7 +90,7 @@ const DeliverySheetDocument = ({
             FOLHA DE ENTREGA
           </Typography>
           <Typography sx={{ fontSize: 11, color: "#444" }}>
-            Emitido em {new Date(sheet.createdAt).toLocaleString("pt-BR")}
+            Emitido em {formatDateTime(sheet.createdAt)}
           </Typography>
         </Box>
       </Box>

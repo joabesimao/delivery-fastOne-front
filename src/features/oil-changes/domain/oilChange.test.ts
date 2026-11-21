@@ -88,12 +88,12 @@ describe("oilChange", () => {
   });
 
   describe("toOilChangeInput", () => {
-    it("converte para números e data ISO", () => {
+    it("converte para números e mantém a data civil", () => {
       expect(toOilChangeInput(form())).toEqual({
         vehicleId: 2,
         deliverymanId: 3,
         km: 10000,
-        changeDate: "2025-03-10T00:00:00.000Z",
+        changeDate: "2025-03-10",
       });
     });
   });

@@ -4,6 +4,7 @@ import { Alert, Grid, Stack } from "@mui/material";
 import { useDeliveries } from "@/features/deliveries";
 import { ROUTES } from "@/shared/config/routes";
 import { useResettablePage } from "@/shared/lib/hooks/useResettablePage";
+import { formatLongDate } from "@/shared/lib/date/formatDate";
 import useRealtimeConnection from "@/shared/realtime/useRealtimeConnection";
 import { session } from "@/shared/session/session";
 import {
@@ -28,13 +29,6 @@ import DeliveryPerformanceCard from "./DeliveryPerformanceCard";
 import LiveDeliveriesCard from "./LiveDeliveriesCard";
 import TopDeliverymenCard from "./TopDeliverymenCard";
 
-const TODAY_FORMATTER = new Intl.DateTimeFormat("pt-BR", {
-  weekday: "long",
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-});
-
 const DashboardOverview = () => {
   const navigate = useNavigate();
   const connected = useRealtimeConnection();
@@ -45,7 +39,7 @@ const DashboardOverview = () => {
     useState<DateInputRange>(todayInputRange);
   const [status, setStatus] = useState<DeliveryStatusFilter>("all");
   const [page, setPage] = useResettablePage(status, 1);
-  const [todayLabel] = useState(() => TODAY_FORMATTER.format(new Date()));
+  const [todayLabel] = useState(() => formatLongDate(new Date()));
 
   const range = useMemo(
     () => rangeForPeriod(period, customRange),

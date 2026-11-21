@@ -1,3 +1,9 @@
+import { formatDateOnly, shiftDateOnly } from "@/shared/lib/date/dateOnly";
+import {
+  businessDayKey,
+  formatDayTime,
+  formatTime,
+} from "@/shared/lib/date/formatDate";
 import type {
   RealtimeChatMessage,
   RealtimeSessionReady,
@@ -38,50 +44,30 @@ export const toChatImageSrc = (
 ): string | null =>
   base64 ? `data:${mimeType || "image/jpeg"};base64,${base64}` : null;
 
-const isSameDay = (a: Date, b: Date) =>
-  a.getDate() === b.getDate() &&
-  a.getMonth() === b.getMonth() &&
-  a.getFullYear() === b.getFullYear();
-
-const DAY_TIME: Intl.DateTimeFormatOptions = {
-  day: "2-digit",
-  month: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-};
-
-export const formatMessageTime = (
-  isoDate: string,
-  now = new Date(),
-): string => {
-  const date = new Date(isoDate);
-  return isSameDay(date, now)
-    ? date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
-    : date.toLocaleString("pt-BR", DAY_TIME);
-};
+export const formatMessageTime = (isoDate: string, now = new Date()): string =>
+  businessDayKey(isoDate) === businessDayKey(now)
+    ? formatTime(isoDate)
+    : formatDayTime(isoDate);
 
 export const formatMessageDayTime = (isoDate: string): string =>
-  new Date(isoDate).toLocaleString("pt-BR", DAY_TIME);
+  formatDayTime(isoDate);
 
 export const groupMessagesByDate = (
   messages: ChatMessage[],
 ): { date: string; messages: ChatMessage[] }[] => {
   const grouped = new Map<string, ChatMessage[]>();
   messages.forEach((message) => {
-    const key = new Date(message.createdAt).toLocaleDateString("pt-BR");
+    const key = businessDayKey(message.createdAt);
     grouped.set(key, [...(grouped.get(key) ?? []), message]);
   });
   return Array.from(grouped, ([date, items]) => ({ date, messages: items }));
 };
 
 export const formatDateHeader = (dateKey: string, now = new Date()): string => {
-  const [day, month, year] = dateKey.split("/").map((part) => parseInt(part));
-  const date = new Date(year, month - 1, day);
-  const yesterday = new Date(now);
-  yesterday.setDate(yesterday.getDate() - 1);
-  if (date.toDateString() === now.toDateString()) return "Hoje";
-  if (date.toDateString() === yesterday.toDateString()) return "Ontem";
-  return dateKey;
+  const today = businessDayKey(now);
+  if (dateKey === today) return "Hoje";
+  if (dateKey === shiftDateOnly(today, -1)) return "Ontem";
+  return formatDateOnly(dateKey);
 };
 
 export const applyTypingEvent = (

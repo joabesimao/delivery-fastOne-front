@@ -1,104 +1,86 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/pt-br";
-import { format } from "date-fns";
 
 dayjs.extend(relativeTime);
 
-export const formatDate = (
-  date?: string | Date | null,
-  pattern: string = "DD/MM/YYYY",
-): string => {
-  if (!date) return "";
-  const d = dayjs(date);
-  return d.isValid() ? d.format(pattern) : "";
-};
+export const BUSINESS_TIME_ZONE = "America/Sao_Paulo";
 
-export const formatDateLocal = (
-  date?: string | Date | null,
-  pattern: string = "DD/MM/YYYY",
-): string => {
-  if (!date) return "";
-  const dateStr = typeof date === "string" ? date : date.toISOString();
-  const d = dayjs(dateStr.replace("Z", ""));
-  return d.isValid() ? d.format(pattern) : "";
-};
+type DateValue = string | Date | null | undefined;
 
-const isValidLocalDate = (
-  date: Date,
-  year: number,
-  month: number,
-  day: number,
-): boolean =>
-  !isNaN(date.getTime()) &&
-  date.getFullYear() === year &&
-  date.getMonth() === month - 1 &&
-  date.getDate() === day;
+const businessFormatter = (options: Intl.DateTimeFormatOptions) =>
+  new Intl.DateTimeFormat("pt-BR", {
+    timeZone: BUSINESS_TIME_ZONE,
+    ...options,
+  });
 
-export const formatDateWithoutTimezone = (
-  value?: string | Date | null,
-  pattern: string = "dd/MM/yyyy",
-): string => {
-  if (!value) return "";
+const DATE = businessFormatter({
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
 
-  if (value instanceof Date) {
-    return isNaN(value.getTime()) ? "" : format(value, pattern);
-  }
+const DATE_TIME = businessFormatter({
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
 
-  if (typeof value !== "string") return "";
+const DAY_TIME = businessFormatter({
+  day: "2-digit",
+  month: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+});
 
-  const dateStr = value.includes("T") ? value.split("T")[0] : value;
-  const [year, month, day] = dateStr.split("-").map(Number);
+const TIME = businessFormatter({ hour: "2-digit", minute: "2-digit" });
 
-  const date = new Date(year, month - 1, day);
+const LONG_DATE = businessFormatter({
+  weekday: "long",
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+});
 
-  return isValidLocalDate(date, year, month, day) ? format(date, pattern) : "";
-};
+const DAY_KEY = new Intl.DateTimeFormat("en-US", {
+  timeZone: BUSINESS_TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
 
-export const parseDateOnlyLocal = (
-  value?: string | Date | null,
-): Date | null => {
+const toValidDate = (value: DateValue): Date | null => {
   if (!value) return null;
-  if (value instanceof Date) {
-    return isNaN(value.getTime()) ? null : value;
-  }
-  if (typeof value !== "string") return null;
-
-  const dateStr = value.includes("T") ? value.split("T")[0] : value;
-  const [year, month, day] = dateStr.split("-").map(Number);
-  if ([year, month, day].some((part) => !Number.isFinite(part))) return null;
-
-  const date = new Date(year, month - 1, day, 0, 0, 0, 0);
-  return isValidLocalDate(date, year, month, day) ? date : null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
 };
 
-export const formatDateOnlyLocal = (value?: string | Date | null): string => {
-  const date = parseDateOnlyLocal(value);
+const formatWith =
+  (formatter: Intl.DateTimeFormat, fallback: string) =>
+  (value: DateValue): string => {
+    const date = toValidDate(value);
+    return date ? formatter.format(date) : fallback;
+  };
+
+export const formatDate = formatWith(DATE, "-");
+export const formatDateTime = formatWith(DATE_TIME, "-");
+export const formatDayTime = formatWith(DAY_TIME, "-");
+export const formatTime = formatWith(TIME, "-");
+export const formatLongDate = formatWith(LONG_DATE, "");
+
+export const businessDayKey = (value: DateValue): string => {
+  const date = toValidDate(value);
   if (!date) return "";
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
+  const parts = Object.fromEntries(
+    DAY_KEY.formatToParts(date).map(({ type, value: part }) => [type, part]),
+  );
+  return `${parts.year}-${parts.month}-${parts.day}`;
 };
 
-// "há 5 minutos", "há 2 dias"...
 export const formatRelative = (date?: string | Date | null): string => {
   if (!date) return "";
   const d = dayjs(date);
   return d.isValid() ? d.locale("pt-br").fromNow() : "";
-};
-
-export const formatDateTime = (value?: string | null): string => {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "-";
-  return date.toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 };
