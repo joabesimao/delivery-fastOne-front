@@ -9,89 +9,61 @@ import LocationsLayout from "../layout/LocationsLayout";
 import ProtectedLayout from "../layout/ProtectedLayout";
 import { PublicOnlyRoute, RequireAuth, RequireRole } from "./guards";
 
-const LoginPage = lazy(() =>
-  import("@/features/auth").then((m) => ({ default: m.LoginPage })),
+const LoginPage = lazy(() => import("@/features/auth/ui/pages/LoginPage"));
+const DashboardPage = lazy(
+  () => import("@/features/dashboard/ui/pages/DashboardPage"),
 );
-const DashboardPage = lazy(() =>
-  import("@/features/dashboard").then((m) => ({ default: m.DashboardPage })),
+const ClientsPage = lazy(
+  () => import("@/features/clients/ui/pages/ClientsPage"),
 );
-const ClientsPage = lazy(() =>
-  import("@/features/clients").then((m) => ({ default: m.ClientsPage })),
+const UsersPage = lazy(() => import("@/features/users/ui/pages/UsersPage"));
+const DeliveriesPage = lazy(
+  () => import("@/features/deliveries/ui/pages/DeliveriesPage"),
 );
-const UsersPage = lazy(() =>
-  import("@/features/users").then((m) => ({ default: m.UsersPage })),
+const FinishDeliveryPage = lazy(
+  () => import("@/features/deliveries/ui/pages/FinishDeliveryPage"),
 );
-const DeliveriesPage = lazy(() =>
-  import("@/features/deliveries").then((m) => ({ default: m.DeliveriesPage })),
+const DeliveryReportsPage = lazy(
+  () => import("@/features/deliveries/ui/pages/DeliveryReportsPage"),
 );
-const FinishDeliveryPage = lazy(() =>
-  import("@/features/deliveries").then((m) => ({
-    default: m.FinishDeliveryPage,
-  })),
+const DeliverymanRankingPage = lazy(
+  () => import("@/features/deliveries/ui/pages/DeliverymanRankingPage"),
 );
-const DeliveryReportsPage = lazy(() =>
-  import("@/features/deliveries").then((m) => ({
-    default: m.DeliveryReportsPage,
-  })),
+const DeliverymenPage = lazy(
+  () => import("@/features/deliverymen/ui/pages/DeliverymenPage"),
 );
-const DeliverymanRankingPage = lazy(() =>
-  import("@/features/deliveries").then((m) => ({
-    default: m.DeliverymanRankingPage,
-  })),
+const RegisterClientPage = lazy(
+  () => import("@/features/clients/ui/pages/RegisterClientPage"),
 );
-const DeliverymenPage = lazy(() =>
-  import("@/features/deliverymen").then((m) => ({
-    default: m.DeliverymenPage,
-  })),
+const RegisterDeliverymanPage = lazy(
+  () => import("@/features/deliverymen/ui/pages/RegisterDeliverymanPage"),
 );
-const RegisterClientPage = lazy(() =>
-  import("@/features/clients").then((m) => ({ default: m.RegisterClientPage })),
+const NeighborhoodsPage = lazy(
+  () => import("@/features/neighborhoods/ui/pages/NeighborhoodsPage"),
 );
-const RegisterDeliverymanPage = lazy(() =>
-  import("@/features/deliverymen").then((m) => ({
-    default: m.RegisterDeliverymanPage,
-  })),
+const CitiesPage = lazy(() => import("@/features/cities/ui/pages/CitiesPage"));
+const VehiclesPage = lazy(
+  () => import("@/features/vehicles/ui/pages/VehiclesPage"),
 );
-const NeighborhoodsPage = lazy(() =>
-  import("@/features/neighborhoods").then((m) => ({
-    default: m.NeighborhoodsPage,
-  })),
+const RegisterOilChangePage = lazy(
+  () => import("@/features/oil-changes/ui/pages/RegisterOilChangePage"),
 );
-const CitiesPage = lazy(() =>
-  import("@/features/cities").then((m) => ({ default: m.CitiesPage })),
+const RegisterFuelRefillPage = lazy(
+  () => import("@/features/fuel-refills/ui/pages/RegisterFuelRefillPage"),
 );
-const VehiclesPage = lazy(() =>
-  import("@/features/vehicles").then((m) => ({ default: m.VehiclesPage })),
+const OilChangesPage = lazy(
+  () => import("@/features/oil-changes/ui/pages/OilChangesPage"),
 );
-const RegisterOilChangePage = lazy(() =>
-  import("@/features/oil-changes").then((m) => ({
-    default: m.RegisterOilChangePage,
-  })),
+const FuelRefillsPage = lazy(
+  () => import("@/features/fuel-refills/ui/pages/FuelRefillsPage"),
 );
-const RegisterFuelRefillPage = lazy(() =>
-  import("@/features/fuel-refills").then((m) => ({
-    default: m.RegisterFuelRefillPage,
-  })),
+const VisualSettingsPage = lazy(
+  () => import("@/features/settings/ui/pages/VisualSettingsPage"),
 );
-const OilChangesPage = lazy(() =>
-  import("@/features/oil-changes").then((m) => ({ default: m.OilChangesPage })),
+const FleetSettingsPage = lazy(
+  () => import("@/features/settings/ui/pages/FleetSettingsPage"),
 );
-const FuelRefillsPage = lazy(() =>
-  import("@/features/fuel-refills").then((m) => ({
-    default: m.FuelRefillsPage,
-  })),
-);
-const VisualSettingsPage = lazy(() =>
-  import("@/features/settings").then((m) => ({
-    default: m.VisualSettingsPage,
-  })),
-);
-const FleetSettingsPage = lazy(() =>
-  import("@/features/settings").then((m) => ({ default: m.FleetSettingsPage })),
-);
-const ChatPage = lazy(() =>
-  import("@/features/chat").then((m) => ({ default: m.ChatPage })),
-);
+const ChatPage = lazy(() => import("@/features/chat/ui/pages/ChatPage"));
 
 export const router = createBrowserRouter([
   {
